@@ -4,11 +4,10 @@ import { useState, useEffect, useRef } from "react";
 
 import { FaStar, FaHeart } from "react-icons/fa";
 import { GiSparkles } from "react-icons/gi";
-import { HiOutlineSparkles } from "react-icons/hi";
 
 // social icons 
 
-import { FaInstagram, FaLinkedin, FaFacebook, FaYoutube, FaTiktok } from "react-icons/fa";
+import { FaInstagram, FaLinkedin, FaFacebook, FaYoutube, FaTiktok, FaVideo, FaTwitter } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
@@ -25,6 +24,43 @@ import {
   Zap
 } from "lucide-react";
 import Stats from "../../components/HomeComponents/Stats";
+
+// steps icons 
+
+import { HiOutlineLightBulb } from "react-icons/hi2";
+import { HiOutlineSparkles } from "react-icons/hi2";
+import { HiOutlineDocumentText } from "react-icons/hi2";
+import { HiOutlineRocketLaunch } from "react-icons/hi2";
+
+// 
+
+import {
+  FiTrendingUp,
+  FiHash,
+  FiZap,
+  FiBarChart2,
+  FiTarget,
+  FiLayers
+} from "react-icons/fi";
+
+
+// live demo sections icons 
+
+import {
+  PenLine,
+  ShoppingBag,
+  Target,
+  Palette,
+  Instagram,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Music,
+  Sparkles,
+  CheckCircle
+} from "lucide-react"
+
+
 
 
 const CAPTIONS = {
@@ -55,19 +91,70 @@ const CAPTIONS = {
 };
 
 const FEATURES = [
-  { icon: "🧠", title: "AI-Powered Captions", desc: "GPT-grade copy tailored to your brand voice, audience & platform in seconds.", color: "from-fuchsia-500 to-pink-500" },
-  { icon: "🔥", title: "Trending Hashtags", desc: "Algorithmically sourced hashtags that maximize reach and discoverability.", color: "from-orange-400 to-rose-500" },
-  { icon: "📊", title: "Engagement Scoring", desc: "Every post gets a real-time AI engagement score before you publish.", color: "from-violet-500 to-purple-600" },
-  { icon: "🎯", title: "Audience Targeting", desc: "Captions crafted for your exact demographic — age, interest & behavior.", color: "from-pink-500 to-rose-600" },
-  { icon: "⚡", title: "Instant Generation", desc: "Generate 6 platform-ready posts simultaneously in under 3 seconds.", color: "from-amber-400 to-orange-500" },
-  { icon: "♻️", title: "Content Repurposing", desc: "Turn one idea into 6 platform-native posts automatically. One click.", color: "from-teal-400 to-cyan-500" },
+  {
+    icon: <FiHash />,
+    title: "Smart Hashtag Generator",
+    desc: "Generate viral hashtags instantly based on your niche and platform.",
+    color: "#f43f8e, #a855f7"
+  },
+  {
+    icon: <FiTrendingUp />,
+    title: "Trending Insights",
+    desc: "Discover trending hashtags and topics before they go viral.",
+    color: "#fb7185, #ec4899"
+  },
+  {
+    icon: <FiZap />,
+    title: "Instant Results",
+    desc: "Get optimized hashtags in seconds with AI-powered suggestions.",
+    color: "#f97316, #f43f5e"
+  },
+  {
+    icon: <FiBarChart2 />,
+    title: "Performance Analytics",
+    desc: "Analyze which hashtags are performing best for your posts.",
+    color: "#8b5cf6, #ec4899"
+  },
+  {
+    icon: <FiTarget />,
+    title: "Targeted Reach",
+    desc: "Reach the right audience with niche specific hashtag groups.",
+    color: "#6366f1, #a855f7"
+  },
+  {
+    icon: <FiLayers />,
+    title: "Multi Platform Support",
+    desc: "Optimized hashtags for Instagram, YouTube, TikTok, and more.",
+    color: "#f43f5e, #d946ef"
+  }
 ];
 
+// steps card for how its works 
 const STEPS = [
-  { num: "01", icon: "✍️", title: "Describe Your Product", desc: "Enter brand name, product, target audience & tone in seconds.", color: "from-pink-400 to-rose-500" },
-  { num: "02", icon: "🤖", title: "AI Generates Instantly", desc: "Engine crafts platform-specific captions, CTAs, emojis & hashtag stacks.", color: "from-violet-400 to-purple-500" },
-  { num: "03", icon: "🎯", title: "Pick & Customize", desc: "Choose your favourite variation, fine-tune tone, copy with one click.", color: "from-fuchsia-400 to-pink-500" },
-  { num: "04", icon: "🚀", title: "Publish & Grow", desc: "Schedule directly or export. Watch your engagement metrics skyrocket.", color: "from-orange-400 to-rose-500" },
+  {
+    num: "01",
+    icon: <HiOutlineLightBulb />,
+    title: "Share Your Idea",
+    desc: "Tell the AI what you want to post about. Just a simple topic or idea is enough."
+  },
+  {
+    num: "02",
+    icon: <HiOutlineSparkles />,
+    title: "AI Creates Content",
+    desc: "Our AI instantly generates engaging captions and post ideas optimized for reach."
+  },
+  {
+    num: "03",
+    icon: <HiOutlineDocumentText />,
+    title: "Customize & Refine",
+    desc: "Adjust tone, add hashtags, or tweak the content to perfectly match your style."
+  },
+  {
+    num: "04",
+    icon: <HiOutlineRocketLaunch />,
+    title: "Publish & Grow",
+    desc: "Share your post and watch your engagement grow with AI-optimized content."
+  }
 ];
 
 const TESTIMONIALS = [
@@ -79,40 +166,34 @@ const TESTIMONIALS = [
 const PLATFORMS = [
   {
     name: "Instagram",
-    icon: <FaInstagram />,
-    detail: "Carousel · Reels · Stories",
-    color: "from-pink-400 to-rose-500",
-  },
-  {
-    name: "LinkedIn",
-    icon: <FaLinkedin />,
-    detail: "Posts · Articles · Thought Leadership",
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    name: "Twitter / X",
-    icon: <FaXTwitter />,
-    detail: "Tweets · Threads · Spaces",
-    color: "from-sky-400 to-cyan-400",
-  },
-  {
-    name: "Facebook",
-    icon: <FaFacebook />,
-    detail: "Posts · Groups · Stories",
-    color: "from-indigo-500 to-blue-500",
-  },
-  {
-    name: "TikTok",
-    icon: <FaTiktok />,
-    detail: "Video Captions · Bio · Comments",
-    color: "from-purple-500 to-fuchsia-500",
+    icon: <FaInstagram size={40} />,
+    detail: "Reels • Posts • Stories"
   },
   {
     name: "YouTube",
-    icon: <FaYoutube />,
-    detail: "Titles · Descriptions · Tags",
-    color: "from-red-500 to-rose-500",
+    icon: <FaYoutube size={40} />,
+    detail: "Videos • Shorts"
   },
+  {
+    name: "TikTok",
+    icon: <FaVideo size={40} />,
+    detail: "Short Form Viral"
+  },
+  {
+    name: "Facebook",
+    icon: <FaFacebook size={40} />,
+    detail: "Pages • Groups"
+  },
+  {
+    name: "LinkedIn",
+    icon: <FaLinkedin size={40} />,
+    detail: "Professional Reach"
+  },
+  {
+    name: "Twitter / X",
+    icon: <FaTwitter size={40} />,
+    detail: "Trending Hashtags"
+  }
 ];
 
 function TypewriterText({ texts }) {
@@ -171,11 +252,6 @@ export default function Home() {
 
   const active = CAPTIONS[activeTab];
 
-  // useEffect(() => {
-  //   const onMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
-  //   window.addEventListener("mousemove", onMove);
-  //   return () => window.removeEventListener("mousemove", onMove);
-  // }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(active.text + "\n\n" + active.hashtags.join(" "));
@@ -217,6 +293,7 @@ export default function Home() {
   ];
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: "linear-gradient(135deg, #fff0f5 0%, #fce4ec 20%, #fdf2f8 40%, #fff0fb 60%, #fce8f5 80%, #fff5f7 100%)" }}>
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
         * { font-family: 'DM Sans', sans-serif; }
@@ -360,26 +437,6 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Platform pills */}
-        <div className="flex flex-wrap justify-center gap-2.5 mb-14 animate-fade-up relative z-10">
-          {PLATFORMS.map((p) => (
-            <div
-              key={p.name}
-              className="group flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold border-2 border-pink-200 bg-white/70 text-rose-600 backdrop-blur-sm cursor-default transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-transparent hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500 hover:text-white"
-            >
-              <span className="transition-transform duration-300 group-hover:scale-110">
-                {p.icon}
-              </span>
-
-              <span>{p.name}</span>
-
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white">
-                ✓
-              </span>
-            </div>
-          ))}
-        </div>
-
         <div className="relative w-full max-w-3xl">
 
           {/* glow */}
@@ -471,187 +528,452 @@ export default function Home() {
       <Stats />
 
       {/* ═══ HOW IT WORKS ═══ */}
-      <section id="how-it-works" className="relative py-24 px-4 z-10">
+      <section id="how-it-works" className="relative py-14 px-4 z-10">
+
         <div className="max-w-6xl mx-auto">
+
+          {/* Heading */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 glass-pink rounded-full px-5 py-2 mb-5 shadow-md shadow-pink-200/50">
-              <span className="text-xs font-black tracking-widest uppercase" style={{ color: "#be185d" }}>⚙️ How It Works</span>
+
+            <div className="inline-flex items-center gap-2 bg-pink-50 rounded-full px-5 py-2 mb-5 shadow-sm">
+              <span className="text-xs font-bold tracking-widest uppercase text-pink-600">
+                How It Works
+              </span>
             </div>
-            <h2 className="font-display font-black leading-tight mb-4" style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}>
+
+            <h2
+              className="font-black leading-tight mb-4"
+              style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
+            >
               <span className="text-rose-950">From Idea to </span>
-              <span className="gradient-text">Viral Post</span>
-              <br /><span className="text-rose-950">in 4 Simple Steps</span>
+              <span className="text-pink-600">Viral Post</span>
+              <br />
+              <span className="text-rose-950">in 4 Simple Steps</span>
             </h2>
-            <p className="text-rose-800/60 text-lg font-light max-w-lg mx-auto">No learning curve. No templates. Just pure AI magic.</p>
+
+            <p className="text-rose-800/70 text-lg max-w-lg mx-auto">
+              No complicated tools. No learning curve. Just simple AI-powered
+              content creation.
+            </p>
+
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Steps */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
             {STEPS.map((s, i) => (
               <div
                 key={s.num}
-                className="step-card relative glass rounded-3xl p-6 shadow-lg shadow-pink-100/60 cursor-default overflow-hidden group"
+                className="relative bg-white rounded-3xl p-7 shadow-md hover:shadow-xl 
+              transition-all duration-300 hover:-translate-y-2 cursor-default group cursor-pointer"
                 onMouseEnter={() => setHoveredStep(i)}
                 onMouseLeave={() => setHoveredStep(null)}
               >
-                <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} style={{ background: `linear-gradient(135deg, ${i === 0 ? "rgba(244,63,142,0.08)" : i === 1 ? "rgba(168,85,247,0.08)" : i === 2 ? "rgba(236,72,153,0.08)" : "rgba(249,115,22,0.08)"})` }} />
-                <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `linear-gradient(90deg, ${i === 0 ? "#f43f8e,#ec4899" : i === 1 ? "#a855f7,#7c3aed" : i === 2 ? "#ec4899,#f43f8e" : "#f97316,#ef4444"})` }} />
+
+                {/* Hover Gradient */}
+                <div
+                  className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(244,63,142,0.08), rgba(168,85,247,0.08))"
+                  }}
+                />
+
                 <div className="relative">
-                  <div className="font-display text-6xl font-black leading-none mb-3" style={{ color: "rgba(244,114,182,0.15)" }}>{s.num}</div>
-                  <div className="text-4xl mb-3 group-hover:scale-125 transition-transform duration-300">{s.icon}</div>
-                  <h3 className="font-black text-rose-900 text-base mb-2">{s.title}</h3>
-                  <p className="text-rose-800/60 text-sm leading-relaxed font-medium">{s.desc}</p>
+
+                  <div className="flex justify-between items-center">
+                    {/* Step Number */}
+                    <div className="text-6xl font-black text-pink-100 mb-4">
+                      {s.num}
+                    </div>
+
+                    {/* Icon */}
+                    <div
+                      className="w-14 h-14 flex items-center justify-center rounded-xl
+                        bg-gradient-to-br from-pink-500 to-purple-500 text-white
+                        text-2xl shadow-lg group-hover:scale-110
+                        transition-transform duration-300 mb-4"
+                    >
+                      {s.icon}
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-semibold text-lg text-rose-950 mb-2">
+                    {s.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-rose-800/70 text-sm leading-relaxed">
+                    {s.desc}
+                  </p>
+
                 </div>
-                {i < 3 && <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 text-pink-300 text-2xl z-20">→</div>}
+
               </div>
             ))}
+
           </div>
+
         </div>
+
       </section>
 
       {/* ═══ INTERACTIVE DEMO ═══ */}
-      <section id="features" className="relative py-24 px-4 z-10">
-        <div className="absolute inset-0 opacity-40" style={{ background: "linear-gradient(135deg, rgba(253,242,248,0.8), rgba(250,232,255,0.6))" }} />
+
+      <section id="features" className="relative py-14 px-4 z-10">
+
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(253,242,248,0.8), rgba(250,232,255,0.6))"
+          }}
+        />
+
         <div className="max-w-6xl mx-auto relative">
+
+          {/* Heading */}
           <div className="text-center mb-16">
+
             <div className="inline-flex items-center gap-2 glass-pink rounded-full px-5 py-2 mb-5 shadow-md shadow-pink-200/50">
-              <span className="text-xs font-black tracking-widest uppercase" style={{ color: "#be185d" }}>🎮 Try It Live</span>
+              <Sparkles size={14} />
+              <span className="text-xs font-black tracking-widest uppercase text-rose-700">
+                Try It Live
+              </span>
             </div>
-            <h2 className="font-display font-black leading-tight mb-4" style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}>
+
+            <h2
+              className="font-display font-black leading-tight mb-4"
+              style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
+            >
               <span className="text-rose-950">See the </span>
               <span className="gradient-text">AI Magic</span>
               <span className="text-rose-950"> Happen</span>
             </h2>
-            <p className="text-rose-800/60 text-lg font-light max-w-md mx-auto">Fill in your details and watch captions appear live.</p>
+
+            <p className="text-rose-800/60 text-lg font-light max-w-md mx-auto">
+              Fill in your details and watch captions appear live.
+            </p>
+
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8 items-start">
-            {/* Input */}
+
+            {/* INPUT PANEL */}
+
             <div className="glass rounded-3xl p-7 shadow-xl shadow-pink-200/40 border border-pink-200/50">
+
               <h3 className="font-black text-rose-900 text-lg mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl flex items-center justify-center text-sm" style={{ background: "linear-gradient(135deg, #f43f8e, #a855f7)" }}>✍️</span>
+
+                <span
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-white"
+                  style={{ background: "linear-gradient(135deg,#f43f8e,#a855f7)" }}
+                >
+                  <PenLine size={16} />
+                </span>
+
                 Campaign Details
+
               </h3>
+
               <div className="space-y-4">
+
                 {[
-                  { label: "Product / Brand Name", key: "product", placeholder: "e.g. Organic Green Tea", icon: "🛍️" },
-                  { label: "Target Audience", key: "audience", placeholder: "e.g. Fitness Enthusiasts", icon: "🎯" },
-                  { label: "Campaign Tone", key: "tone", placeholder: "e.g. Motivational & Fresh", icon: "🎨" },
+                  {
+                    label: "Product / Brand Name",
+                    key: "product",
+                    placeholder: "e.g. Organic Green Tea",
+                    icon: <ShoppingBag size={14} />
+                  },
+                  {
+                    label: "Target Audience",
+                    key: "audience",
+                    placeholder: "e.g. Fitness Enthusiasts",
+                    icon: <Target size={14} />
+                  },
+                  {
+                    label: "Campaign Tone",
+                    key: "tone",
+                    placeholder: "e.g. Motivational & Fresh",
+                    icon: <Palette size={14} />
+                  }
                 ].map(f => (
+
                   <div key={f.key}>
+
                     <label className="block text-xs font-black text-rose-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
+
                       {f.icon} {f.label}
+
                     </label>
+
                     <input
-                      className="input-field w-full rounded-2xl px-4 py-3 text-sm text-rose-900 font-semibold placeholder-rose-300"
+                      className="w-full rounded-xl border border-pink-200 bg-white/70 backdrop-blur-md px-4 py-3 text-sm font-semibold text-rose-900 placeholder-rose-300 focus:outline-none focus:ring-2 focus:ring-pink-400 transition"
                       value={demoInput[f.key]}
-                      onChange={e => setDemoInput({ ...demoInput, [f.key]: e.target.value })}
+                      onChange={e =>
+                        setDemoInput({ ...demoInput, [f.key]: e.target.value })
+                      }
                       placeholder={f.placeholder}
                     />
+
                   </div>
+
                 ))}
 
+                {/* Platforms */}
+
                 <div>
-                  <label className="block text-xs font-black text-rose-700 mb-2 uppercase tracking-widest">🌐 Select Platforms</label>
+
+                  <label className="block text-xs font-black text-rose-700 mb-2 uppercase tracking-widest">
+                    Select Platforms
+                  </label>
+
                   <div className="flex flex-wrap gap-2">
-                    {["Instagram 📸", "LinkedIn 💼", "Twitter 🐦", "TikTok 🎵", "Facebook 👥"].map((p, i) => (
+
+                    {[
+                      { name: "Instagram", icon: <FaInstagram size={14} /> },
+                      { name: "LinkedIn", icon: <FaLinkedin size={14} /> },
+                      { name: "Twitter", icon: <FaTwitter size={14} /> },
+                      { name: "TikTok", icon: <Music size={14} /> },
+                      { name: "Facebook", icon: <FaFacebook size={14} /> }
+                    ].map((p, i) => (
+
                       <button
-                        key={p}
-                        className={`text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${i < 3 ? "text-white border-transparent shadow-md" : "border-pink-200 text-rose-400 hover:bg-pink-50"}`}
-                        style={i < 3 ? { background: "linear-gradient(135deg, #f43f8e, #a855f7)" } : {}}
+                        key={p.name}
+                        className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full border transition-all
+                        ${i < 3
+                            ? "text-white border-transparent shadow-md"
+                            : "border-pink-200 text-rose-400 hover:bg-pink-50"
+                          }`}
+                        style={
+                          i < 3
+                            ? { background: "linear-gradient(135deg,#f43f8e,#a855f7)" }
+                            : {}
+                        }
                       >
-                        {i < 3 && "✓ "}{p}
+
+                        {i < 3 && <CheckCircle size={12} />}
+
+                        {p.icon}
+                        {p.name}
+
                       </button>
+
                     ))}
+
                   </div>
+
                 </div>
+
+                {/* Generate Button */}
 
                 <button
-                  onClick={handleGenerate}
+                  // onClick={handleGenerate}
                   disabled={generating}
-                  className="relative overflow-hidden w-full text-white font-black py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shimmer-btn"
-                  style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)" }}
+                  className="relative overflow-hidden w-full text-white font-black py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2"
+                  style={{
+                    background: "linear-gradient(135deg,#f43f8e,#ec4899,#a855f7)"
+                  }}
                 >
+
                   {generating
-                    ? <><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Generating Magic...</>
-                    : <> Generate Captions &amp; Hashtags →</>
+                    ? <>
+                      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Generating Magic...
+                    </>
+                    : <>
+                      <Sparkles size={16} />
+                      Generate Captions & Hashtags
+                    </>
                   }
+
                 </button>
+
+                <p className="text-xs text-center text-rose-400 mt-2 font-medium">
+                  ⚡ Results generated instantly - no signup required
+                </p>
+
               </div>
+
             </div>
 
-            {/* Output */}
-            <div className={`rounded-3xl overflow-hidden transition-all duration-700 ${generated ? "glass shadow-2xl shadow-pink-300/40 border border-pink-200/60" : "border-2 border-dashed border-pink-200"}`}>
-              {!generated && !generating ? (
+            {/* OUTPUT PANEL */}
+
+            <div
+              className={`rounded-3xl overflow-hidden transition-all duration-700
+              ${generated
+                  ? "glass shadow-2xl shadow-pink-300/40 border border-pink-200/60"
+                  : "border-2 border-dashed border-pink-200"
+                }`}
+            >
+
+              {!generated && !generating && (
+
                 <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
-                  <div className="text-7xl mb-5 opacity-20 animate-float">🤖</div>
-                  <p className="text-rose-400 font-bold text-sm">Fill in your campaign details<br />and click generate to see AI magic! ✨</p>
+
+                  <Sparkles size={48} className="opacity-30 animate-pulse" />
+
+                  <p className="text-rose-400 font-bold text-sm mt-4">
+                    Fill in campaign details and click generate
+                  </p>
+
                 </div>
-              ) : generating ? (
-                <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
-                  <div className="relative w-20 h-20 mb-6">
-                    <div className="absolute inset-0 rounded-full border-4 border-pink-200" />
-                    <div className="absolute inset-0 rounded-full border-4 border-t-pink-500 animate-spin" />
-                    <div className="absolute inset-2 rounded-full border-4 border-t-purple-400 animate-spin" style={{ animationDirection: "reverse", animationDuration: "0.8s" }} />
-                    <span className="absolute inset-0 flex items-center justify-center text-2xl">✨</span>
-                  </div>
-                  <p className="font-black text-rose-700 mb-1">Crafting your perfect captions...</p>
-                  <p className="text-rose-400 text-xs font-semibold">Analyzing audience, tone & trending hashtags</p>
-                  <div className="mt-4 flex gap-1.5">
-                    {[0, 1, 2].map(i => (
-                      <div key={i} className="w-2 h-2 rounded-full animate-bounce" style={{ background: "#f43f8e", animationDelay: `${i * 0.15}s` }} />
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-5 pb-4 border-b border-pink-100">
-                    <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: "#f43f8e" }} />
-                    <span className="text-xs font-black text-rose-700 uppercase tracking-wider">Generated for: {demoInput.product}</span>
-                    <span className="ml-auto text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">✓ Ready</span>
-                  </div>
-                  {Object.entries(CAPTIONS).map(([key, val]) => (
-                    <div key={key} className={`mb-3 rounded-2xl p-4 border-2 ${val.bg} ${val.border} hover-lift cursor-pointer group`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-base">{val.emoji}</span>
-                        <span className={`text-xs font-black capitalize px-2 py-0.5 rounded-full ${val.tag}`}>{val.label}</span>
-                        <div className="ml-auto flex items-center gap-1.5">
-                          <div className="w-16 h-1.5 bg-white/60 rounded-full overflow-hidden">
-                            <div className="h-full rounded-full" style={{ width: `${val.score}%`, background: "linear-gradient(90deg, #f43f8e, #a855f7)" }} />
-                          </div>
-                          <span className="text-xs font-black text-rose-600">{val.score}%</span>
-                        </div>
-                      </div>
-                      <p className="text-xs text-slate-700 leading-relaxed font-semibold mb-2">{val.text.slice(0, 90)}...</p>
-                      <div className="flex flex-wrap gap-1">
-                        {val.hashtags.slice(0, 3).map(h => (
-                          <span key={h} className={`text-xs ${val.tag} px-2 py-0.5 rounded-full font-black`}>{h}</span>
-                        ))}
-                        <span className="text-xs text-slate-400 px-2 py-0.5 font-bold">+{val.hashtags.length - 3} more</span>
-                      </div>
-                    </div>
-                  ))}
-                  <button onClick={handleCopy} className="w-full text-white font-black py-3 rounded-2xl mt-2 text-sm hover:-translate-y-1 transition-all shadow-lg shimmer-btn relative overflow-hidden" style={{ background: copied ? "linear-gradient(135deg, #22c55e, #16a34a)" : "linear-gradient(135deg, #f43f8e, #a855f7)" }}>
-                    {copied ? "✓ Copied to Clipboard!" : "📋 Copy All Captions & Hashtags"}
-                  </button>
-                </div>
+
               )}
+
+              {generating && (
+
+                <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
+
+                  <div className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin mb-4" />
+
+                  <p className="font-black text-rose-700 mb-1">
+                    Crafting captions...
+                  </p>
+
+                  <p className="text-rose-400 text-xs font-semibold">
+                    Analyzing audience & trends
+                  </p>
+
+                </div>
+
+              )}
+
+              {generated && (
+
+                <div className="p-6">
+
+                  <div className="flex items-center gap-2 mb-5 pb-4 border-b border-pink-100">
+
+                    <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-pink-500" />
+
+                    <span className="text-xs font-black text-rose-700 uppercase tracking-wider">
+                      Generated for: {demoInput.product}
+                    </span>
+
+                    <span className="ml-auto text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                      Ready
+                    </span>
+
+                  </div>
+
+                  {Object.entries(CAPTIONS).map(([key, val]) => (
+
+                    <div
+                      key={key}
+                      className="mb-3 rounded-2xl p-4 border bg-white/70 backdrop-blur-lg shadow-md hover:shadow-xl transition cursor-pointer"
+                    >
+
+                      <div className="flex items-center gap-2 mb-2">
+
+                        <span className="text-xs font-black capitalize px-2 py-0.5 rounded-full bg-pink-100 text-rose-600">
+                          {val.label}
+                        </span>
+
+                        <div className="ml-auto flex items-center gap-1.5">
+
+                          <div className="w-16 h-1.5 bg-white/60 rounded-full overflow-hidden">
+
+                            <div
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${val.score}%`,
+                                background: "linear-gradient(90deg,#f43f8e,#a855f7)"
+                              }}
+                            />
+
+                          </div>
+
+                          <span className="text-xs font-black text-rose-600">
+                            {val.score}%
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                      <p className="text-xs text-slate-700 leading-relaxed font-semibold mb-2">
+                        {val.text.slice(0, 90)}...
+                      </p>
+
+                      <div className="flex flex-wrap gap-1">
+
+                        {val.hashtags.slice(0, 3).map(h => (
+
+                          <span
+                            key={h}
+                            className="text-xs bg-pink-100 text-rose-600 px-2 py-0.5 rounded-full font-black"
+                          >
+                            {h}
+                          </span>
+
+                        ))}
+
+                        <span className="text-xs text-slate-400 px-2 py-0.5 font-bold">
+                          +{val.hashtags.length - 3} more
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  ))}
+
+                  <button
+                    onClick={handleCopy}
+                    className="w-full flex items-center justify-center gap-2 text-white font-black py-3 rounded-2xl mt-2 text-sm hover:-translate-y-1 transition-all shadow-lg"
+                    style={{
+                      background: copied
+                        ? "linear-gradient(135deg,#22c55e,#16a34a)"
+                        : "linear-gradient(135deg,#f43f8e,#a855f7)"
+                    }}
+                  >
+
+                    {copied
+                      ? "Copied!"
+                      : <>
+                        <Copy size={16} />
+                        Copy Captions
+                      </>
+                    }
+
+                  </button>
+
+                </div>
+
+              )}
+
             </div>
+
           </div>
+
         </div>
-      </section>
+
+      </section >
 
       {/* ═══ FEATURES GRID ═══ */}
-      <section className="relative py-24 px-4 z-10">
+      < section className="relative py-14 px-4 z-10" >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 glass-pink rounded-full px-5 py-2 mb-5">
-              <span className="text-xs font-black tracking-widest uppercase" style={{ color: "#be185d" }}>💡 Features</span>
+              <span
+                className="text-xs font-black tracking-widest uppercase"
+                style={{ color: "#be185d" }}
+              >
+                Features
+              </span>
             </div>
-            <h2 className="font-display font-black leading-tight" style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}>
+
+            <h2
+              className="font-display font-black leading-tight"
+              style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
+            >
               <span className="text-rose-950">Everything to </span>
               <span className="gradient-text">Dominate Social</span>
             </h2>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {FEATURES.map((f, i) => (
               <div
@@ -660,52 +982,115 @@ export default function Home() {
                 onMouseEnter={() => setHoveredFeature(i)}
                 onMouseLeave={() => setHoveredFeature(null)}
               >
-                <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-all duration-300`} style={{ background: `linear-gradient(135deg, rgba(244,63,142,0.06), rgba(168,85,247,0.06))` }} />
+                <div
+                  className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-all duration-300"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(244,63,142,0.06), rgba(168,85,247,0.06))",
+                  }}
+                />
+
                 <div className="relative">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-4 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style={{ background: `linear-gradient(135deg, ${f.color.replace("from-", "").replace("to-", "").replace(/ /g, ", ")})`.replace("from-", "").replace("via-", "").replace("to-", "") || "linear-gradient(135deg, #f43f8e, #a855f7)" }}>
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl text-white mb-4 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300"
+                    style={{
+                      background: `linear-gradient(135deg, ${f.color})`,
+                    }}
+                  >
                     {f.icon}
                   </div>
-                  <h3 className="font-black text-rose-900 text-base mb-2 group-hover:text-rose-700 transition-colors">{f.title}</h3>
-                  <p className="text-rose-800/60 text-sm leading-relaxed font-medium">{f.desc}</p>
+
+                  <h3 className="font-black text-rose-900 text-base mb-2 group-hover:text-rose-700 transition-colors">
+                    {f.title}
+                  </h3>
+
+                  <p className="text-rose-800/60 text-sm leading-relaxed font-medium">
+                    {f.desc}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ═══ PLATFORMS ═══ */}
-      <section id="platforms" className="relative py-24 px-4 z-10">
-        <div className="absolute inset-0 opacity-50" style={{ background: "linear-gradient(135deg, rgba(253,242,248,0.9), rgba(250,232,255,0.8))" }} />
-        <div className="max-w-5xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-2 glass-pink rounded-full px-5 py-2 mb-5">
-            <span className="text-xs font-black tracking-widest uppercase" style={{ color: "#be185d" }}>🌐 Platforms</span>
-          </div>
-          <h2 className="font-display font-black leading-tight mb-4" style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}>
-            <span className="text-rose-950">One Tool. </span>
-            <span className="gradient-text">Every Platform.</span>
-          </h2>
-          <p className="text-rose-800/60 text-lg font-light max-w-lg mx-auto mb-14">HashCraft AI understands the language, format & algorithm of every major platform.</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
-            {PLATFORMS.map((p, i) => (
-              <div key={p.name} className="platform-card glass rounded-3xl p-7 shadow-md shadow-pink-100/60 border border-pink-100/60 cursor-pointer group relative overflow-hidden" onClick={() => setActivePlatform(activePlatform === p.name ? null : p.name)}>
-                <div className={`absolute inset-0 rounded-3xl transition-opacity duration-300 ${activePlatform === p.name ? "opacity-100" : "opacity-0"}`} style={{ background: "linear-gradient(135deg, rgba(244,63,142,0.1), rgba(168,85,247,0.1))" }} />
-                <div className="relative">
-                  <div className="text-5xl mb-4 group-hover:scale-125 transition-transform duration-300">{p.icon}</div>
-                  <h3 className="font-black text-rose-900 text-base mb-1">{p.name}</h3>
-                  <p className="text-xs text-rose-400 font-semibold">{p.detail}</p>
-                  {activePlatform === p.name && (
-                    <div className="mt-3 text-xs font-black text-white px-3 py-1 rounded-full inline-block" style={{ background: "linear-gradient(135deg, #f43f8e, #a855f7)" }}>✓ Selected</div>
-                  )}
+      < section id="platforms" className="relative py-14 px-4 z-10" >
+        <><div
+          className="absolute inset-0 opacity-50"
+          style={{
+            background: "linear-gradient(135deg, rgba(253,242,248,0.9), rgba(250,232,255,0.8))",
+          }} /><div className="max-w-5xl mx-auto text-center relative">
+            <div className="inline-flex items-center gap-2 glass-pink rounded-full px-5 py-2 mb-5">
+              <span
+                className="text-xs font-black tracking-widest uppercase"
+                style={{ color: "#be185d" }}
+              >
+                Platforms
+              </span>
+            </div>
+
+            <h2
+              className="font-display font-black leading-tight mb-4"
+              style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
+            >
+              <span className="text-rose-950">One Tool. </span>
+              <span className="gradient-text">Every Platform.</span>
+            </h2>
+
+            <p className="text-rose-800/60 text-lg font-light max-w-lg mx-auto mb-14">
+              HashCraft AI understands the language, format & algorithm of every major
+              platform.
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+              {PLATFORMS.map((p, i) => (
+                <div
+                  key={p.name}
+                 
+                  className={`relative rounded-3xl p-[1px] transition-all duration-500 cursor-pointer group
+                   ${activePlatform === p.name
+                      ? "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 scale-105"
+                      : "bg-gradient-to-r from-pink-200/40 to-purple-200/40 hover:from-pink-400 hover:to-purple-400 hover:scale-105"
+                    }`}
+                >
+                  {/* Card */}
+                  <div className="relative rounded-3xl bg-white/80 backdrop-blur-xl p-7 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
+
+                    {/* Animated shine */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500">
+                      <div className="absolute -left-40 top-0 h-full w-40 bg-gradient-to-r from-transparent via-white/40 to-transparent rotate-12 translate-x-0 group-hover:translate-x-[500px] transition-transform duration-1000" />
+                    </div>
+
+                    <div className="relative z-10">
+
+                      {/* Icon */}
+                      <div className="text-4xl text-rose-600 mb-4 group-hover:scale-1.15 group-hover:-rotate-6 transition-all duration-300">
+                        {p.icon}
+                      </div>
+
+                      {/* Name */}
+                      <h3 className="font-black text-rose-900 text-base mb-1 tracking-wide">
+                        {p.name}
+                      </h3>
+
+                      {/* Detail */}
+                      <p className="text-xs text-rose-400 font-semibold">
+                        {p.detail}
+                      </p>
+
+                      
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              ))}
+            </div>
+          </div></>
+      </section >
 
       {/* ═══ TESTIMONIALS ═══ */}
-      <section className="relative py-24 px-4 z-10" style={{ background: "linear-gradient(135deg, #7c3aed, #be185d, #9d174d)" }}>
+      < section className="relative py-14 px-4 z-10" style={{ background: "linear-gradient(135deg, #7c3aed, #be185d, #9d174d)" }
+      }>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
         <div className="max-w-6xl mx-auto relative">
           <div className="text-center mb-14">
@@ -736,11 +1121,11 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
 
       {/* ═══ CTA BANNER ═══ */}
-      <section className="relative py-24 px-4 z-10 overflow-hidden">
+      < section className="relative py-14 px-4 z-10 overflow-hidden" >
         <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd0, #f3e5f5, #e8eaf6, #fce4ec)", backgroundSize: "400% 400%", animation: "gradient-shift 6s ease infinite" }} />
         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 30% 50%, #f43f8e 0%, transparent 50%), radial-gradient(circle at 70% 50%, #a855f7 0%, transparent 50%)" }} />
         <div className="relative max-w-3xl mx-auto text-center">
@@ -761,10 +1146,10 @@ export default function Home() {
           </div>
           <p className="text-rose-400 text-xs mt-6 font-bold">✓ Free forever plan &nbsp;·&nbsp; ✓ No credit card &nbsp;·&nbsp; ✓ Setup in 30 seconds</p>
         </div>
-      </section>
+      </section >
 
       {/* ═══ FOOTER ═══ */}
-      <Footer />
-    </div>
+      < Footer />
+    </div >
   );
 }
