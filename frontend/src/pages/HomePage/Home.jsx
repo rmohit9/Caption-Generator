@@ -432,9 +432,7 @@ export default function Home() {
           <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-8 py-4 rounded-full shadow-2xl shadow-pink-400/50 hover:-translate-y-2 hover:shadow-pink-400/70 transition-all duration-300 shimmer-btn text-base" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
             Generate Free
           </button>
-          <button className="flex items-center gap-2 font-black px-7 py-4 rounded-full border-2 border-pink-300 text-rose-600 hover:bg-pink-100 hover:-translate-y-2 transition-all duration-300 text-base glass" style={{ backdropFilter: "blur(10px)" }}>
-            Watch 60s Demo
-          </button>
+        
         </div>
 
         <div className="relative w-full max-w-3xl">
@@ -1129,11 +1127,10 @@ export default function Home() {
         <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #fce4ec, #f8bbd0, #f3e5f5, #e8eaf6, #fce4ec)", backgroundSize: "400% 400%", animation: "gradient-shift 6s ease infinite" }} />
         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 30% 50%, #f43f8e 0%, transparent 50%), radial-gradient(circle at 70% 50%, #a855f7 0%, transparent 50%)" }} />
         <div className="relative max-w-3xl mx-auto text-center">
-          <div className="text-6xl mb-6 animate-float">🚀</div>
+          <div className="text-6xl mb-6 animate-float"></div>
           <h2 className="font-display font-black leading-tight mb-5" style={{ fontSize: "clamp(2rem,5vw,3.8rem)" }}>
             <span className="text-rose-950">Start Creating </span>
             <span className="gradient-text">Viral Content</span>
-            <br /><span className="text-rose-950">Today - It's Free</span>
           </h2>
           <p className="text-rose-800/70 text-lg font-semibold mb-10 max-w-lg mx-auto">Join 10,000+ marketers saving 80% of their content creation time with HashCraft AI.</p>
           <div className="flex flex-wrap justify-center gap-4">
