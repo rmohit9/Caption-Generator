@@ -63,7 +63,7 @@ const CAPTIONS = {
     dot: "bg-indigo-500",
   },
   linkedin: {
-    text: "Health starts with mindful choices. Our Organic Green Tea blends premium wellness with everyday productivity — because peak performance begins before the boardroom. Make the switch that matters. 💼🍃",
+    text: "Health starts with mindful choices. Our Organic Green Tea blends premium wellness with everyday productivity - because peak performance begins before the boardroom. Make the switch that matters. 💼🍃",
     hashtags: [
       "#Productivity",
       "#SustainableLiving",
@@ -172,7 +172,7 @@ const TESTIMONIALS = [
     name: "Priya Sharma",
     role: "Social Media Manager @ PixelAgency",
     avatar: "PS",
-    text: "HashCraft AI cut our caption writing time by 80%. The hashtag suggestions are scary accurate — our reach doubled in 2 weeks!",
+    text: "HashCraft AI cut our caption writing time by 80%. The hashtag suggestions are incredibly accurate and helped double our reach within just two weeks.",
     stars: 5,
     color: "from-indigo-400 to-purple-500",
   },
@@ -180,7 +180,7 @@ const TESTIMONIALS = [
     name: "Marcus Cole",
     role: "Founder @ FitLife Brand",
     avatar: "MC",
-    text: "I used to spend 2 hours per post. Now it's 3 minutes. The engagement scores are genuinely predictive — absolute game changer.",
+    text: "What used to take me two hours per post now takes only minutes. The engagement scoring is surprisingly accurate and makes planning content effortless.",
     stars: 5,
     color: "from-blue-400 to-indigo-500",
   },
@@ -188,7 +188,7 @@ const TESTIMONIALS = [
     name: "Ananya Verma",
     role: "Content Lead @ TrendPulse",
     avatar: "AV",
-    text: "The platform-specific tone adjustment is insane. LinkedIn sounds professional, Instagram sounds fun. It just gets it!",
+    text: "The tone adaptation is brilliant. LinkedIn captions sound professional while Instagram captions stay fun and engaging without any extra effort.",
     stars: 5,
     color: "from-purple-400 to-pink-500",
   },
@@ -532,7 +532,9 @@ export default function Home() {
           className="flex flex-wrap justify-center gap-4 mb-6 animate-fade-up relative z-10"
           style={{ animationDelay: "0.3s" }}
         >
-          <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-8 py-4 rounded-full shadow-2xl shadow-indigo-500/30 hover:-translate-y-1 hover:shadow-indigo-500/40 transition-all duration-300 shimmer-btn text-base" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
+          <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-8 py-4 rounded-full shadow-2xl s
+          hadow-indigo-500/30 hover:-translate-y-1 hover:shadow-indigo-500/40 transition-all duration-300 shimmer-btn text-base"
+            style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
             Generate Free
           </button>
         </div>
@@ -568,27 +570,6 @@ export default function Home() {
                     {tag}
                   </span>
                 ))}
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-indigo-100">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-slate-500">Score</span>
-                  <div className="w-32 h-2 bg-indigo-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                      style={{ width: `${active.score}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-semibold text-indigo-600">
-                    {active.score}%
-                  </span>
-                </div>
-                <div className="flex">
-                  <button className="flex items-center gap-1 text-xs px-3 py-1.5 border border-indigo-200 rounded-full text-indigo-500 hover:bg-indigo-50 transition">
-                    <Heart size={14} />
-                    Like
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -718,12 +699,6 @@ export default function Home() {
                     placeholder: "e.g. Motivational & Fresh",
                     icon: <FaPaintBrush className="w-4 h-4" />,
                   },
-                  {
-                    label: "Caption Length Preferences",
-                    key: "length",
-                    placeholder: "e.g. Short, Medium, Long",
-                    icon: <FaRuler className="w-4 h-4" />,
-                  },
                 ].map((f) => (
                   <div key={f.key}>
                     <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
@@ -850,23 +825,12 @@ export default function Home() {
                           >
                             {val.label}
                           </span>
-                          <div className="ml-auto flex items-center gap-1.5">
-                            <div className="w-16 h-1.5 bg-white/60 rounded-full overflow-hidden">
-                              <div
-                                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                                style={{ width: `${val.score}%` }}
-                              />
-                            </div>
-                            <span className="text-xs font-black text-indigo-600">
-                              {val.score}%
-                            </span>
-                          </div>
                         </div>
                         <p className="text-xs text-slate-700 leading-relaxed font-semibold mb-2">
-                          {val.text.slice(0, 90)}...
+                          {val.text}
                         </p>
                         <div className="flex flex-wrap gap-1">
-                          {val.hashtags.slice(0, 3).map((h) => (
+                          {val.hashtags.map((h) => (
                             <span
                               key={h}
                               className={`text-xs ${val.tag} px-2 py-0.5 rounded-full font-black`}
@@ -874,9 +838,7 @@ export default function Home() {
                               {h}
                             </span>
                           ))}
-                          <span className="text-xs text-slate-400 px-2 py-0.5 font-bold">
-                            +{val.hashtags.length - 3} more
-                          </span>
+                          
                         </div>
                       </div>
                     ))}
@@ -885,7 +847,7 @@ export default function Home() {
                     className="w-full text-white font-black py-3 rounded-2xl mt-2 text-sm hover:-translate-y-1 transition-all shadow-lg shimmer-btn 
                     relative overflow-hidden" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}
                   >
-                    {copied ? "✓ Copied to Clipboard!" : "📋 Copy All Selected Captions & Hashtags"}
+                    {copied ? "✓ Copied to Clipboard!" : "Copy All Selected Captions & Hashtags"}
                   </button>
                 </div>
               )}
@@ -1015,7 +977,7 @@ export default function Home() {
       </section >
 
       {/* TESTIMONIALS */}
-      < section className="relative py-14 px-4 z-10" style={{ background: "linear-gradient(135deg, #7c3aed, #be185d, #9d174d)" }
+      < section className="relative py-14 px-4 z-10" style={{ background: "linear-gradient(135deg, #be185d, #9d174d)" }
       }>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
         <div className="max-w-6xl mx-auto relative">
