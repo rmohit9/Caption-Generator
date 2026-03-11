@@ -4,6 +4,7 @@ import { HiOutlineSparkles } from "react-icons/hi2";
 import { Link } from "react-router-dom"; // or use <a> if not using router
 import FloatingHashtag from "./FloatingHashtag";
 import NavBar from "../../components/Navbar";
+import FloatingHashSymbols from "../../components/Hashtag";
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +39,9 @@ const Register = () => {
             >
 
                 {/* Floating hashtag symbols */}
-                <FloatingHashtag />
+                <div className="absolute inset-0 z-10 pointer-events-none">
+                    <FloatingHashSymbols count={150} opacity={0.15} />
+                </div>
 
                 {/* Soft background blobs */}
                 <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -60,12 +63,14 @@ const Register = () => {
                             </div>
 
                             <div className="relative">
-                                <div className="flex items-center gap-2 mb-8">
-                                    <img
-                                        src="https://www.graphura.in/image/bg%20removed.webp"
-                                        alt="Graphura Logo"
-                                        className="h-12 w-auto"
-                                    />
+                                <div className="flex items-center gap-3 mb-8">
+                                     <img
+                                    src="https://www.graphura.in/image/bg%20removed.webp"
+                                    alt="Graphura Logo"
+                                    className="h-16 w-auto"
+                                    style={{ filter: 'brightness(0) invert(1)' }}
+                                />
+
                                 </div>
 
                                 <h1 className="text-4xl md:text-5xl font-black leading-tight mb-6">
@@ -106,7 +111,7 @@ const Register = () => {
                         {/* Right side - Registration Form */}
 
                         <div className="p-8 md:p-12 bg-white/80 backdrop-blur-sm">
-                        {/* back button */}
+                            {/* back button */}
                             <div className="flex items-center mb-4">
                                 <Link to="/" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition group">
                                     <FaArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -209,13 +214,11 @@ const Register = () => {
                                 <button
                                     type="submit"
                                     className="w-full relative overflow-hidden text-white font-black py-3 
-                                    rounded-2xl text-sm hover:-translate-y-1 transition-all duration-300 shadow-lg shimmer-btn bg-indigo-600"
+                                    rounded-2xl text-sm hover:-translate-y-1 transition-all duration-300 shadow-lg shimmer-btn" 
+                                    style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}
                                 >
                                     Create Account
                                 </button>
-
-
-
                                 <p className="text-center text-xs text-slate-500 mt-4">
                                     By signing up, you agree to our Terms and Privacy Policy.
                                 </p>

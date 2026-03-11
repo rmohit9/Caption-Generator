@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaGoogle, FaApple, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
 import { Link } from "react-router-dom"; // or use <a> if not using router
 import FloatingHashtag from "./FloatingHashtag";
+import FloatingHashSymbols from "../../components/Hashtag";
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +33,9 @@ const Login = () => {
             }}
         >
             {/* Floating hashtag symbols */}
-            <FloatingHashtag />
+            <div className="absolute inset-0 z-10 pointer-events-none">
+                <FloatingHashSymbols count={150} opacity={0.15} />
+            </div>
 
             {/* Soft background blobs */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -58,7 +61,8 @@ const Login = () => {
                                 <img
                                     src="https://www.graphura.in/image/bg%20removed.webp"
                                     alt="Graphura Logo"
-                                    className="h-12 w-auto"
+                                    className="h-16 w-auto"
+                                    style={{ filter: 'brightness(0) invert(1)' }}
                                 />
                             </div>
 
@@ -179,8 +183,9 @@ const Login = () => {
                             {/* Submit */}
                             <button
                                 type="submit"
-                                className="w-full relative overflow-hidden text-white font-black py-3 rounded-2xl text-sm hover:-translate-y-1 transition-all duration-300 shadow-lg shimmer-btn
-                                 bg-indigo-600 "
+                                className="w-full relative overflow-hidden text-white font-black py-3 
+                                rounded-2xl text-sm hover:-translate-y-1 transition-all duration-300 shadow-lg shimmer-btn
+                                " style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}
                             >
                                 Log In
                             </button>
