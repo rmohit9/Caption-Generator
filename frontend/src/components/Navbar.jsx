@@ -51,12 +51,17 @@ const NavBar = () => {
 
         {/* Desktop Buttons */}
         <div className="hidden md:flex gap-3 lg:gap-4">
-          <button className="px-4 py-2 text-sm lg:text-base font-semibold text-pink-700 border-2 border-pink-200 rounded-full bg-white/50 backdrop-blur-sm hover:bg-pink-50 hover:-translate-y-0.5 transition-all duration-300 shadow-sm hover:shadow-md">
-            Login
-          </button>
-          <button className="relative overflow-hidden text-sm lg:text-base font-semibold flex items-center gap-2 text-white font-black px-4 py-2 rounded-full shadow-2xl shadow-indigo-500/30 hover:-translate-y-1 hover:shadow-indigo-500/40 transition-all duration-300 shimmer-btn text-base bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-[length:200%_auto] animate-gradient">
-            Start Free
-          </button>
+          <a href="/login">
+            <button className="px-4 py-2 text-sm lg:text-base font-semibold text-pink-700 border-2 border-pink-200 rounded-full bg-white/50 backdrop-blur-sm hover:bg-pink-50 hover:scale-110 transition-all duration-400 shadow-sm hover:shadow-md cursor-pointer">
+              Login
+            </button>
+          </a>
+          <a href="/register">
+            <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-4 py-2 rounded-full shadow-2xl shadow-pink-400/50 hover:scale-110 hover:shadow-pink-400/70 transition-all duration-400 shimmer-btn text-base cursor-pointer" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
+              Register
+            </button>
+          </a>
+
         </div>
 
         {/* Mobile Menu Button */}
@@ -83,12 +88,16 @@ const NavBar = () => {
               </a>
             ))}
             <div className="flex gap-3 pt-2">
-              <button className="px-5 py-2 text-sm font-semibold text-pink-700 border-2 border-pink-200 rounded-full bg-white/50 hover:bg-pink-50 transition-all">
-                Login
-              </button>
-              <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-8 py-4 rounded-full shadow-2xl shadow-indigo-500/30 hover:-translate-y-1 hover:shadow-indigo-500/40 transition-all duration-300 shimmer-btn text-base bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-[length:200%_auto] animate-gradient">
-                Start Free
-              </button>
+              <a href="/login">
+            <button className="px-4 py-2 text-sm lg:text-base font-semibold text-pink-700 border-2 border-pink-200 rounded-full bg-white/50 backdrop-blur-sm hover:bg-pink-50 hover:scale-110 transition-all duration-400 shadow-sm hover:shadow-md cursor-pointer">
+              Login
+            </button>
+          </a>
+          <a href="/register">
+            <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-4 py-2 rounded-full shadow-2xl shadow-pink-400/50 hover:scale-110 hover:shadow-pink-400/70 transition-all duration-400 shimmer-btn text-base cursor-pointer" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
+              Register
+            </button>
+          </a>
             </div>
           </div>
         </div>
