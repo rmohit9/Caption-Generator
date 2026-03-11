@@ -16,6 +16,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import FloatingHashSymbols from "../../components/Hashtag";
+import api from "../../services/api";
 
 // lucide react icons
 import {
@@ -98,6 +99,18 @@ const CAPTIONS = {
     border: "border-sky-200",
     tag: "bg-sky-100 text-sky-700",
     dot: "bg-sky-500",
+  },
+  facebook: {
+    text: "Fresh content crafted to connect with your community. Share moments, spark conversations, and grow your reach.",
+    hashtags: ["#FacebookMarketing", "#Community", "#Engagement", "#SocialMedia"],
+    score: 90,
+    icon: <FaFacebook className="text-blue-600" />,
+    label: "Facebook",
+    gradient: "from-indigo-500 via-blue-500 to-sky-400",
+    bg: "bg-gradient-to-br from-indigo-50 to-blue-50",
+    border: "border-indigo-200",
+    tag: "bg-indigo-100 text-indigo-700",
+    dot: "bg-indigo-500",
   },
 };
 
@@ -291,6 +304,8 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [generatedCaptions, setGeneratedCaptions] = useState({});
+  const [errorMessage, setErrorMessage] = useState("");
   const [hoveredFeature, setHoveredFeature] = useState(null);
   const [hoveredStep, setHoveredStep] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -310,18 +325,81 @@ export default function Home() {
   const active = CAPTIONS[activeTab];
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(active.text + "\n\n" + active.hashtags.join(" "));
+    const current = generatedCaptions[activeTab] || active;
+    if (!current) return;
+    navigator.clipboard.writeText(current.text + "\n\n" + current.hashtags.join(" "));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleGenerate = () => {
+  const getGuestToken = () => {
+    const key = "guest_token";
+    let token = localStorage.getItem(key);
+    if (!token && window.crypto?.randomUUID) {
+      token = window.crypto.randomUUID();
+      localStorage.setItem(key, token);
+    }
+    return token;
+  };
+
+  const handleGenerate = async () => {
+    setErrorMessage("");
+    if (!selectedPlatforms) {
+      setErrorMessage("Please select a platform.");
+      return;
+    }
+
     setGenerating(true);
     setGenerated(false);
-    setTimeout(() => {
-      setGenerating(false);
+
+    const platform = selectedPlatforms;
+    const captionType = demoInput.tone || "Motivational";
+    const topicParts = [
+      demoInput.product,
+      demoInput.description,
+      demoInput.audience && `Audience: ${demoInput.audience}`,
+      demoInput.length && `Length: ${demoInput.length}`,
+    ].filter(Boolean);
+    const topic = topicParts.join(". ");
+
+    try {
+      const token = getGuestToken();
+      const res = await api.post(
+        "generate-caption",
+        {
+          platform,
+          caption_type: captionType,
+          topic,
+        },
+        {
+          headers: token ? { "X-Guest-Token": token } : {},
+        }
+      );
+
+      const caption = res.data?.caption || "";
+      const hashtags = Array.isArray(res.data?.hashtags) ? res.data.hashtags : [];
+      const safeHashtags = hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`));
+
+      const base = CAPTIONS[platform] || CAPTIONS.instagram;
+      setGeneratedCaptions((prev) => ({
+        ...prev,
+        [platform]: {
+          ...base,
+          text: caption || base.text,
+          hashtags: safeHashtags.length ? safeHashtags : base.hashtags,
+          score: base.score,
+        },
+      }));
+
       setGenerated(true);
-    }, 2400);
+    } catch (err) {
+      const message =
+        err?.response?.data?.error ||
+        "Generation failed. Please try again.";
+      setErrorMessage(message);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const togglePlatform = (id) => {
@@ -391,7 +469,10 @@ export default function Home() {
   const handleCopyAll = () => {
     const selectedCaptions = Object.entries(CAPTIONS)
       .filter(([key]) => selectedPlatforms.includes(key))
-      .map(([_, val]) => val.text + "\n\n" + val.hashtags.join(" "))
+      .map(([key, val]) => {
+        const current = generatedCaptions[key] || val;
+        return current.text + "\n\n" + current.hashtags.join(" ");
+      })
       .join("\n\n---\n\n");
     navigator.clipboard.writeText(selectedCaptions);
     setCopied(true);
@@ -778,6 +859,11 @@ export default function Home() {
                     <>Generate Captions & Hashtags →</>
                   )}
                 </button>
+                {errorMessage && (
+                  <p className="mt-3 text-sm font-semibold text-rose-600">
+                    {errorMessage}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -843,41 +929,48 @@ export default function Home() {
                         key={key}
                         className={`mb-3 rounded-2xl p-4 border-2 ${val.bg} ${val.border} hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer group`}
                       >
+                        {(() => {
+                          const current = generatedCaptions[key] || val;
+                          return (
+                            <>
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-base">{val.icon}</span>
+                          <span className="text-base">{current.icon}</span>
                           <span
-                            className={`text-xs font-black capitalize px-2 py-0.5 rounded-full ${val.tag}`}
+                            className={`text-xs font-black capitalize px-2 py-0.5 rounded-full ${current.tag}`}
                           >
-                            {val.label}
+                            {current.label}
                           </span>
                           <div className="ml-auto flex items-center gap-1.5">
                             <div className="w-16 h-1.5 bg-white/60 rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                                style={{ width: `${val.score}%` }}
+                                style={{ width: `${current.score}%` }}
                               />
                             </div>
                             <span className="text-xs font-black text-indigo-600">
-                              {val.score}%
+                              {current.score}%
                             </span>
                           </div>
                         </div>
                         <p className="text-xs text-slate-700 leading-relaxed font-semibold mb-2">
-                          {val.text.slice(0, 90)}...
+                          {current.text.slice(0, 90)}...
                         </p>
                         <div className="flex flex-wrap gap-1">
-                          {val.hashtags.slice(0, 3).map((h) => (
+                          {current.hashtags.slice(0, 3).map((h) => (
                             <span
                               key={h}
-                              className={`text-xs ${val.tag} px-2 py-0.5 rounded-full font-black`}
+                              className={`text-xs ${current.tag} px-2 py-0.5 rounded-full font-black`}
                             >
                               {h}
                             </span>
                           ))}
                           <span className="text-xs text-slate-400 px-2 py-0.5 font-bold">
-                            +{val.hashtags.length - 3} more
+                            +{Math.max(0, current.hashtags.length - 3)} more
                           </span>
                         </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     ))}
                   <button
