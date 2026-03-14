@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import { FaGoogle, FaApple, FaEnvelope, FaLock, FaUser, FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
 import { HiOutlineSparkles } from "react-icons/hi2";
-import { Link } from "react-router-dom"; // or use <a> if not using router
+import { Link, useNavigate } from "react-router-dom";
 import FloatingHashtag from "./FloatingHashtag";
 import NavBar from "../../components/Navbar";
+import { useAuth } from "../../context/AuthContext";
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const { signUp } = useAuth();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -22,10 +27,22 @@ const Register = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle registration logic
-        console.log("Register with:", formData);
+        setError("");
+        setIsLoading(true);
+        try {
+            const { error } = await signUp(formData.email, formData.password, formData.name);
+            if (error) {
+                setError(error.message);
+            } else {
+                navigate("/");
+            }
+        } catch (err) {
+            setError("Something went wrong. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -106,7 +123,7 @@ const Register = () => {
                         {/* Right side - Registration Form */}
 
                         <div className="p-8 md:p-12 bg-white/80 backdrop-blur-sm">
-                        {/* back button */}
+                            {/* back button */}
                             <div className="flex items-center mb-4">
                                 <Link to="/" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition group">
                                     <FaArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -117,6 +134,11 @@ const Register = () => {
                             <h2 className="text-3xl font-black text-slate-800 mb-2">Create Account</h2>
                             <p className="text-slate-600 mb-8">Start your Journey with us </p>
 
+                            {error && (
+                                <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+                                    {error}
+                                </div>
+                            )}
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 {/* Name */}
                                 <div>
@@ -208,10 +230,11 @@ const Register = () => {
                                 {/* Submit */}
                                 <button
                                     type="submit"
+                                    disabled={isLoading}
                                     className="w-full relative overflow-hidden text-white font-black py-3 
-                                    rounded-2xl text-sm hover:-translate-y-1 transition-all duration-300 shadow-lg shimmer-btn bg-indigo-600"
+                                    rounded-2xl text-sm hover:-translate-y-1 transition-all duration-300 shadow-lg shimmer-btn bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Create Account
+                                    {isLoading ? "Creating Account..." : "Create Account"}
                                 </button>
 
 

@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { FaGoogle, FaApple, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
-import { Link } from "react-router-dom"; // or use <a> if not using router
+import { Link, useNavigate } from "react-router-dom";
 import FloatingHashtag from "./FloatingHashtag";
+import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const { signIn } = useAuth();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -19,10 +24,22 @@ const Login = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle login logic
-        console.log("Login with:", formData);
+        setError("");
+        setIsLoading(true);
+        try {
+            const { error } = await signIn(formData.email, formData.password);
+            if (error) {
+                setError(error.message);
+            } else {
+                navigate("/");
+            }
+        } catch (err) {
+            setError("Something went wrong. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -113,6 +130,11 @@ const Login = () => {
                         <h2 className="text-3xl font-black text-slate-800 mb-2">Welcome Back</h2>
                         <p className="text-slate-600 mb-8">Log in to your account</p>
 
+                        {error && (
+                            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+                                {error}
+                            </div>
+                        )}
                         <form onSubmit={handleSubmit} className="space-y-5">
                             {/* Email */}
                             <div>
@@ -179,10 +201,10 @@ const Login = () => {
                             {/* Submit */}
                             <button
                                 type="submit"
-                                className="w-full relative overflow-hidden text-white font-black py-3 rounded-2xl text-sm hover:-translate-y-1 transition-all duration-300 shadow-lg shimmer-btn
-                                 bg-indigo-600 "
+                                disabled={isLoading}
+                                className="w-full relative overflow-hidden text-white font-black py-3 rounded-2xl text-sm hover:-translate-y-1 transition-all duration-300 shadow-lg shimmer-btn bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Log In
+                                {isLoading ? "Logging In..." : "Log In"}
                             </button>
                         </form>
                     </div>
