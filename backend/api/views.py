@@ -3,6 +3,7 @@ import logging
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -12,9 +13,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 
-from .models import GuestUsage, Workspace, BatchProfile
-from .services.gemini import generate_caption_and_hashtags
-from .serializers import UserSerializer, CustomTokenObtainPairSerializer, WorkspaceSerializer, BatchProfileSerializer
+from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory
+from .services.model_router import generate_caption_and_hashtags
+from .serializers import UserSerializer, CustomTokenObtainPairSerializer, WorkspaceSerializer, BatchProfileSerializer, CaptionHistorySerializer
+
 
 
 ALLOWED_PLATFORMS = {
@@ -111,6 +113,23 @@ def generate_caption(request):
             defaults={"source": getattr(request, "guest_token_source", "ip")},
         )
 
+    # Save generation history for analytics and display
+    guest_identifier_hash = None
+    if not request.user.is_authenticated:
+        guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
+        guest_identifier_hash = _hash_guest_id(guest_raw)
+
+    CaptionHistory.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        guest_identifier_hash=guest_identifier_hash,
+        platform=normalized_platform,
+        caption_type=str(caption_type).strip(),
+        topic=str(topic).strip(),
+        caption=caption,
+        hashtags=hashtags,
+    )
+
+
     response = Response(
         {"caption": caption, "hashtags": hashtags},
         status=status.HTTP_200_OK,
@@ -126,6 +145,43 @@ def generate_caption(request):
         )
 
     return response
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def caption_history(request):
+    # Return recent history for authenticated user or guest token
+    if request.user.is_authenticated:
+        history = CaptionHistory.objects.filter(user=request.user)
+    else:
+        guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
+        guest_hash = _hash_guest_id(guest_raw)
+        history = CaptionHistory.objects.filter(guest_identifier_hash=guest_hash)
+
+    history = history.order_by("-created_at")[:20]
+    serializer = CaptionHistorySerializer(history, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["DELETE"])
+@permission_classes([AllowAny])
+def delete_caption_history(request, history_id):
+    # Delete a specific caption from history
+    try:
+        if request.user.is_authenticated:
+            caption = CaptionHistory.objects.get(id=history_id, user=request.user)
+        else:
+            guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
+            guest_hash = _hash_guest_id(guest_raw)
+            caption = CaptionHistory.objects.get(id=history_id, guest_identifier_hash=guest_hash)
+        
+        caption.delete()
+        return Response({"message": "Caption deleted successfully"}, status=status.HTTP_200_OK)
+    except CaptionHistory.DoesNotExist:
+        return Response({"error": "Caption not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class RegisterView(generics.CreateAPIView):

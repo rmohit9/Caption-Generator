@@ -31,3 +31,26 @@ class BatchProfile(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.brand})"
+
+class CaptionHistory(models.Model):
+    user = models.ForeignKey(
+        "auth.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="caption_history",
+    )
+    guest_identifier_hash = models.CharField(max_length=64, null=True, blank=True)
+    platform = models.CharField(max_length=50)
+    caption_type = models.CharField(max_length=100)
+    topic = models.TextField()
+    caption = models.TextField()
+    hashtags = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"CaptionHistory({self.platform}, {self.created_at.isoformat()})"
+
