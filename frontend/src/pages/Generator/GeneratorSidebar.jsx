@@ -31,7 +31,7 @@ const mockHistory = [
   },
 ];
 
-export default function CaptionHistorySidebar() {
+export default function CaptionHistorySidebar({ onNewChat }) {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarState, setSidebarState] = useState("full");
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -152,7 +152,7 @@ export default function CaptionHistorySidebar() {
           {/* New Caption Button (Full View Only) */}
           {sidebarState === "full" && (
             <button 
-              onClick={() => window.location.reload()}
+              onClick={onNewChat}
               className="m-4 flex items-center gap-3 w-auto px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white transition font-medium text-sm shadow-md"
             >
               <FaPlus size={14} />
