@@ -74,14 +74,22 @@ const NavBar = () => {
               {link.label}
             </a>
           ))}
-          {/* Generate Link positioned exactly after Platforms with identical styling */}
+          {/* Generate & Workspace Links */}
           {isAuthenticated && (
-            <Link
-              to="/generator"
-              className="relative text-rose-800/70 font-medium hover:text-pink-600 transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-pink-500 after:to-rose-500 after:transition-all after:duration-300 hover:after:w-full"
-            >
-              Generate
-            </Link>
+            <>
+              <Link
+                to="/generator"
+                className="relative text-rose-800/70 font-medium hover:text-pink-600 transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-pink-500 after:to-rose-500 after:transition-all after:duration-300 hover:after:w-full"
+              >
+                Generate
+              </Link>
+              <Link
+                to="/workspace"
+                className="relative text-rose-800/70 font-medium hover:text-pink-600 transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-pink-500 after:to-rose-500 after:transition-all after:duration-300 hover:after:w-full"
+              >
+                My Workspace
+              </Link>
+            </>
           )}
         </div>
 
@@ -143,13 +151,22 @@ const NavBar = () => {
             
             {/* Generate Link in Mobile Dropdown */}
             {isAuthenticated && (
-              <Link
-                to="/generator"
-                className="text-rose-800 font-medium hover:text-pink-600 transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Generate
-              </Link>
+              <>
+                <Link
+                  to="/generator"
+                  className="text-rose-800 font-medium hover:text-pink-600 transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Generate
+                </Link>
+                <Link
+                  to="/workspace"
+                  className="text-rose-800 font-medium hover:text-pink-600 transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  My Workspace
+                </Link>
+              </>
             )}
 
             <div className="flex flex-col gap-3 pt-2 w-full">

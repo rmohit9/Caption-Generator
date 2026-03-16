@@ -3,6 +3,8 @@ from rest_framework import serializers
 from email_validator import validate_email, EmailNotValidError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from .models import Workspace, BatchProfile
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -57,3 +59,20 @@ class UserSerializer(serializers.ModelSerializer):
             first_name=name
         )
         return user
+
+class WorkspaceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Workspace
+        fields = ('id', 'name', 'created_at')
+        read_only_fields = ('id', 'created_at')
+
+    def create(self, validated_data):
+        # Automatically assign the logged-in user to the workspace
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
+class BatchProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BatchProfile
+        fields = ('id', 'workspace', 'name', 'brand', 'audience', 'tone', 'created_at')
+        read_only_fields = ('id', 'workspace', 'created_at')

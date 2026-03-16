@@ -2,6 +2,7 @@ import hashlib
 import logging
 
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -11,9 +12,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 
-from .models import GuestUsage
+from .models import GuestUsage, Workspace, BatchProfile
 from .services.gemini import generate_caption_and_hashtags
-from .serializers import UserSerializer, CustomTokenObtainPairSerializer
+from .serializers import UserSerializer, CustomTokenObtainPairSerializer, WorkspaceSerializer, BatchProfileSerializer
 
 
 ALLOWED_PLATFORMS = {
@@ -147,3 +148,41 @@ class LogoutView(APIView):
             return Response({"message": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response({"error": "Invalid token or token already blacklisted."}, status=status.HTTP_400_BAD_REQUEST)
+
+class WorkspaceListCreateView(generics.ListCreateAPIView):
+    serializer_class = WorkspaceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Only return workspaces belonging to the logged-in user
+        return Workspace.objects.filter(user=self.request.user).order_by('-created_at')
+
+class WorkspaceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = WorkspaceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Ensure a user can only edit/delete their own workspaces
+        return Workspace.objects.filter(user=self.request.user)
+
+class BatchProfileListCreateView(generics.ListCreateAPIView):
+    serializer_class = BatchProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Only return profiles for the specific workspace, and ensure the user owns that workspace
+        workspace_id = self.kwargs.get('workspace_id')
+        return BatchProfile.objects.filter(workspace__id=workspace_id, workspace__user=self.request.user).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        # Automatically attach the profile to the correct workspace
+        workspace_id = self.kwargs.get('workspace_id')
+        workspace = get_object_or_404(Workspace, id=workspace_id, user=self.request.user)
+        serializer.save(workspace=workspace)
+
+class BatchProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = BatchProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return BatchProfile.objects.filter(workspace__user=self.request.user)

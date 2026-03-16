@@ -5,6 +5,8 @@ import { Routes, Route } from "react-router-dom";
 import Register from './pages/Authentication/Register';
 import Login from './pages/Authentication/Login';
 import Generator from './pages/Generator/Generator';
+import Workspace from './pages/Workspace/Workspace';
+import WorkspaceDashboard from './pages/Workspace/WorkspaceDashboard';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
@@ -24,6 +26,10 @@ export default function App() {
         {/* Generator Page  */}
 
         <Route path='/generator' element={<Generator />} />
+
+        <Route path='/workspace' element={<Workspace />} />
+
+        <Route path='/workspace/:id' element={<WorkspaceDashboard />} />
       </Routes>
     </div>
   )
