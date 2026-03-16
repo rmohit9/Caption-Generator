@@ -1,9 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom"; 
+import toast from "react-hot-toast";
+import api from "../services/api";
 
 const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const isAuthenticated = !!localStorage.getItem("access");
+  
+  // FETCH USERNAME (WHICH HOLDS THE FIRST NAME)
+  const fullName = localStorage.getItem("full_name") || "User";
+
+  const handleLogout = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refresh");
+      if (refreshToken) {
+        await api.post("logout/", { refresh: refreshToken });
+      }
+    } catch (error) {
+      console.error("Logout error", error);
+    } finally {
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+      localStorage.removeItem("full_name"); 
+      toast.success("Logged out successfully");
+      navigate("/");
+      setMobileMenuOpen(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,13 +55,13 @@ const NavBar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2 group">
+        <Link to="/" className="flex items-center gap-2 group">
           <img
             src="https://www.graphura.in/image/bg%20removed.webp"
             alt="Graphura Logo"
             className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
           />
-        </a>
+        </Link>
 
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex gap-8 lg:gap-10">
@@ -47,21 +74,47 @@ const NavBar = () => {
               {link.label}
             </a>
           ))}
+          {/* Generate Link positioned exactly after Platforms with identical styling */}
+          {isAuthenticated && (
+            <Link
+              to="/generator"
+              className="relative text-rose-800/70 font-medium hover:text-pink-600 transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-pink-500 after:to-rose-500 after:transition-all after:duration-300 hover:after:w-full"
+            >
+              Generate
+            </Link>
+          )}
         </div>
 
-        {/* Desktop Buttons */}
-        <div className="hidden md:flex gap-3 lg:gap-4">
-          <a href="/login">
-            <button className="px-4 py-2 text-sm lg:text-base font-semibold text-pink-700 border-2 border-pink-200 rounded-full bg-white/50 backdrop-blur-sm hover:bg-pink-50 hover:scale-110 transition-all duration-400 shadow-sm hover:shadow-md cursor-pointer">
-              Login
-            </button>
-          </a>
-          <a href="/register">
-            <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-4 py-2 rounded-full shadow-2xl shadow-pink-400/50 hover:scale-110 hover:shadow-pink-400/70 transition-all duration-400 shimmer-btn text-base cursor-pointer" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
-              Register
-            </button>
-          </a>
-
+        {/* Desktop Buttons & Welcome Message */}
+        <div className="hidden md:flex items-center gap-3 lg:gap-4">
+          {isAuthenticated ? (
+            <>
+              {/* Plain text welcome message instead of a button */}
+              <span className="text-sm lg:text-base font-semibold text-pink-700 mr-2">
+                Welcome, {fullName}
+              </span>
+              
+              <button 
+                onClick={handleLogout}
+                className="relative overflow-hidden flex items-center gap-2 text-white font-black px-4 py-2 rounded-full shadow-lg shadow-red-400/50 hover:scale-110 hover:shadow-red-400/70 transition-all duration-400 bg-red-500 hover:bg-red-600 text-base cursor-pointer"
+              >
+                Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <button className="px-4 py-2 text-sm lg:text-base font-semibold text-pink-700 border-2 border-pink-200 rounded-full bg-white/50 backdrop-blur-sm hover:bg-pink-50 hover:scale-110 transition-all duration-400 shadow-sm hover:shadow-md cursor-pointer">
+                  Login
+                </button>
+              </Link>
+              <Link to="/register">
+                <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-4 py-2 rounded-full shadow-2xl shadow-pink-400/50 hover:scale-110 hover:shadow-pink-400/70 transition-all duration-400 shimmer-btn text-base cursor-pointer" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
+                  Register
+                </button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -87,17 +140,47 @@ const NavBar = () => {
                 {link.label}
               </a>
             ))}
-            <div className="flex gap-3 pt-2">
-              <a href="/login">
-            <button className="px-4 py-2 text-sm lg:text-base font-semibold text-pink-700 border-2 border-pink-200 rounded-full bg-white/50 backdrop-blur-sm hover:bg-pink-50 hover:scale-110 transition-all duration-400 shadow-sm hover:shadow-md cursor-pointer">
-              Login
-            </button>
-          </a>
-          <a href="/register">
-            <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-4 py-2 rounded-full shadow-2xl shadow-pink-400/50 hover:scale-110 hover:shadow-pink-400/70 transition-all duration-400 shimmer-btn text-base cursor-pointer" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
-              Register
-            </button>
-          </a>
+            
+            {/* Generate Link in Mobile Dropdown */}
+            {isAuthenticated && (
+              <Link
+                to="/generator"
+                className="text-rose-800 font-medium hover:text-pink-600 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Generate
+              </Link>
+            )}
+
+            <div className="flex flex-col gap-3 pt-2 w-full">
+              {isAuthenticated ? (
+                <>
+                  {/* Plain text welcome message for mobile */}
+                  <span className="text-center text-sm font-semibold text-pink-700 pb-2 border-b border-pink-100">
+                    Welcome, {fullName}
+                  </span>
+
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center text-white font-black px-4 py-2 rounded-full shadow-lg bg-red-500 hover:bg-red-600 transition-all duration-300"
+                  >
+                    Log Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="w-full">
+                    <button className="w-full px-4 py-2 text-sm font-semibold text-pink-700 border-2 border-pink-200 rounded-full bg-white hover:bg-pink-50 transition-all duration-300 shadow-sm" onClick={() => setMobileMenuOpen(false)}>
+                      Login
+                    </button>
+                  </Link>
+                  <Link to="/register" className="w-full">
+                    <button className="w-full text-white font-black px-4 py-2 rounded-full shadow-lg transition-all duration-300 shimmer-btn" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }} onClick={() => setMobileMenuOpen(false)}>
+                      Register
+                    </button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

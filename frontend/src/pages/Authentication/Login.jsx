@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { FaGoogle, FaApple, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
-import { Link } from "react-router-dom"; // or use <a> if not using router
+import { Link, useNavigate } from "react-router-dom";
 import FloatingHashtag from "./FloatingHashtag";
 import FloatingHashSymbols from "../../components/Hashtag";
+import api from "../../services/api";
+import toast from 'react-hot-toast';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -12,6 +14,8 @@ const Login = () => {
         remember: false,
     });
 
+    const navigate = useNavigate();
+    
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData((prev) => ({
@@ -20,10 +24,29 @@ const Login = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle login logic
-        console.log("Login with:", formData);
+        try {
+            const response = await api.post('login/', {
+                username: formData.email, // We still use email to log in
+                password: formData.password
+            });
+
+            // Store the JWT tokens for authenticated requests
+            localStorage.setItem('access', response.data.access);
+            localStorage.setItem('refresh', response.data.refresh);
+            
+            // Explicitly save the Full Name
+            if (response.data.full_name) {
+                localStorage.setItem('full_name', response.data.full_name);
+            }
+
+            toast.success("Successfully logged in!");
+            navigate('/'); // Redirect user to home
+        } catch (error) {
+            console.error("Login Error: ", error.response?.data);
+            toast.error("Invalid email or password. Please try again.");
+        }
     };
 
     return (

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { FaGoogle, FaApple, FaEnvelope, FaLock, FaUser, FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
 import { HiOutlineSparkles } from "react-icons/hi2";
-import { Link } from "react-router-dom"; // or use <a> if not using router
+import { Link, useNavigate } from "react-router-dom";
 import FloatingHashtag from "./FloatingHashtag";
 import NavBar from "../../components/Navbar";
 import FloatingHashSymbols from "../../components/Hashtag";
+import api from "../../services/api";
+import toast from 'react-hot-toast';
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +17,8 @@ const Register = () => {
         agree: false,
     });
 
+    const navigate = useNavigate();
+    
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData((prev) => ({
@@ -23,12 +27,47 @@ const Register = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle registration logic
-        console.log("Register with:", formData);
+        try {
+            // Sending name, email, and password to Django backend
+            await api.post('register/', {
+                name: formData.name,
+                email: formData.email,
+                password: formData.password
+            });
+            toast.success("Account created successfully! Redirecting to login...");
+            
+            // Optional: Add a slight delay before navigating so the user reads the toast
+            setTimeout(() => {
+                navigate('/login');
+            }, 1500);
+            
+        } catch (error) {
+            console.error("Registration Error: ", error.response?.data);
+            const errData = error.response?.data;
+            
+            if (errData && typeof errData === 'object') {
+                // If the backend sent specific field errors (e.g., email validation failed)
+                const firstKey = Object.keys(errData)[0];
+                if (firstKey) {
+                    const msg = errData[firstKey];
+                    // Format the error nicely, e.g., "Email: An account with this email already exists."
+                    const formattedMessage = Array.isArray(msg) ? msg[0] : msg;
+                    
+                    // Capitalize the field name for the toast
+                    const fieldName = firstKey.charAt(0).toUpperCase() + firstKey.slice(1);
+                    
+                    toast.error(`${fieldName}: ${formattedMessage}`);
+                } else {
+                     toast.error("Registration failed. Please check your information.");
+                }
+            } else {
+                toast.error("An unexpected error occurred. Please try again later.");
+            }
+        }
     };
-
+    
     return (
         <>
 
