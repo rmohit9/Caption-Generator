@@ -521,9 +521,9 @@ export default function Home() {
       `}</style>
 
       {/* Floating particles (icons) */}
-      {particles.map((p, i) => (
+      {/* {particles.map((p, i) => (
         <FloatingParticle key={i} {...p} />
-      ))}
+      ))} */}
 
       <FloatingHashSymbols count={100} opacity={0.1} />
 

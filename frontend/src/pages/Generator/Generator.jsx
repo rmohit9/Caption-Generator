@@ -251,14 +251,22 @@ const Generator = () => {
                     style={{ marginLeft: getMarginLeft() }}
                 >
                     {/* Header with back link */}
-                    <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-md border-b border-indigo-100 px-6 py-3 flex items-center">
-                        <h1 className="text-xl font-black text-indigo-800">Caption Generator</h1>
-                        <div className="ml-auto flex items-center gap-3">
+                    <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-md border-b border-indigo-100 px-6 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-md">
+                                <Sparkles className="w-4 h-4 text-white" />
+                            </div>
+                            <h1 className="text-xl font-black bg-gradient-to-r from-indigo-800 to-purple-600 bg-clip-text text-transparent">
+                                Caption Generator
+                            </h1>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="hidden sm:text-xs text-indigo-400 font-medium">AI Ready</span>
                             <Link
                                 to="/"
-                                className="text-sm text-indigo-600 hover:underline hidden sm:block"
+                                className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105 border border-indigo-200"
                             >
-                                ← Back to Home
+                                <span>←</span> Back
                             </Link>
                         </div>
                     </div>
@@ -361,11 +369,10 @@ const Generator = () => {
                                                     <button
                                                         key={p.id}
                                                         onClick={() => handleTogglePlatform(p.id)}
-                                                        className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${
-                                                            selectedPlatforms.includes(p.id)
-                                                                ? "text-white border-transparent shadow-md bg-gradient-to-r from-indigo-500 to-purple-500"
-                                                                : "border-indigo-200 text-indigo-400 hover:bg-indigo-50"
-                                                        }`}
+                                                        className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms.includes(p.id)
+                                                            ? "text-white border-transparent shadow-md bg-gradient-to-r from-indigo-500 to-purple-500"
+                                                            : "border-indigo-200 text-indigo-400 hover:bg-indigo-50"
+                                                            }`}
                                                     >
                                                         {p.icon}
                                                         {p.name}
@@ -396,11 +403,10 @@ const Generator = () => {
 
                                 {/* Output (unchanged) */}
                                 <div
-                                    className={`rounded-3xl overflow-hidden transition-all duration-700 ${
-                                        generated
-                                            ? "bg-white/80 backdrop-blur-md shadow-2xl shadow-indigo-300/30 border border-indigo-200"
-                                            : "border-2 border-dashed border-indigo-200 bg-white/50"
-                                    }`}
+                                    className={`rounded-3xl overflow-hidden transition-all duration-700 ${generated
+                                        ? "bg-white/80 backdrop-blur-md shadow-2xl shadow-indigo-300/30 border border-indigo-200"
+                                        : "border-2 border-dashed border-indigo-200 bg-white/50"
+                                        }`}
                                 >
                                     {!generated && !generating ? (
                                         <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
