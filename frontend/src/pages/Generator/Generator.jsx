@@ -10,9 +10,11 @@ import {
     FaFacebook,
 } from "react-icons/fa";
 
-import { PenTool, Share2, Sparkles, Copy } from "lucide-react";
+import { PenTool, Share2, Sparkles, Copy, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import GeneratorSidebar from "./GeneratorSidebar";
+import api from "../../services/api";
+import toast from "react-hot-toast";
 
 // Platform definitions (same as in Home)
 const PLATFORMS = [
@@ -22,19 +24,16 @@ const PLATFORMS = [
     { id: "facebook", name: "Facebook", icon: <FaFacebook />, color: "from-indigo-500 to-blue-500" },
 ];
 
-// Mock caption data (same as before but with length variation)
-const generateCaptions = (input, platforms) => {
-    // This would be replaced by actual API call
-    const mock = {
+// Fallback caption data for UI structure
+const getPlatformUI = (platform) => {
+    const mockUI = {
         instagram: {
             icon: <FaInstagram className="text-pink-500" />,
             label: "Instagram",
             bg: "bg-gradient-to-br from-pink-50 to-rose-50",
             border: "border-pink-200",
             tag: "bg-pink-100 text-pink-600",
-            text: `🌿 ${input.product} – ${input.description} Perfect for ${input.audience}! ${input.tone} vibe. ${input.length === "short" ? "Quick energy boost! ⚡" : input.length === "medium" ? "Elevate your daily routine with nature's best." : "Experience the ultimate wellness transformation with our premium blend."
-                }`,
-            hashtags: ["#Wellness", "#Organic", "#HealthyLiving", "#Natural", "#Energy"],
+
         },
         linkedin: {
             icon: <FaLinkedin className="text-blue-600" />,
@@ -42,8 +41,7 @@ const generateCaptions = (input, platforms) => {
             bg: "bg-gradient-to-br from-blue-50 to-cyan-50",
             border: "border-blue-200",
             tag: "bg-blue-100 text-blue-600",
-            text: `Professional insight: ${input.product} helps ${input.audience} achieve their goals. ${input.description} #Productivity`,
-            hashtags: ["#Leadership", "#BusinessGrowth", "#Innovation", "#Success"],
+
         },
         twitter: {
             icon: <FaTwitter className="text-black" />,
@@ -51,8 +49,7 @@ const generateCaptions = (input, platforms) => {
             bg: "bg-gradient-to-br from-sky-50 to-cyan-50",
             border: "border-sky-200",
             tag: "bg-sky-100 text-sky-600",
-            text: `${input.product} for ${input.audience}: ${input.description.slice(0, 50)}... ${input.tone} 🔥`,
-            hashtags: ["#Trending", "#Viral", "#Tech", "#Future"],
+
         },
         facebook: {
             icon: <FaFacebook className="text-blue-500" />,
@@ -60,53 +57,165 @@ const generateCaptions = (input, platforms) => {
             bg: "bg-gradient-to-br from-indigo-50 to-blue-50",
             border: "border-indigo-200",
             tag: "bg-indigo-100 text-indigo-600",
-            text: `Join the community! ${input.product} is changing the game for ${input.audience}. ${input.description}`,
-            hashtags: ["#Community", "#Family", "#Lifestyle", "#Wellness"],
         },
     };
-    return Object.fromEntries(
-        platforms.map((id) => [id, mock[id] || mock.instagram])
-    );
+    return mockUI[platform] || mockUI.instagram;
 };
 
 const Generator = () => {
     const [generating, setGenerating] = useState(false);
     const [generated, setGenerated] = useState(false);
-    const [copied, setCopied] = useState(false);
-    const [selectedPlatforms, setSelectedPlatforms] = useState(["instagram", "linkedin", "twitter"]);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [selectedPlatforms, setSelectedPlatforms] = useState(["instagram"]);
     const [demoInput, setDemoInput] = useState({
         product: "Organic Green Tea",
         description: "Promote natural energy and wellness",
         audience: "Fitness Enthusiasts",
         tone: "Motivational & Fresh",
-        length: "medium", // short, medium, long
+        length: "medium",
     });
-    const [generatedData, setGeneratedData] = useState({});
+    const [generatedCaptions, setGeneratedCaptions] = useState({});
+    const [refiningPlatform, setRefiningPlatform] = useState(null);
+    const [refinePrompts, setRefinePrompts] = useState({});
+    const [copiedPlatform, setCopiedPlatform] = useState(null);
 
-    const togglePlatform = (id) => {
-        setSelectedPlatforms((prev) =>
-            prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-        );
+    const handleTogglePlatform = (platformId) => {
+        setSelectedPlatforms((prev) => {
+            if (prev.includes(platformId)) {
+                return prev.filter((p) => p !== platformId);
+            } else {
+                return [...prev, platformId];
+            }
+        });
     };
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
+        setErrorMessage("");
         setGenerating(true);
         setGenerated(false);
-        setTimeout(() => {
-            const data = generateCaptions(demoInput, selectedPlatforms);
-            setGeneratedData(data);
+
+        if (selectedPlatforms.length === 0) {
+            setErrorMessage("Please select at least one platform");
             setGenerating(false);
+            return;
+        }
+
+        try {
+            const topicParts = [
+                demoInput.product,
+                demoInput.description,
+                demoInput.audience && `Audience: ${demoInput.audience}`,
+                demoInput.length && `Length: ${demoInput.length}`,
+            ].filter(Boolean);
+
+            const responses = await Promise.all(
+                selectedPlatforms.map((platform) =>
+                    api.post("generate-caption/", {
+                        platform: platform,
+                        caption_type: demoInput.tone,
+                        topic: topicParts.join(". "),
+                    })
+                )
+            );
+
+            const captions = {};
+            responses.forEach((response, index) => {
+                const platform = selectedPlatforms[index];
+                const hashtags = Array.isArray(response.data.hashtags)
+                    ? response.data.hashtags
+                    : [];
+                captions[platform] = {
+                    caption: response.data.caption,
+                    hashtags: hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)),
+                };
+            });
+
+            setGeneratedCaptions(captions);
+            setRefinePrompts({});
             setGenerated(true);
-        }, 2000);
+            toast.success("Captions generated for all selected platforms!");
+        } catch (err) {
+            const message = err?.response?.data?.error || "Failed to generate captions. Please try again.";
+            setErrorMessage(message);
+            toast.error(message);
+        } finally {
+            setGenerating(false);
+        }
     };
 
-    const handleCopyAll = () => {
-        const text = Object.entries(generatedData)
-            .map(([_, val]) => `${val.text}\n\n${val.hashtags.join(" ")}`)
-            .join("\n\n---\n\n");
+    const handleRefineCaption = async (platform) => {
+        if (!refinePrompts[platform]) {
+            toast.error("Please enter a refinement prompt");
+            return;
+        }
+
+        setRefiningPlatform(platform);
+        try {
+            const topicParts = [
+                demoInput.product,
+                demoInput.description,
+                demoInput.audience && `Audience: ${demoInput.audience}`,
+                demoInput.length && `Length: ${demoInput.length}`,
+                `Refinement: ${refinePrompts[platform]}`,
+            ].filter(Boolean);
+
+            const response = await api.post("generate-caption/", {
+                platform: platform,
+                caption_type: demoInput.tone,
+                topic: topicParts.join(". "),
+            });
+
+            const hashtags = Array.isArray(response.data.hashtags)
+                ? response.data.hashtags
+                : [];
+
+            setGeneratedCaptions((prev) => ({
+                ...prev,
+                [platform]: {
+                    caption: response.data.caption,
+                    hashtags: hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)),
+                },
+            }));
+
+            setRefinePrompts((prev) => ({
+                ...prev,
+                [platform]: "",
+            }));
+
+            toast.success(`Caption refined for ${PLATFORMS.find((p) => p.id === platform)?.name}!`);
+        } catch (err) {
+            const message = err?.response?.data?.error || "Failed to refine caption. Please try again.";
+            toast.error(message);
+        } finally {
+            setRefiningPlatform(null);
+        }
+    };
+
+    const handleCopyCaptionForPlatform = (platform) => {
+        const caption = generatedCaptions[platform];
+        if (!caption) return;
+
+        const text = `${caption.caption}\n\n${caption.hashtags.join(" ")}`;
         navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setCopiedPlatform(platform);
+        setTimeout(() => setCopiedPlatform(null), 2000);
+        toast.success("Copied to clipboard!");
+    };
+
+    const handleNewChat = () => {
+        setDemoInput({
+            product: "",
+            description: "",
+            audience: "",
+            tone: "",
+            length: "medium",
+        });
+        setSelectedPlatforms([]);
+        setGeneratedCaptions({});
+        setRefinePrompts({});
+        setGenerated(false);
+        setErrorMessage("");
+        toast.success("Ready for a new caption!");
     };
 
     return (
@@ -118,7 +227,7 @@ const Generator = () => {
                 }}
             >
                 {/* History Sidebar (self‑contained responsive) */}
-                <GeneratorSidebar />
+                <GeneratorSidebar onNewChat={handleNewChat} />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col min-h-screen overflow-y-auto lg:ml-[319.2px] md:ml-[319.2px]">
@@ -226,13 +335,13 @@ const Generator = () => {
                                         {/* Platforms */}
                                         <div>
                                             <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
-                                                <Share2 className="w-4 h-4" /> Select Platforms
+                                                <Share2 className="w-4 h-4" /> Select Platforms (Multiple)
                                             </label>
                                             <div className="flex flex-wrap gap-2">
                                                 {PLATFORMS.map((p) => (
                                                     <button
                                                         key={p.id}
-                                                        onClick={() => togglePlatform(p.id)}
+                                                        onClick={() => handleTogglePlatform(p.id)}
                                                         className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms.includes(p.id)
                                                                 ? "text-white border-transparent shadow-md bg-gradient-to-r from-indigo-500 to-purple-500"
                                                                 : "border-indigo-200 text-indigo-400 hover:bg-indigo-50"
@@ -295,7 +404,7 @@ const Generator = () => {
                                             </div>
                                             <p className="font-black text-indigo-700 mb-1">Crafting your perfect captions...</p>
                                             <p className="text-indigo-400 text-xs font-semibold">
-                                                Analyzing audience, tone & trending hashtags
+                                                Generating for {selectedPlatforms.length} platform{selectedPlatforms.length > 1 ? "s" : ""}
                                             </p>
                                         </div>
                                     ) : (
@@ -309,35 +418,107 @@ const Generator = () => {
                                                     ✓ Ready
                                                 </span>
                                             </div>
-                                            {Object.entries(generatedData).map(([key, val]) => (
-                                                <div
-                                                    key={key}
-                                                    className={`mb-4 rounded-2xl p-5 border-2 ${val.bg} ${val.border} hover:shadow-lg transition-all`}
-                                                >
-                                                    <div className="flex items-center gap-2 mb-3">
-                                                        <span className="text-lg">{val.icon}</span>
-                                                        <span className={`text-xs font-black px-2 py-1 rounded-full ${val.tag}`}>
-                                                            {val.label}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-sm text-slate-700 font-medium mb-3">{val.text}</p>
-                                                    <div className="flex flex-wrap gap-1.5">
-                                                        {val.hashtags.map((h) => (
-                                                            <span key={h} className={`text-xs ${val.tag} px-2 py-1 rounded-full font-semibold`}>
-                                                                {h}
-                                                            </span>
-                                                        ))}
-                                                    </div>
+                                            {errorMessage && (
+                                                <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-2xl text-red-700 text-sm font-semibold">
+                                                    {errorMessage}
                                                 </div>
-                                            ))}
-                                            <button
-                                                onClick={handleCopyAll}
-                                                className="w-full text-white font-black py-3 rounded-2xl mt-4 text-sm hover:-translate-y-1 transition-all shadow-lg shimmer-btn relative overflow-hidden flex items-center justify-center gap-2"
-                                                style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)" }}
-                                            >
-                                                <Copy size={16} />
-                                                {copied ? "Copied!" : "Copy All Captions & Hashtags"}
-                                            </button>
+                                            )}
+
+                                            {/* Captions for each platform */}
+                                            <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                                                {selectedPlatforms.map((platform) => {
+                                                    const caption = generatedCaptions[platform];
+                                                    if (!caption) return null;
+
+                                                    return (
+                                                        <div
+                                                            key={platform}
+                                                            className={`rounded-2xl p-4 border-2 ${getPlatformUI(platform).bg} ${getPlatformUI(platform).border} hover:shadow-lg transition-all`}
+                                                        >
+                                                            {/* Platform Header */}
+                                                            <div className="flex items-center gap-2 mb-3">
+                                                                <span className="text-lg">{getPlatformUI(platform).icon}</span>
+                                                                <span className={`text-xs font-black px-2 py-1 rounded-full ${getPlatformUI(platform).tag}`}>
+                                                                    {getPlatformUI(platform).label}
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Caption Text */}
+                                                            <p className="text-sm text-slate-700 font-medium mb-2">{caption.caption}</p>
+
+                                                            {/* Hashtags */}
+                                                            <div className="flex flex-wrap gap-1 mb-3">
+                                                                {caption.hashtags.map((h) => (
+                                                                    <span
+                                                                        key={h}
+                                                                        className={`text-xs ${getPlatformUI(platform).tag} px-2 py-0.5 rounded-full font-semibold`}
+                                                                    >
+                                                                        {h}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+
+                                                            {/* Refinement Section */}
+                                                            <div className="space-y-2 pt-3 border-t border-current border-opacity-10">
+                                                                <div className="flex gap-2">
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="Tell AI what to change..."
+                                                                        value={refinePrompts[platform] || ""}
+                                                                        onChange={(e) =>
+                                                                            setRefinePrompts((prev) => ({
+                                                                                ...prev,
+                                                                                [platform]: e.target.value,
+                                                                            }))
+                                                                        }
+                                                                        className="flex-1 text-xs px-2 py-1.5 rounded-lg border border-current border-opacity-20 bg-white/50 focus:outline-none focus:bg-white transition"
+                                                                    />
+                                                                    <button
+                                                                        onClick={() => handleRefineCaption(platform)}
+                                                                        disabled={refiningPlatform === platform}
+                                                                        className="px-2 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-md transition disabled:opacity-50 flex items-center gap-1"
+                                                                    >
+                                                                        <RotateCcw size={12} />
+                                                                        {refiningPlatform === platform ? "Refining..." : "Refine"}
+                                                                    </button>
+                                                                </div>
+
+                                                                {/* Copy & actions */}
+                                                                <button
+                                                                    onClick={() => handleCopyCaptionForPlatform(platform)}
+                                                                    className="w-full text-xs font-bold py-1.5 rounded-lg bg-white/60 hover:bg-white transition border border-current border-opacity-20"
+                                                                >
+                                                                    <Copy size={12} className="inline mr-1" />
+                                                                    {copiedPlatform === platform ? "Copied!" : "Copy"}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            {/* Copy All Button */}
+                                            {generated && Object.keys(generatedCaptions).length > 0 && (
+                                                <button
+                                                    onClick={() => {
+                                                        const allText = selectedPlatforms
+                                                            .map((platform) => {
+                                                                const caption = generatedCaptions[platform];
+                                                                if (!caption) return "";
+                                                                return `${getPlatformUI(platform).label}:\n${caption.caption}\n${caption.hashtags.join(" ")}`;
+                                                            })
+                                                            .filter(Boolean)
+                                                            .join("\n\n---\n\n");
+                                                        navigator.clipboard.writeText(allText);
+                                                        toast.success("All captions copied!");
+                                                    }}
+                                                    className="w-full text-white font-black py-3 rounded-2xl mt-4 text-sm hover:-translate-y-1 transition-all shadow-lg relative overflow-hidden flex items-center justify-center gap-2"
+                                                    style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)" }}
+                                                >
+                                                    <Copy size={16} />
+                                                    Copy All Captions & Hashtags
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                 </div>

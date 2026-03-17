@@ -76,3 +76,19 @@ class BatchProfileSerializer(serializers.ModelSerializer):
         model = BatchProfile
         fields = ('id', 'workspace', 'name', 'brand', 'audience', 'tone', 'created_at')
         read_only_fields = ('id', 'workspace', 'created_at')
+
+from .models import CaptionHistory
+
+class CaptionHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CaptionHistory
+        fields = [
+            'id',
+            'platform',
+            'caption_type',
+            'topic',
+            'caption',
+            'hashtags',
+            'created_at',
+        ]
+
