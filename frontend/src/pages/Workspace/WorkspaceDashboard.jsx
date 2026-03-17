@@ -7,8 +7,15 @@ const WorkspaceDashboard = () => {
     const navigate = useNavigate();
     const { id: workspaceId } = useParams(); 
 
-    // --- REAL BACKEND STATE FOR PROFILES ---
+    // --- REAL BACKEND STATE FOR PROFILES AND CAMPAIGNS ---
     const [profiles, setProfiles] = useState([]);
+    const [campaigns, setCampaigns] = useState([]);
+    
+    // --- UI STATE ---
+    const [sidebarTab, setSidebarTab] = useState('profiles'); 
+    const [mainView, setMainView] = useState('new_profile'); 
+    const [selectedItem, setSelectedItem] = useState(null); 
+    const [isGenerating, setIsGenerating] = useState(false);
     
     // Form States for creating/editing a Profile
     const [profileName, setProfileName] = useState("");
@@ -19,12 +26,23 @@ const WorkspaceDashboard = () => {
     const [tones, setTones] = useState([]); // Array to hold selected tones
     const [toneInput, setToneInput] = useState(""); // Holds the text being typed
 
-    // Fetch Profiles when the dashboard loads
+    // Fetch Profiles and Campaigns when the dashboard loads
     useEffect(() => {
         if (workspaceId) {
             fetchProfiles();
+            fetchCampaigns();
         }
     }, [workspaceId]);
+
+    const fetchCampaigns = async () => {
+        try {
+            const response = await api.get(`workspaces/${workspaceId}/campaigns/`);
+            setCampaigns(response.data);
+        } catch (error) {
+            console.error("Error fetching campaigns:", error);
+            toast.error("Failed to load Campaigns.");
+        }
+    };
 
     const fetchProfiles = async () => {
         try {
@@ -140,31 +158,63 @@ const WorkspaceDashboard = () => {
         clearForm();
     };
 
-    // --- MOCK DATA FOR CAMPAIGNS ---
-    const mockCampaigns = [
-        { id: 1, name: "Organic Green Tea Launch", profileName: "Fitness Brand Tone", product: "Green Tea", details: "Launch campaign...", date: "March 16, 2026" }
-    ];
+    // Form States for creating a Campaign
+    const [campaignProfileId, setCampaignProfileId] = useState("");
+    const [campaignName, setCampaignName] = useState("");
+    const [campaignProduct, setCampaignProduct] = useState("");
+    const [campaignDetails, setCampaignDetails] = useState("");
+    const [hashtagCount, setHashtagCount] = useState(5);
+    const [language, setLanguage] = useState("English");
+    const [campaignPlatforms, setCampaignPlatforms] = useState([]);
 
-    const mockResults = {
-        instagram: { caption: "Refresh your mornings...", hashtags: "#GreenTeaLover" },
-        linkedin: { caption: "Health starts with mindful choices...", hashtags: "#Productivity" }
+    const handlePlatformChange = (e) => {
+        const { value, checked } = e.target;
+        if (checked) {
+            setCampaignPlatforms([...campaignPlatforms, value]);
+        } else {
+            setCampaignPlatforms(campaignPlatforms.filter(p => p !== value));
+        }
     };
 
-    // --- UI STATE ---
-    const [sidebarTab, setSidebarTab] = useState('profiles'); 
-    const [mainView, setMainView] = useState('new_profile'); 
-    const [selectedItem, setSelectedItem] = useState(null); 
-    const [isGenerating, setIsGenerating] = useState(false);
-
     // --- CAMPAIGN HANDLERS ---
-    const handleGenerate = (e) => {
+    const handleGenerate = async (e) => {
         e.preventDefault();
+        if (campaignPlatforms.length === 0) {
+            toast.error("Please select at least one platform.");
+            return;
+        }
         setIsGenerating(true);
-        setTimeout(() => {
-            setIsGenerating(false);
-            setSelectedItem(mockCampaigns[0]);
+        try {
+            const payload = {
+                batch_profile: campaignProfileId,
+                name: campaignName,
+                product: campaignProduct,
+                details: campaignDetails,
+                hashtag_count: hashtagCount,
+                language: language,
+                platforms: campaignPlatforms
+            };
+            const response = await api.post(`workspaces/${workspaceId}/campaigns/`, payload);
+            
+            setCampaigns([response.data, ...campaigns]);
+            setSelectedItem(response.data);
             setMainView('view_campaign');
-        }, 1000);
+            toast.success("Campaign generated successfully!");
+            
+            // clear form
+            setCampaignProfileId("");
+            setCampaignName("");
+            setCampaignProduct("");
+            setCampaignDetails("");
+            setHashtagCount(5);
+            setLanguage("English");
+            setCampaignPlatforms([]);
+        } catch (error) {
+            console.error("Error creating campaign:", error);
+            toast.error("Failed to generate Campaign.");
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     const openOldCampaign = (campaign) => {
@@ -200,10 +250,10 @@ const WorkspaceDashboard = () => {
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/50">
                     {sidebarTab === 'campaigns' ? (
-                        mockCampaigns.map(camp => (
+                        campaigns.map(camp => (
                             <div key={camp.id} onClick={() => openOldCampaign(camp)} className={`p-4 rounded border cursor-pointer transition-colors ${mainView === 'view_campaign' && selectedItem?.id === camp.id ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200 hover:border-blue-300'}`}>
                                 <h4 className="font-bold text-gray-800 text-sm">{camp.name}</h4>
-                                <p className="text-xs text-gray-500 mt-1">{camp.date}</p>
+                                <p className="text-xs text-gray-500 mt-1">{new Date(camp.created_at).toLocaleDateString()}</p>
                             </div>
                         ))
                     ) : (
@@ -236,22 +286,41 @@ const WorkspaceDashboard = () => {
                             <form onSubmit={handleGenerate} className="flex flex-col gap-5">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">1. Select Batch Profile</label>
-                                    <select className="w-full border border-gray-300 p-3 rounded bg-gray-50" required>
+                                    <select value={campaignProfileId} onChange={(e) => setCampaignProfileId(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" required>
                                         <option value="">-- Choose a Saved Profile --</option>
                                         {profiles.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                     </select>
                                 </div>
-                                <div><label className="block text-sm font-bold text-gray-700 mb-1">2. Campaign Name</label><input type="text" className="w-full border border-gray-300 p-3 rounded bg-gray-50" required /></div>
-                                <div><label className="block text-sm font-bold text-gray-700 mb-1">3. Product</label><input type="text" className="w-full border border-gray-300 p-3 rounded bg-gray-50" required /></div>
-                                <div><label className="block text-sm font-bold text-gray-700 mb-1">4. Details</label><textarea className="w-full border border-gray-300 p-3 rounded bg-gray-50" rows="3" required></textarea></div>
+                                <div><label className="block text-sm font-bold text-gray-700 mb-1">2. Campaign Name</label><input type="text" value={campaignName} onChange={(e) => setCampaignName(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" required /></div>
+                                <div><label className="block text-sm font-bold text-gray-700 mb-1">3. Product / Service Name</label><input type="text" value={campaignProduct} onChange={(e) => setCampaignProduct(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" required /></div>
+                                <div><label className="block text-sm font-bold text-gray-700 mb-1">4. Details</label><textarea value={campaignDetails} onChange={(e) => setCampaignDetails(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" rows="3" required></textarea></div>
                                 
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">5. Target Platforms</label>
                                     <div className="flex gap-4 p-4 border border-gray-300 rounded bg-gray-50 flex-wrap">
-                                        <label className="flex items-center gap-2"><input type="checkbox" value="Instagram" className="w-4 h-4" /> Instagram</label>
-                                        <label className="flex items-center gap-2"><input type="checkbox" value="LinkedIn" className="w-4 h-4" /> LinkedIn</label>
-                                        <label className="flex items-center gap-2"><input type="checkbox" value="Twitter" className="w-4 h-4" /> Twitter / X</label>
-                                        <label className="flex items-center gap-2"><input type="checkbox" value="Facebook" className="w-4 h-4" /> Facebook</label>
+                                        <label className="flex items-center gap-2"><input type="checkbox" value="Instagram" checked={campaignPlatforms.includes('Instagram')} onChange={handlePlatformChange} className="w-4 h-4" /> Instagram</label>
+                                        <label className="flex items-center gap-2"><input type="checkbox" value="LinkedIn" checked={campaignPlatforms.includes('LinkedIn')} onChange={handlePlatformChange} className="w-4 h-4" /> LinkedIn</label>
+                                        <label className="flex items-center gap-2"><input type="checkbox" value="Twitter" checked={campaignPlatforms.includes('Twitter')} onChange={handlePlatformChange} className="w-4 h-4" /> Twitter / X</label>
+                                        <label className="flex items-center gap-2"><input type="checkbox" value="Facebook" checked={campaignPlatforms.includes('Facebook')} onChange={handlePlatformChange} className="w-4 h-4" /> Facebook</label>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">6. Hashtag Count</label>
+                                        <input type="number" min="0" max="30" value={hashtagCount} onChange={(e) => setHashtagCount(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">7. Language</label>
+                                        <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" required>
+                                            <option value="English">English</option>
+                                            <option value="Hindi">Hindi</option>
+                                            <option value="Hinglish">Hinglish</option>
+                                            <option value="Spanish">Spanish</option>
+                                            <option value="French">French</option>
+                                            <option value="Arabic">Arabic</option>
+                                            <option value="German">German</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -361,14 +430,21 @@ const WorkspaceDashboard = () => {
                         </div>
                     )}
 
-                    {/* VIEW CAMPAIGN (Mocked) */}
-                    {mainView === 'view_campaign' && selectedItem && (
+                    {/* VIEW CAMPAIGN */}
+                    {mainView === 'view_campaign' && selectedItem && selectedItem.results && (
                         <div className="space-y-6">
                             <h1 className="text-3xl font-bold text-gray-800 border-b pb-4">{selectedItem.name}</h1>
-                            <div className="bg-white border p-6 rounded shadow-sm">
-                                <h4 className="font-bold text-gray-800 mb-4 border-b pb-2">Instagram</h4>
-                                <textarea className="w-full border p-3 mb-4 rounded bg-gray-50" rows="3" defaultValue={mockResults.instagram.caption}></textarea>
-                            </div>
+                            {Object.keys(selectedItem.results).map((platform) => (
+                                <div key={platform} className="bg-white border p-6 rounded shadow-sm">
+                                    <h4 className="font-bold text-gray-800 mb-4 border-b pb-2 capitalize">{platform}</h4>
+                                    <textarea className="w-full border p-3 mb-4 rounded bg-gray-50" rows="3" readOnly defaultValue={selectedItem.results[platform].caption}></textarea>
+                                    {selectedItem.results[platform].hashtags && selectedItem.results[platform].hashtags.length > 0 && (
+                                        <div className="text-sm text-blue-600 font-medium">
+                                            {selectedItem.results[platform].hashtags.join(' ')}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     )}
 
