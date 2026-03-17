@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useId } from "react";
 import {
     FaShoppingBag,
     FaBullseye,
@@ -59,6 +59,96 @@ const getPlatformUI = (platform) => {
     return mockUI[platform] || mockUI.instagram;
 };
 
+const LANGUAGE_OPTIONS = [
+    { value: "English", label: "English" },
+    { value: "Hindi", label: "Hindi" },
+    { value: "Hinglish", label: "Hinglish" },
+    { value: "Spanish", label: "Spanish" },
+    { value: "French", label: "French" },
+    { value: "Other", label: "Other" },
+];
+
+const LanguageSelector = ({ label = "Language", onChange }) => {
+    const [language, setLanguage] = useState("");
+    const [customLanguage, setCustomLanguage] = useState("");
+    const selectId = useId();
+    const inputId = useId();
+    const isOther = language === "Other";
+
+    const finalLanguage = useMemo(() => {
+        return isOther ? customLanguage.trim() : language;
+    }, [isOther, customLanguage, language]);
+
+    const emitChange = (nextLanguage, nextCustom) => {
+        if (!onChange) return;
+        const nextIsOther = nextLanguage === "Other";
+        const nextFinal = nextIsOther ? nextCustom.trim() : nextLanguage;
+        onChange({
+            language: nextLanguage,
+            customLanguage: nextCustom,
+            finalLanguage: nextFinal,
+        });
+    };
+
+    return (
+        <div>
+            <label htmlFor={selectId} className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest">
+                {label}
+            </label>
+            <div className="relative">
+                <select
+                    id={selectId}
+                    value={language}
+                    onChange={(e) => {
+                        const nextLanguage = e.target.value;
+                        setLanguage(nextLanguage);
+                        emitChange(nextLanguage, customLanguage);
+                    }}
+                    className="w-full appearance-none rounded-2xl px-4 py-3 pr-11 text-sm text-slate-800 font-semibold bg-white/90 border-2 border-indigo-200 shadow-sm shadow-indigo-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                >
+                    <option value="" disabled>
+                        Select Language
+                    </option>
+                    {LANGUAGE_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                        </option>
+                    ))}
+                </select>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-indigo-400">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                </span>
+            </div>
+
+            <div
+                className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ${
+                    isOther ? "max-h-24 opacity-100 mt-3" : "max-h-0 opacity-0 mt-0"
+                }`}
+                aria-hidden={!isOther}
+            >
+                <label htmlFor={inputId} className="sr-only">
+                    Custom Language
+                </label>
+                <input
+                    id={inputId}
+                    type="text"
+                    placeholder="Type custom language..."
+                    value={customLanguage}
+                    onChange={(e) => {
+                        const nextCustom = e.target.value;
+                        setCustomLanguage(nextCustom);
+                        emitChange(language, nextCustom);
+                    }}
+                    disabled={!isOther}
+                    className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                />
+            </div>
+        </div>
+    );
+};
+
 const Generator = () => {
     const { sidebarState } = useSidebar();  // get current sidebar state
     const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
@@ -89,11 +179,17 @@ const Generator = () => {
         audience: "Fitness Enthusiasts",
         tone: "Motivational & Fresh",
         length: "medium",
+        hashtagCount: "",
     });
     const [generatedCaptions, setGeneratedCaptions] = useState({});
     const [refiningPlatform, setRefiningPlatform] = useState(null);
     const [refinePrompts, setRefinePrompts] = useState({});
     const [copiedPlatform, setCopiedPlatform] = useState(null);
+    const [languageData, setLanguageData] = useState({
+        language: "",
+        customLanguage: "",
+        finalLanguage: "",
+    });
 
     const handleTogglePlatform = (platformId) => {
         setSelectedPlatforms((prev) => {
@@ -130,6 +226,8 @@ const Generator = () => {
                         platform: platform,
                         caption_type: demoInput.tone,
                         topic: topicParts.join(". "),
+                        language: languageData.finalLanguage || "",
+                        hashtag_count: demoInput.hashtagCount || "",
                     })
                 )
             );
@@ -179,6 +277,8 @@ const Generator = () => {
                 platform: platform,
                 caption_type: demoInput.tone,
                 topic: topicParts.join(". "),
+                language: languageData.finalLanguage || "",
+                hashtag_count: demoInput.hashtagCount || "",
             });
 
             const hashtags = Array.isArray(response.data.hashtags)
@@ -225,6 +325,7 @@ const Generator = () => {
             audience: "",
             tone: "",
             length: "medium",
+            hashtagCount: "",
         });
         setSelectedPlatforms([]);
         setGeneratedCaptions({});
@@ -329,25 +430,47 @@ const Generator = () => {
                                             />
                                         </div>
 
-                                        {/* Length Preference */}
-                                        <div>
-                                            <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
-                                                <PenTool className="w-4 h-4" /> Caption Length
-                                            </label>
-                                            <div className="flex gap-3">
-                                                {["short", "medium", "long"].map((len) => (
-                                                    <label key={len} className="flex items-center gap-1 cursor-pointer">
-                                                        <input
-                                                            type="radio"
-                                                            name="length"
-                                                            value={len}
-                                                            checked={demoInput.length === len}
-                                                            onChange={(e) => setDemoInput({ ...demoInput, length: e.target.value })}
-                                                            className="w-4 h-4 text-indigo-600 border-indigo-300 focus:ring-indigo-500"
-                                                        />
-                                                        <span className="text-sm text-slate-700 capitalize">{len}</span>
-                                                    </label>
-                                                ))}
+                                        {/* Language */}
+                                        <LanguageSelector
+                                            label="Language Selection"
+                                            onChange={(data) => setLanguageData(data)}
+                                        />
+
+                                        {/* Length + Hashtag Count */}
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                                    <PenTool className="w-4 h-4" /> Caption Length
+                                                </label>
+                                                <div className="flex gap-3">
+                                                    {["short", "medium", "long"].map((len) => (
+                                                        <label key={len} className="flex items-center gap-1 cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                name="length"
+                                                                value={len}
+                                                                checked={demoInput.length === len}
+                                                                onChange={(e) => setDemoInput({ ...demoInput, length: e.target.value })}
+                                                                className="w-4 h-4 text-indigo-600 border-indigo-300 focus:ring-indigo-500"
+                                                            />
+                                                            <span className="text-sm text-slate-700 capitalize">{len}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                                    <Sparkles className="w-4 h-4" /> Hashtag Count
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    max="30"
+                                                    className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                                                    value={demoInput.hashtagCount}
+                                                    onChange={(e) => setDemoInput({ ...demoInput, hashtagCount: e.target.value })}
+                                                    placeholder="e.g. 12"
+                                                />
                                             </div>
                                         </div>
 

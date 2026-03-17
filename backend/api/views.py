@@ -44,6 +44,14 @@ def generate_caption(request):
     platform = data.get("platform")
     caption_type = data.get("caption_type")
     topic = data.get("topic")
+    language = data.get("language")
+    raw_hashtag_count = data.get("hashtag_count")
+    hashtag_count = None
+    if raw_hashtag_count not in (None, "", []):
+        try:
+            hashtag_count = int(raw_hashtag_count)
+        except (TypeError, ValueError):
+            hashtag_count = None
 
     if not platform or not caption_type or not topic:
         return Response(
@@ -90,7 +98,11 @@ def generate_caption(request):
 
     try:
         caption, hashtags = generate_caption_and_hashtags(
-            normalized_platform, str(caption_type).strip(), str(topic).strip()
+            normalized_platform,
+            str(caption_type).strip(),
+            str(topic).strip(),
+            str(language).strip() if language else None,
+            hashtag_count,
         )
     except Exception:
         logger.exception("Gemini generation failed")
