@@ -293,7 +293,7 @@ const WorkspaceDashboard = () => {
                                 </div>
                                 <div><label className="block text-sm font-bold text-gray-700 mb-1">2. Campaign Name</label><input type="text" value={campaignName} onChange={(e) => setCampaignName(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" required /></div>
                                 <div><label className="block text-sm font-bold text-gray-700 mb-1">3. Product / Service Name</label><input type="text" value={campaignProduct} onChange={(e) => setCampaignProduct(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" required /></div>
-                                <div><label className="block text-sm font-bold text-gray-700 mb-1">4. Details</label><textarea value={campaignDetails} onChange={(e) => setCampaignDetails(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" rows="3" required></textarea></div>
+                                <div><label className="block text-sm font-bold text-gray-700 mb-1">4. Campaign Description</label><textarea value={campaignDetails} onChange={(e) => setCampaignDetails(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50" rows="3" required></textarea></div>
                                 
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">5. Target Platforms</label>

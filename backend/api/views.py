@@ -13,9 +13,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 
-from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory
+from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory, Campaign
 from .services.model_router import generate_caption_and_hashtags
-from .serializers import UserSerializer, CustomTokenObtainPairSerializer, WorkspaceSerializer, BatchProfileSerializer, CaptionHistorySerializer
+from .serializers import UserSerializer, CustomTokenObtainPairSerializer, WorkspaceSerializer, BatchProfileSerializer, CaptionHistorySerializer, CampaignSerializer
 
 
 
@@ -242,3 +242,50 @@ class BatchProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return BatchProfile.objects.filter(workspace__user=self.request.user)
+
+class CampaignListCreateView(generics.ListCreateAPIView):
+    serializer_class = CampaignSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        workspace_id = self.kwargs.get('workspace_id')
+        return Campaign.objects.filter(workspace__id=workspace_id, workspace__user=self.request.user).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        workspace_id = self.kwargs.get('workspace_id')
+        workspace = get_object_or_404(Workspace, id=workspace_id, user=self.request.user)
+        
+        profile = serializer.validated_data['batch_profile']
+        platforms = serializer.validated_data.get('platforms', [])
+        product = serializer.validated_data.get('product', '')
+        details = serializer.validated_data.get('details', '')
+        
+        results = {}
+        for platform in platforms:
+            try:
+                tones_str = ', '.join(profile.tone) if isinstance(profile.tone, list) else str(profile.tone)
+                topic = f"Product: {product}. Details: {details}. Brand Tone: {tones_str}. Brand Name: {profile.brand}. Target Audience: {profile.audience}"
+                
+                caption, hashtags = generate_caption_and_hashtags(
+                    platform.lower(), "promotional", topic
+                )
+                results[platform.lower()] = {
+                    "caption": caption,
+                    "hashtags": hashtags
+                }
+            except Exception as e:
+                logger.exception(f"Failed to generate for {platform}: {e}")
+                results[platform.lower()] = {
+                    "caption": f"Error generating caption: {str(e)}",
+                    "hashtags": []
+                }
+                
+        serializer.save(workspace=workspace, results=results)
+
+class CampaignDetailView(generics.RetrieveDestroyAPIView):
+    serializer_class = CampaignSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Campaign.objects.filter(workspace__user=self.request.user)
+

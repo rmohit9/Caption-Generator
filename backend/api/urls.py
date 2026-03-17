@@ -10,7 +10,9 @@ from .views import (
     WorkspaceListCreateView, 
     WorkspaceDetailView,
     BatchProfileListCreateView, 
-    BatchProfileDetailView
+    BatchProfileDetailView,
+    CampaignListCreateView,
+    CampaignDetailView
 )
 
 urlpatterns = [
@@ -30,4 +32,8 @@ urlpatterns = [
     # Batch Profiles
     path('workspaces/<uuid:workspace_id>/profiles/', BatchProfileListCreateView.as_view(), name='profile-list'),
     path('profiles/<uuid:pk>/', BatchProfileDetailView.as_view(), name='profile-detail'),
+
+    # Campaigns
+    path('workspaces/<uuid:workspace_id>/campaigns/', CampaignListCreateView.as_view(), name='campaign-list'),
+    path('campaigns/<uuid:pk>/', CampaignDetailView.as_view(), name='campaign-detail'),
 ]
