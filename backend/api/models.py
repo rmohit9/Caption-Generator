@@ -32,6 +32,22 @@ class BatchProfile(models.Model):
     def __str__(self):
         return f"{self.name} ({self.brand})"
 
+class Campaign(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    workspace = models.ForeignKey(Workspace, related_name='campaigns', on_delete=models.CASCADE)
+    batch_profile = models.ForeignKey(BatchProfile, related_name='campaigns', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    product = models.CharField(max_length=255)
+    details = models.TextField()
+    hashtag_count = models.IntegerField(default=5)
+    language = models.CharField(max_length=50, default='English')
+    platforms = models.JSONField(default=list)
+    results = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
 class CaptionHistory(models.Model):
     user = models.ForeignKey(
         "auth.User",

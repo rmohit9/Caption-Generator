@@ -352,6 +352,226 @@ const WorkspaceDashboard = () => {
             onClick={() => { clearForm(); setMainView(sidebarTab === 'campaigns' ? 'new_campaign' : 'new_profile'); }}
             className="w-full flex items-center justify-center gap-2  text-white font-bold py-3 rounded-xl shadow-md 
             hover:shadow-lg transition-all hover:-translate-y-0.5 cursor-pointer bg-gradient-to-r from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600" 
+    const navigate = useNavigate();
+    const { id: workspaceId } = useParams(); 
+
+    // --- REAL BACKEND STATE FOR PROFILES AND CAMPAIGNS ---
+    const [profiles, setProfiles] = useState([]);
+    const [campaigns, setCampaigns] = useState([]);
+    
+    // --- UI STATE ---
+    const [sidebarTab, setSidebarTab] = useState('profiles'); 
+    const [mainView, setMainView] = useState('new_profile'); 
+    const [selectedItem, setSelectedItem] = useState(null); 
+    const [isGenerating, setIsGenerating] = useState(false);
+    
+    // Form States for creating/editing a Profile
+    const [profileName, setProfileName] = useState("");
+    const [brandName, setBrandName] = useState("");
+    const [audience, setAudience] = useState("");
+    
+    // TONE CAPSULE STATES
+    const [tones, setTones] = useState([]); // Array to hold selected tones
+    const [toneInput, setToneInput] = useState(""); // Holds the text being typed
+
+    // Fetch Profiles and Campaigns when the dashboard loads
+    useEffect(() => {
+        if (workspaceId) {
+            fetchProfiles();
+            fetchCampaigns();
+        }
+    }, [workspaceId]);
+
+    const fetchCampaigns = async () => {
+        try {
+            const response = await api.get(`workspaces/${workspaceId}/campaigns/`);
+            setCampaigns(response.data);
+        } catch (error) {
+            console.error("Error fetching campaigns:", error);
+            toast.error("Failed to load Campaigns.");
+        }
+    };
+
+    const fetchProfiles = async () => {
+        try {
+            const response = await api.get(`workspaces/${workspaceId}/profiles/`);
+            setProfiles(response.data);
+        } catch (error) {
+            console.error("Error fetching profiles:", error);
+            toast.error("Failed to load Batch Profiles.");
+        }
+    };
+
+    // --- TONE CAPSULE HANDLERS ---
+    const handleAddTone = (e) => {
+        e.preventDefault();
+        const trimmedTone = toneInput.trim();
+        if (trimmedTone && !tones.includes(trimmedTone)) {
+            setTones([...tones, trimmedTone]);
+            setToneInput("");
+        }
+    };
+
+    const handleRemoveTone = (toneToRemove) => {
+        setTones(tones.filter(t => t !== toneToRemove));
+    };
+
+    const handleToneKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            handleAddTone(e);
+        }
+    };
+
+    // --- REAL CRUD LOGIC FOR PROFILES ---
+    const handleSaveProfile = async (e) => {
+        e.preventDefault();
+        if (tones.length === 0) {
+            toast.error("Please add at least one Tone of Voice.");
+            return;
+        }
+
+        try {
+            const payload = { name: profileName, brand: brandName, audience, tone: tones };
+            const response = await api.post(`workspaces/${workspaceId}/profiles/`, payload);
+            
+            setProfiles([response.data, ...profiles]);
+            setSelectedItem(response.data);
+            setMainView('view_profile');
+            toast.success("Batch Profile created successfully!");
+            clearForm();
+        } catch (error) {
+            console.error("Error creating profile:", error);
+            toast.error("Failed to save Batch Profile.");
+        }
+    };
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        if (tones.length === 0) {
+            toast.error("Please add at least one Tone of Voice.");
+            return;
+        }
+
+        try {
+            const payload = { name: profileName, brand: brandName, audience, tone: tones };
+            const response = await api.patch(`profiles/${selectedItem.id}/`, payload);
+            
+            setProfiles(profiles.map(p => p.id === selectedItem.id ? response.data : p));
+            setSelectedItem(response.data);
+            setMainView('view_profile');
+            toast.success("Batch Profile updated!");
+            clearForm();
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            toast.error("Failed to update Batch Profile.");
+        }
+    };
+
+    const handleDeleteProfile = async () => {
+        const confirm = window.confirm("Are you sure you want to delete this Batch Profile?");
+        if (!confirm) return;
+
+        try {
+            await api.delete(`profiles/${selectedItem.id}/`);
+            setProfiles(profiles.filter(p => p.id !== selectedItem.id));
+            setSelectedItem(null);
+            setMainView('new_profile'); 
+            toast.success("Batch Profile deleted.");
+        } catch (error) {
+            console.error("Error deleting profile:", error);
+            toast.error("Failed to delete Batch Profile.");
+        }
+    };
+
+    const openEditForm = () => {
+        setProfileName(selectedItem.name);
+        setBrandName(selectedItem.brand);
+        setAudience(selectedItem.audience);
+        setTones(selectedItem.tone || []); // Ensure it loads the array
+        setMainView('edit_profile');
+    };
+
+    const clearForm = () => {
+        setProfileName("");
+        setBrandName("");
+        setAudience("");
+        setTones([]);
+        setToneInput("");
+    };
+
+    const openOldProfile = (profile) => {
+        setSelectedItem(profile);
+        setMainView('view_profile');
+        clearForm();
+    };
+
+    // Form States for creating a Campaign
+    const [campaignProfileId, setCampaignProfileId] = useState("");
+    const [campaignName, setCampaignName] = useState("");
+    const [campaignProduct, setCampaignProduct] = useState("");
+    const [campaignDetails, setCampaignDetails] = useState("");
+    const [hashtagCount, setHashtagCount] = useState(5);
+    const [language, setLanguage] = useState("English");
+    const [campaignPlatforms, setCampaignPlatforms] = useState([]);
+
+    const handlePlatformChange = (e) => {
+        const { value, checked } = e.target;
+        if (checked) {
+            setCampaignPlatforms([...campaignPlatforms, value]);
+        } else {
+            setCampaignPlatforms(campaignPlatforms.filter(p => p !== value));
+        }
+    };
+
+    // --- CAMPAIGN HANDLERS ---
+    const handleGenerate = async (e) => {
+        e.preventDefault();
+        if (campaignPlatforms.length === 0) {
+            toast.error("Please select at least one platform.");
+            return;
+        }
+        setIsGenerating(true);
+        try {
+            const payload = {
+                batch_profile: campaignProfileId,
+                name: campaignName,
+                product: campaignProduct,
+                details: campaignDetails,
+                hashtag_count: hashtagCount,
+                language: language,
+                platforms: campaignPlatforms
+            };
+            const response = await api.post(`workspaces/${workspaceId}/campaigns/`, payload);
+            
+            setCampaigns([response.data, ...campaigns]);
+            setSelectedItem(response.data);
+            setMainView('view_campaign');
+            toast.success("Campaign generated successfully!");
+            
+            // clear form
+            setCampaignProfileId("");
+            setCampaignName("");
+            setCampaignProduct("");
+            setCampaignDetails("");
+            setHashtagCount(5);
+            setLanguage("English");
+            setCampaignPlatforms([]);
+        } catch (error) {
+            console.error("Error creating campaign:", error);
+            toast.error("Failed to generate Campaign.");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const openOldCampaign = (campaign) => {
+        setSelectedItem(campaign);
+        setMainView('view_campaign');
+    };
+
+    return (
+        <div className="flex h-screen bg-gray-100 font-sans">
             
           >
             <Plus size={16} />
