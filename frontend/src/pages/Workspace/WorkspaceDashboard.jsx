@@ -210,8 +210,22 @@ const WorkspaceDashboard = () => {
                                 </div>
                                 <div><label className="block text-sm font-bold text-gray-700 mb-1">2. Campaign Name</label><input type="text" className="w-full border p-3 rounded bg-gray-50" required /></div>
                                 <div><label className="block text-sm font-bold text-gray-700 mb-1">3. Product</label><input type="text" className="w-full border p-3 rounded bg-gray-50" required /></div>
-                                <div><label className="block text-sm font-bold text-gray-700 mb-1">4. Details</label><textarea className="w-full border p-3 rounded bg-gray-50" required></textarea></div>
-                                <button type="submit" disabled={isGenerating} className="w-full bg-blue-600 text-white font-bold py-4 rounded mt-4">Generate Captions</button>
+                                <div><label className="block text-sm font-bold text-gray-700 mb-1">4. Details</label><textarea className="w-full border p-3 rounded bg-gray-50" rows="3" required></textarea></div>
+                                
+                                {/* ADDED PLATFORM SELECTION HERE */}
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">5. Target Platforms</label>
+                                    <div className="flex gap-4 p-4 border border-gray-300 rounded bg-gray-50 flex-wrap">
+                                        <label className="flex items-center gap-2"><input type="checkbox" value="Instagram" className="w-4 h-4" /> Instagram</label>
+                                        <label className="flex items-center gap-2"><input type="checkbox" value="LinkedIn" className="w-4 h-4" /> LinkedIn</label>
+                                        <label className="flex items-center gap-2"><input type="checkbox" value="Twitter" className="w-4 h-4" /> Twitter / X</label>
+                                        <label className="flex items-center gap-2"><input type="checkbox" value="Facebook" className="w-4 h-4" /> Facebook</label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" disabled={isGenerating} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded mt-4 transition-colors">
+                                    {isGenerating ? "Generating Magic..." : "Generate Captions"}
+                                </button>
                             </form>
                         </div>
                     )}
@@ -281,7 +295,7 @@ const WorkspaceDashboard = () => {
                             <h1 className="text-3xl font-bold text-gray-800 border-b pb-4">{selectedItem.name}</h1>
                             <div className="bg-white border p-6 rounded shadow-sm">
                                 <h4 className="font-bold text-gray-800 mb-4 border-b pb-2">Instagram</h4>
-                                <textarea className="w-full border p-3 mb-4 rounded" rows="3" defaultValue={mockResults.instagram.caption}></textarea>
+                                <textarea className="w-full border p-3 mb-4 rounded bg-gray-50" rows="3" defaultValue={mockResults.instagram.caption}></textarea>
                             </div>
                         </div>
                     )}
