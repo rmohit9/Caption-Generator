@@ -8,29 +8,31 @@ import Generator from './pages/Generator/Generator';
 import Workspace from './pages/Workspace/Workspace';
 import WorkspaceDashboard from './pages/Workspace/WorkspaceDashboard';
 import { Toaster } from 'react-hot-toast';
+import { SidebarProvider } from "./Context/SidebarContext"
 
 export default function App() {
   return (
     <div>
       {/* Initialize the UI Alerts */}
-      <Toaster position="top-right" reverseOrder={false} /> 
-      
-      <Routes>
-        {/* home / landing page */}
-        <Route path='/' element={<Home />} />
+      <SidebarProvider>
+        <Toaster position="top-right" reverseOrder={false} />
 
-        {/* register page */}
-        <Route path='/register' element={<Register />} />
-        <Route path='/login' element={<Login />} />
+        <Routes>
+          {/* home / landing page */}
+          <Route path='/' element={<Home />} />
 
-        {/* Generator Page  */}
+          {/* register page */}
+          <Route path='/register' element={<Register />} />
+          <Route path='/login' element={<Login />} />
 
-        <Route path='/generator' element={<Generator />} />
+          {/* Generator Page  */}
+          <Route path='/generator' element={<Generator />} />
 
-        <Route path='/workspace' element={<Workspace />} />
+          <Route path='/workspace' element={<Workspace />} />
 
-        <Route path='/workspace/:id' element={<WorkspaceDashboard />} />
-      </Routes>
+          <Route path='/workspace/:id' element={<WorkspaceDashboard />} />
+        </Routes>
+      </SidebarProvider>
     </div>
   )
 }

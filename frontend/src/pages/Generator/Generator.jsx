@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     FaShoppingBag,
     FaBullseye,
@@ -9,12 +9,12 @@ import {
     FaTwitter,
     FaFacebook,
 } from "react-icons/fa";
-
 import { PenTool, Share2, Sparkles, Copy, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import GeneratorSidebar from "./GeneratorSidebar";
 import api from "../../services/api";
 import toast from "react-hot-toast";
+import { useSidebar } from "../../context/SidebarContext"; // adjust path
 
 // Platform definitions (same as in Home)
 const PLATFORMS = [
@@ -33,7 +33,6 @@ const getPlatformUI = (platform) => {
             bg: "bg-gradient-to-br from-pink-50 to-rose-50",
             border: "border-pink-200",
             tag: "bg-pink-100 text-pink-600",
-
         },
         linkedin: {
             icon: <FaLinkedin className="text-blue-600" />,
@@ -41,7 +40,6 @@ const getPlatformUI = (platform) => {
             bg: "bg-gradient-to-br from-blue-50 to-cyan-50",
             border: "border-blue-200",
             tag: "bg-blue-100 text-blue-600",
-
         },
         twitter: {
             icon: <FaTwitter className="text-black" />,
@@ -49,7 +47,6 @@ const getPlatformUI = (platform) => {
             bg: "bg-gradient-to-br from-sky-50 to-cyan-50",
             border: "border-sky-200",
             tag: "bg-sky-100 text-sky-600",
-
         },
         facebook: {
             icon: <FaFacebook className="text-blue-500" />,
@@ -63,6 +60,25 @@ const getPlatformUI = (platform) => {
 };
 
 const Generator = () => {
+    const { sidebarState } = useSidebar();  // get current sidebar state
+    const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    // Compute left margin based on sidebar state and screen size
+    const getMarginLeft = () => {
+        if (!isDesktop) return 0; // on mobile, sidebar overlays, no margin needed
+        switch (sidebarState) {
+            case "full": return "16rem";   // 256px
+            case "mini": return "4rem";    // 64px
+            default: return 0;
+        }
+    };
+
     const [generating, setGenerating] = useState(false);
     const [generated, setGenerated] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -226,11 +242,14 @@ const Generator = () => {
                     background: "linear-gradient(135deg, #fff0f5 0%, #fce4ec 20%, #fdf2f8 40%, #fff0fb 60%, #fce8f5 80%, #fff5f7 100%)",
                 }}
             >
-                {/* History Sidebar (self‑contained responsive) */}
+                {/* History Sidebar */}
                 <GeneratorSidebar onNewChat={handleNewChat} />
 
-                {/* Main Content */}
-                <div className="flex-1 flex flex-col min-h-screen overflow-y-auto lg:ml-[319.2px] md:ml-[319.2px]">
+                {/* Main Content – margin adapts to sidebar */}
+                <div
+                    className="flex-1 flex flex-col min-h-screen overflow-y-auto transition-all duration-300"
+                    style={{ marginLeft: getMarginLeft() }}
+                >
                     {/* Header with back link */}
                     <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-md border-b border-indigo-100 px-6 py-3 flex items-center">
                         <h1 className="text-xl font-black text-indigo-800">Caption Generator</h1>
@@ -248,7 +267,7 @@ const Generator = () => {
                     <div className="flex-1 p-6 md:p-8">
                         <div className="max-w-7xl mx-auto">
                             <div className="grid lg:grid-cols-2 gap-8">
-                                {/* Input Form */}
+                                {/* Input Form (unchanged) */}
                                 <div className="bg-white/80 backdrop-blur-md rounded-3xl p-7 shadow-xl shadow-indigo-200/30 border border-indigo-100">
                                     <h3 className="font-black text-slate-800 text-lg mb-6 flex items-center gap-2">
                                         <span className="w-8 h-8 rounded-xl flex items-center justify-center text-sm bg-gradient-to-br from-indigo-500 to-purple-500 text-white">
@@ -342,10 +361,11 @@ const Generator = () => {
                                                     <button
                                                         key={p.id}
                                                         onClick={() => handleTogglePlatform(p.id)}
-                                                        className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms.includes(p.id)
+                                                        className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${
+                                                            selectedPlatforms.includes(p.id)
                                                                 ? "text-white border-transparent shadow-md bg-gradient-to-r from-indigo-500 to-purple-500"
                                                                 : "border-indigo-200 text-indigo-400 hover:bg-indigo-50"
-                                                            }`}
+                                                        }`}
                                                     >
                                                         {p.icon}
                                                         {p.name}
@@ -374,12 +394,13 @@ const Generator = () => {
                                     </div>
                                 </div>
 
-                                {/* Output */}
+                                {/* Output (unchanged) */}
                                 <div
-                                    className={`rounded-3xl overflow-hidden transition-all duration-700 ${generated
+                                    className={`rounded-3xl overflow-hidden transition-all duration-700 ${
+                                        generated
                                             ? "bg-white/80 backdrop-blur-md shadow-2xl shadow-indigo-300/30 border border-indigo-200"
                                             : "border-2 border-dashed border-indigo-200 bg-white/50"
-                                        }`}
+                                    }`}
                                 >
                                     {!generated && !generating ? (
                                         <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
