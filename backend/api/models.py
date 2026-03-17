@@ -26,7 +26,7 @@ class BatchProfile(models.Model):
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=255)
     audience = models.CharField(max_length=255)
-    tone = models.CharField(max_length=100)
+    tone = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

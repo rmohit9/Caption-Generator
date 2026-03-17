@@ -14,7 +14,10 @@ const WorkspaceDashboard = () => {
     const [profileName, setProfileName] = useState("");
     const [brandName, setBrandName] = useState("");
     const [audience, setAudience] = useState("");
-    const [tone, setTone] = useState("Professional");
+    
+    // TONE CAPSULE STATES
+    const [tones, setTones] = useState([]); // Array to hold selected tones
+    const [toneInput, setToneInput] = useState(""); // Holds the text being typed
 
     // Fetch Profiles when the dashboard loads
     useEffect(() => {
@@ -33,11 +36,37 @@ const WorkspaceDashboard = () => {
         }
     };
 
+    // --- TONE CAPSULE HANDLERS ---
+    const handleAddTone = (e) => {
+        e.preventDefault();
+        const trimmedTone = toneInput.trim();
+        if (trimmedTone && !tones.includes(trimmedTone)) {
+            setTones([...tones, trimmedTone]);
+            setToneInput("");
+        }
+    };
+
+    const handleRemoveTone = (toneToRemove) => {
+        setTones(tones.filter(t => t !== toneToRemove));
+    };
+
+    const handleToneKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            handleAddTone(e);
+        }
+    };
+
     // --- REAL CRUD LOGIC FOR PROFILES ---
     const handleSaveProfile = async (e) => {
         e.preventDefault();
+        if (tones.length === 0) {
+            toast.error("Please add at least one Tone of Voice.");
+            return;
+        }
+
         try {
-            const payload = { name: profileName, brand: brandName, audience, tone };
+            const payload = { name: profileName, brand: brandName, audience, tone: tones };
             const response = await api.post(`workspaces/${workspaceId}/profiles/`, payload);
             
             setProfiles([response.data, ...profiles]);
@@ -53,11 +82,15 @@ const WorkspaceDashboard = () => {
 
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
+        if (tones.length === 0) {
+            toast.error("Please add at least one Tone of Voice.");
+            return;
+        }
+
         try {
-            const payload = { name: profileName, brand: brandName, audience, tone };
+            const payload = { name: profileName, brand: brandName, audience, tone: tones };
             const response = await api.patch(`profiles/${selectedItem.id}/`, payload);
             
-            // Update the profile in the state array
             setProfiles(profiles.map(p => p.id === selectedItem.id ? response.data : p));
             setSelectedItem(response.data);
             setMainView('view_profile');
@@ -77,7 +110,7 @@ const WorkspaceDashboard = () => {
             await api.delete(`profiles/${selectedItem.id}/`);
             setProfiles(profiles.filter(p => p.id !== selectedItem.id));
             setSelectedItem(null);
-            setMainView('new_profile'); // Go back to create screen
+            setMainView('new_profile'); 
             toast.success("Batch Profile deleted.");
         } catch (error) {
             console.error("Error deleting profile:", error);
@@ -89,7 +122,7 @@ const WorkspaceDashboard = () => {
         setProfileName(selectedItem.name);
         setBrandName(selectedItem.brand);
         setAudience(selectedItem.audience);
-        setTone(selectedItem.tone);
+        setTones(selectedItem.tone || []); // Ensure it loads the array
         setMainView('edit_profile');
     };
 
@@ -97,7 +130,8 @@ const WorkspaceDashboard = () => {
         setProfileName("");
         setBrandName("");
         setAudience("");
-        setTone("Professional");
+        setTones([]);
+        setToneInput("");
     };
 
     const openOldProfile = (profile) => {
@@ -173,7 +207,6 @@ const WorkspaceDashboard = () => {
                             </div>
                         ))
                     ) : (
-                        // REAL PROFILES RENDERED HERE
                         profiles.map(prof => (
                             <div key={prof.id} onClick={() => openOldProfile(prof)} className={`p-4 rounded border cursor-pointer transition-colors ${(mainView === 'view_profile' || mainView === 'edit_profile') && selectedItem?.id === prof.id ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200 hover:border-blue-300'}`}>
                                 <h4 className="font-bold text-gray-800 text-sm">{prof.name}</h4>
@@ -208,11 +241,10 @@ const WorkspaceDashboard = () => {
                                         {profiles.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                     </select>
                                 </div>
-                                <div><label className="block text-sm font-bold text-gray-700 mb-1">2. Campaign Name</label><input type="text" className="w-full border p-3 rounded bg-gray-50" required /></div>
-                                <div><label className="block text-sm font-bold text-gray-700 mb-1">3. Product</label><input type="text" className="w-full border p-3 rounded bg-gray-50" required /></div>
-                                <div><label className="block text-sm font-bold text-gray-700 mb-1">4. Details</label><textarea className="w-full border p-3 rounded bg-gray-50" rows="3" required></textarea></div>
+                                <div><label className="block text-sm font-bold text-gray-700 mb-1">2. Campaign Name</label><input type="text" className="w-full border border-gray-300 p-3 rounded bg-gray-50" required /></div>
+                                <div><label className="block text-sm font-bold text-gray-700 mb-1">3. Product</label><input type="text" className="w-full border border-gray-300 p-3 rounded bg-gray-50" required /></div>
+                                <div><label className="block text-sm font-bold text-gray-700 mb-1">4. Details</label><textarea className="w-full border border-gray-300 p-3 rounded bg-gray-50" rows="3" required></textarea></div>
                                 
-                                {/* ADDED PLATFORM SELECTION HERE */}
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">5. Target Platforms</label>
                                     <div className="flex gap-4 p-4 border border-gray-300 rounded bg-gray-50 flex-wrap">
@@ -243,7 +275,7 @@ const WorkspaceDashboard = () => {
                             </div>
                             <form onSubmit={mainView === 'edit_profile' ? handleUpdateProfile : handleSaveProfile} className="flex flex-col gap-5">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Profile Name</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Profile/Title Name</label>
                                     <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder="e.g., Fitness Brand Tone" className="w-full border border-gray-300 p-3 rounded bg-gray-50" required />
                                 </div>
                                 <div>
@@ -254,15 +286,44 @@ const WorkspaceDashboard = () => {
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Target Audience</label>
                                     <input type="text" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="e.g., Fitness Enthusiasts" className="w-full border border-gray-300 p-3 rounded bg-gray-50" required />
                                 </div>
+                                
+                                {/* TONE CAPSULE INPUT UI */}
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Tone of Voice</label>
-                                    <select value={tone} onChange={(e) => setTone(e.target.value)} className="w-full border border-gray-300 p-3 rounded bg-gray-50">
-                                        <option value="Professional">Professional</option>
-                                        <option value="Casual">Casual</option>
-                                        <option value="Motivational">Motivational</option>
-                                        <option value="Humorous">Humorous</option>
-                                    </select>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Tone of Voice</label>
+                                    
+                                    {/* Display Active Capsules */}
+                                    <div className="flex flex-wrap gap-2 mb-3">
+                                        {tones.map((t, index) => (
+                                            <span key={index} className="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-2">
+                                                {t}
+                                                <button type="button" onClick={() => handleRemoveTone(t)} className="text-blue-500 hover:text-blue-700 focus:outline-none text-base leading-none">
+                                                    &times;
+                                                </button>
+                                            </span>
+                                        ))}
+                                    </div>
+
+                                    {/* Input Field with Add Button */}
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            value={toneInput} 
+                                            onChange={(e) => setToneInput(e.target.value)}
+                                            onKeyDown={handleToneKeyDown}
+                                            placeholder="Type a tone and press Enter or Add..." 
+                                            className="flex-1 border border-gray-300 p-3 rounded bg-gray-50 outline-none focus:border-blue-500" 
+                                        />
+                                        <button 
+                                            type="button" 
+                                            onClick={handleAddTone}
+                                            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-6 rounded transition-colors"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-2">e.g., Professional, Quirky, Motivational, Authoritative</p>
                                 </div>
+
                                 <button type="submit" className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded mt-4 transition-colors text-lg">
                                     {mainView === 'edit_profile' ? 'Update Profile' : 'Save Profile'}
                                 </button>
@@ -281,10 +342,21 @@ const WorkspaceDashboard = () => {
                                 </div>
                             </div>
                             <div className="space-y-6">
-                                <div><p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Profile Name</p><p className="text-lg font-bold text-gray-800 mt-1">{selectedItem.name}</p></div>
+                                <div><p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Profile/Title Name</p><p className="text-lg font-bold text-gray-800 mt-1">{selectedItem.name}</p></div>
                                 <div><p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Brand Name</p><p className="text-md text-gray-700 mt-1">{selectedItem.brand}</p></div>
                                 <div><p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Target Audience</p><p className="text-md text-gray-700 mt-1">{selectedItem.audience}</p></div>
-                                <div><p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Tone of Voice</p><p className="text-md text-gray-700 mt-1">{selectedItem.tone}</p></div>
+                                
+                                {/* DISPLAY TONES AS CAPSULES */}
+                                <div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Tone of Voice</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedItem.tone && selectedItem.tone.map((t, index) => (
+                                            <span key={index} className="bg-gray-100 border border-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full">
+                                                {t}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
