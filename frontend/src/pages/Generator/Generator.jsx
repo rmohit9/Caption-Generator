@@ -585,6 +585,13 @@ const Generator = () => {
                                                                 <span className={`text-xs font-black px-2 py-1 rounded-full ${getPlatformUI(platform).tag}`}>
                                                                     {getPlatformUI(platform).label}
                                                                 </span>
+                                                                <button
+                                                                    onClick={() => handleCopyCaptionForPlatform(platform)}
+                                                                    className={`ml-auto w-8 h-8 rounded-lg transition border-0 flex items-center justify-center ${getPlatformUI(platform).tag} hover:shadow-sm`}
+                                                                    aria-label={`Copy ${getPlatformUI(platform).label} caption`}
+                                                                >
+                                                                    <Copy size={14} />
+                                                                </button>
                                                             </div>
 
                                                             {/* Caption Text */}
@@ -604,7 +611,7 @@ const Generator = () => {
 
                                                             {/* Refinement Section */}
                                                             <div className="space-y-2 pt-3 border-t border-current border-opacity-10">
-                                                                <div className="flex gap-2">
+                                                                <div className="space-y-2">
                                                                     <input
                                                                         type="text"
                                                                         placeholder="Tell AI what to change..."
@@ -615,26 +622,19 @@ const Generator = () => {
                                                                                 [platform]: e.target.value,
                                                                             }))
                                                                         }
-                                                                        className="flex-1 text-xs px-2 py-1.5 rounded-lg border border-current border-opacity-20 bg-white/50 focus:outline-none focus:bg-white transition"
+                                                                        className="w-full text-xs px-3 py-2.5 rounded-xl border border-current border-opacity-20 bg-white/50 focus:outline-none focus:bg-white transition"
                                                                     />
                                                                     <button
                                                                         onClick={() => handleRefineCaption(platform)}
                                                                         disabled={refiningPlatform === platform}
-                                                                        className="px-2 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-md transition disabled:opacity-50 flex items-center gap-1"
+                                                                        className="w-full px-3 py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-md transition disabled:opacity-50 flex items-center justify-center gap-1"
                                                                     >
                                                                         <RotateCcw size={12} />
                                                                         {refiningPlatform === platform ? "Refining..." : "Refine"}
                                                                     </button>
                                                                 </div>
 
-                                                                {/* Copy & actions */}
-                                                                <button
-                                                                    onClick={() => handleCopyCaptionForPlatform(platform)}
-                                                                    className="w-full text-xs font-bold py-1.5 rounded-lg bg-white/60 hover:bg-white transition border border-current border-opacity-20"
-                                                                >
-                                                                    <Copy size={12} className="inline mr-1" />
-                                                                    {copiedPlatform === platform ? "Copied!" : "Copy"}
-                                                                </button>
+                                                                {/* Copy removed: icon button in header */}
                                                             </div>
                                                         </div>
                                                     );
