@@ -16,6 +16,54 @@ import api from "../../services/api";
 import toast from "react-hot-toast";
 import { useSidebar } from "../../Context/SidebarContext";
 
+const Loader = () => {
+    return (
+        <span className="refine-loader" aria-label="Refining">
+            <span className="refine-dots">
+                <span className="refine-dot" />
+                <span className="refine-dot" />
+                <span className="refine-dot" />
+                <span className="refine-dot" />
+                <span className="refine-dot" />
+            </span>
+            <style>{`
+                .refine-dots {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100%;
+                    width: 100%;
+                    gap: 4px;
+                }
+                .refine-dot {
+                    height: 6px;
+                    width: 6px;
+                    border-radius: 999px;
+                    background-color: #dbeafe;
+                    animation: refinePulse 1.2s infinite ease-in-out;
+                }
+                .refine-dot:nth-child(1) { animation-delay: -0.24s; }
+                .refine-dot:nth-child(2) { animation-delay: -0.12s; }
+                .refine-dot:nth-child(3) { animation-delay: 0s; }
+                .refine-dot:nth-child(4) { animation-delay: 0.12s; }
+                .refine-dot:nth-child(5) { animation-delay: 0.24s; }
+                @keyframes refinePulse {
+                    0%, 100% {
+                        transform: scale(0.8);
+                        background-color: #dbeafe;
+                        box-shadow: 0 0 0 0 rgba(191, 219, 254, 0.7);
+                    }
+                    50% {
+                        transform: scale(1.25);
+                        background-color: #93c5fd;
+                        box-shadow: 0 0 0 6px rgba(191, 219, 254, 0);
+                    }
+                }
+            `}</style>
+        </span>
+    );
+};
+
 // Platform definitions
 const PLATFORMS = [
     { id: "instagram", name: "Instagram", icon: <FaInstagram />, color: "from-pink-400 to-rose-500" },
@@ -668,8 +716,14 @@ const Generator = () => {
                                                                         disabled={refiningPlatform === platform}
                                                                         className="w-full px-3 py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-md transition disabled:opacity-50 flex items-center justify-center gap-1"
                                                                     >
-                                                                        <RotateCcw size={12} />
-                                                                        {refiningPlatform === platform ? "Refining..." : "Refine"}
+                                                                        {refiningPlatform === platform ? (
+                                                                            <Loader />
+                                                                        ) : (
+                                                                            <>
+                                                                                <RotateCcw size={12} />
+                                                                                Refine
+                                                                            </>
+                                                                        )}
                                                                     </button>
                                                                 </div>
                                                             </div>
