@@ -46,6 +46,7 @@ def generate_caption(request):
     topic = data.get("topic")
     language = data.get("language")
     raw_hashtag_count = data.get("hashtag_count")
+    history_id = data.get("history_id")
     hashtag_count = None
     if raw_hashtag_count not in (None, "", []):
         try:
@@ -126,24 +127,37 @@ def generate_caption(request):
         )
 
     # Save generation history for analytics and display
-    guest_identifier_hash = None
-    if not request.user.is_authenticated:
-        guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
-        guest_identifier_hash = _hash_guest_id(guest_raw)
+    history_record = None
 
-    CaptionHistory.objects.create(
-        user=request.user if request.user.is_authenticated else None,
-        guest_identifier_hash=guest_identifier_hash,
-        platform=normalized_platform,
-        caption_type=str(caption_type).strip(),
-        topic=str(topic).strip(),
-        caption=caption,
-        hashtags=hashtags,
-    )
+    if request.user.is_authenticated and history_id:
+        # Refining an existing caption – update in place instead of creating a duplicate
+        try:
+            history_record = CaptionHistory.objects.get(id=history_id, user=request.user)
+            history_record.topic = str(topic).strip()
+            history_record.caption = caption
+            history_record.hashtags = hashtags
+            history_record.save()
+        except CaptionHistory.DoesNotExist:
+            history_record = None  # fall through to create a new one
 
+    if history_record is None:
+        guest_identifier_hash = None
+        if not request.user.is_authenticated:
+            guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
+            guest_identifier_hash = _hash_guest_id(guest_raw)
+
+        history_record = CaptionHistory.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            guest_identifier_hash=guest_identifier_hash,
+            platform=normalized_platform,
+            caption_type=str(caption_type).strip(),
+            topic=str(topic).strip(),
+            caption=caption,
+            hashtags=hashtags,
+        )
 
     response = Response(
-        {"caption": caption, "hashtags": hashtags},
+        {"id": history_record.id, "caption": caption, "hashtags": hashtags},
         status=status.HTTP_200_OK,
     )
 
@@ -175,10 +189,9 @@ def caption_history(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(["DELETE"])
+@api_view(["DELETE", "PATCH"])
 @permission_classes([AllowAny])
-def delete_caption_history(request, history_id):
-    # Delete a specific caption from history
+def manage_caption_history(request, history_id):
     try:
         if request.user.is_authenticated:
             caption = CaptionHistory.objects.get(id=history_id, user=request.user)
@@ -187,8 +200,22 @@ def delete_caption_history(request, history_id):
             guest_hash = _hash_guest_id(guest_raw)
             caption = CaptionHistory.objects.get(id=history_id, guest_identifier_hash=guest_hash)
         
-        caption.delete()
-        return Response({"message": "Caption deleted successfully"}, status=status.HTTP_200_OK)
+        if request.method == "DELETE":
+            caption.delete()
+            return Response({"message": "Caption deleted successfully"}, status=status.HTTP_200_OK)
+            
+        elif request.method == "PATCH":
+            topic = request.data.get("topic")
+            is_pinned = request.data.get("is_pinned")
+            
+            if topic is not None:
+                caption.topic = topic
+            if is_pinned is not None:
+                caption.is_pinned = is_pinned
+                
+            caption.save()
+            return Response({"message": "Caption updated successfully"}, status=status.HTTP_200_OK)
+
     except CaptionHistory.DoesNotExist:
         return Response({"error": "Caption not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:

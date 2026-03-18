@@ -74,7 +74,10 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 class BatchProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = BatchProfile
-        fields = ('id', 'workspace', 'name', 'brand', 'audience', 'tone', 'created_at')
+        fields = (
+            'id', 'workspace', 'name', 'brand', 'audience', 'tone', 
+            'language', 'length', 'hashtag_count', 'created_at'
+        )
         read_only_fields = ('id', 'workspace', 'created_at')
 
 class CampaignSerializer(serializers.ModelSerializer):
@@ -97,6 +100,7 @@ class CaptionHistorySerializer(serializers.ModelSerializer):
             'topic',
             'caption',
             'hashtags',
+            'is_pinned',
             'created_at',
         ]
 

@@ -21,7 +21,7 @@ import {
 } from "react-icons/fa";
 import api from "../../services/api";
 import toast from "react-hot-toast";
-import { useSidebar } from "../../context/SidebarContext";
+import { useSidebar } from "../../Context/SidebarContext"; // Adjust path if needed
 
 // ---------- Helper: relative time ----------
 function formatRelativeTime(date) {
@@ -65,7 +65,7 @@ function MiniIconBtn({ icon: Icon, label, onClick }) {
 }
 
 // ---------- History row for full sidebar (with dropdown menu) ----------
-function HistoryRow({ item, onDelete, onRename, onTogglePin }) {
+function HistoryRow({ item, onSelect, onDelete, onRename, onTogglePin }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -81,10 +81,14 @@ function HistoryRow({ item, onDelete, onRename, onTogglePin }) {
   }, []);
 
   return (
-    <div className="group relative flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-indigo-50 transition cursor-pointer">
+    <div 
+      onClick={onSelect}
+      className="group relative flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-indigo-50 transition cursor-pointer"
+    >
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1">
-          {item.pinned && <FaThumbtack size={10} className="text-indigo-400 rotate-45" />}
+        <div className="flex items-center gap-1.5">
+          {/* INCREASED PIN SIZE HERE */}
+          {item.pinned && <FaThumbtack size={14} className="text-indigo-500 rotate-45 shrink-0" />}
           <p className="text-sm font-medium text-indigo-900 truncate">{item.product}</p>
         </div>
         <p className="text-xs text-indigo-400 truncate mt-0.5">{item.preview}</p>
@@ -97,30 +101,30 @@ function HistoryRow({ item, onDelete, onRename, onTogglePin }) {
           onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
           className="p-1.5 rounded-lg hover:bg-indigo-100 text-indigo-400 hover:text-indigo-600 transition opacity-0 group-hover:opacity-100"
         >
-          <FaEllipsisV size={10} />
+          <FaEllipsisV size={12} />
         </button>
 
         {/* Dropdown menu */}
         {menuOpen && (
           <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-indigo-200 rounded-lg shadow-xl z-50 overflow-hidden">
             <button
-              onClick={() => { setMenuOpen(false); onDelete(item.id); }}
-              className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onDelete(item.id); }}
+              className="w-full text-left px-3 py-2.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
             >
-              <FaTrash size={10} /> Delete
+              <FaTrash size={12} /> Delete
             </button>
             <button
-              onClick={() => { setMenuOpen(false); onRename(item.id); }}
-              className="w-full text-left px-3 py-2 text-xs text-indigo-700 hover:bg-indigo-50 flex items-center gap-2"
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onRename(item.id); }}
+              className="w-full text-left px-3 py-2.5 text-xs text-indigo-700 hover:bg-indigo-50 flex items-center gap-2"
             >
-              <FaPen size={10} /> Rename
+              <FaPen size={12} /> Rename
             </button>
             <button
-              onClick={() => { setMenuOpen(false); onTogglePin(item.id); }}
-              className="w-full text-left px-3 py-2 text-xs text-indigo-700 hover:bg-indigo-50 flex items-center gap-2"
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onTogglePin(item.id); }}
+              className="w-full text-left px-3 py-2.5 text-xs text-indigo-700 hover:bg-indigo-50 flex items-center gap-2"
             >
-              <FaThumbtack size={10} className={item.pinned ? "rotate-45" : ""} />
-              {item.pinned ? "Unpin" : "Pin"}
+              <FaThumbtack size={12} className={item.pinned ? "rotate-45" : ""} />
+              {item.pinned ? "Unpin" : "Pin to top"}
             </button>
           </div>
         )}
@@ -130,7 +134,7 @@ function HistoryRow({ item, onDelete, onRename, onTogglePin }) {
 }
 
 // ---------- Main component ----------
-export default function GeneratorSidebar({ onNewChat, refreshKey }) {
+export default function GeneratorSidebar({ onNewChat, onSelectHistory, refreshKey }) {
   const { sidebarState, setSidebarState } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -173,8 +177,9 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
             relativeTime: formatRelativeTime(created),
             platform: item.platform,
             caption: item.caption,
+            caption_type: item.caption_type,
             hashtags: item.hashtags,
-            pinned: item.is_pinned || false, // assuming backend returns this
+            pinned: item.is_pinned || false, 
           };
         });
         setHistory(formatted);
@@ -189,7 +194,6 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
     }
   };
 
-  // Initial fetch & refresh when refreshKey changes
   useEffect(() => {
     fetchHistory();
   }, [refreshKey]);
@@ -238,7 +242,6 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
     const newName = window.prompt("Enter new name for this caption:", item.product);
     if (!newName || newName.trim() === "" || newName === item.product) return;
     try {
-      // Assuming backend accepts PATCH to update topic
       await api.patch(`caption-history/${itemId}/`, { topic: newName.trim() });
       setHistory((prev) =>
         prev.map((h) =>
@@ -256,7 +259,6 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
     const item = history.find((h) => h.id === itemId);
     if (!item) return;
     try {
-      // Assuming backend accepts PATCH to update is_pinned
       await api.patch(`caption-history/${itemId}/`, { is_pinned: !item.pinned });
       setHistory((prev) =>
         prev.map((h) =>
@@ -269,36 +271,39 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
     }
   };
 
-  // Filter and sort history: pinned first, then by date desc
+  // Filter history based on search, and sort ONLY by date (pin grouping happens next)
   const filteredHistory = history
     .filter((item) =>
       item.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.preview.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .sort((a, b) => {
-      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-      return b.createdAt - a.createdAt; // newest first
-    });
+    .sort((a, b) => b.createdAt - a.createdAt); // newest first
 
-  // Group by date (ignoring pins for group headers, but items are already sorted)
+  // UPDATED GROUPING: Pinned gets its own section at the absolute top!
   const groupHistory = (items) => {
-    const today = [], yesterday = [], older = [];
+    const pinned = [], today = [], yesterday = [], older = [];
     const now = new Date();
     const todayStart = new Date(now.setHours(0, 0, 0, 0));
     const yesterdayStart = new Date(todayStart);
     yesterdayStart.setDate(yesterdayStart.getDate() - 1);
 
     items.forEach((item) => {
-      const itemDate = new Date(item.createdAt);
-      if (itemDate >= todayStart) {
-        today.push(item);
-      } else if (itemDate >= yesterdayStart && itemDate < todayStart) {
-        yesterday.push(item);
+      // If it's pinned, intercept it and put it in the pinned array
+      if (item.pinned) {
+        pinned.push(item);
       } else {
-        older.push(item);
+        // Otherwise, group it by date
+        const itemDate = new Date(item.createdAt);
+        if (itemDate >= todayStart) {
+          today.push(item);
+        } else if (itemDate >= yesterdayStart && itemDate < todayStart) {
+          yesterday.push(item);
+        } else {
+          older.push(item);
+        }
       }
     });
-    return { today, yesterday, older };
+    return { pinned, today, yesterday, older };
   };
   const groups = groupHistory(filteredHistory);
 
@@ -323,10 +328,7 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
         {/* FULL VIEW */}
         {sidebarState === "full" && (
           <div className="flex flex-col h-full" style={{ width: "16rem" }}>
-
             {/* Header */}
-
-
             <div className="flex items-center justify-between px-3 pt-3 pb-2 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
@@ -335,7 +337,7 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
               </div>
               <button
                 onClick={() => setSidebarState(isMobile ? "closed" : "mini")}
-                className="p-2 rounded-lg hover:bg-indigo-100 text-indigo-400 hover:text-indigo-600 transition"
+                className="p-2 rounded-lg hover:bg-indigo-100 text-indigo-400 hover:text-indigo-600 transition cursor-pointer"
                 title="Collapse"
               >
                 <FaChevronLeft size={13} />
@@ -346,7 +348,7 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
             <div className="px-3 pt-1 pb-2 flex-shrink-0">
               <button
                 onClick={onNewChat}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-indigo-50 text-indigo-700 transition group"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-indigo-50 text-indigo-700 transition group cursor-pointer"
               >
                 <div className="w-7 h-7 rounded-lg border border-indigo-200 bg-white group-hover:bg-indigo-100 flex items-center justify-center shadow-sm">
                   <FaPlus size={11} className="text-indigo-500" />
@@ -356,7 +358,7 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
 
               <button
                 onClick={() => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50); }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-indigo-50 text-indigo-500 transition group mt-0.5"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-indigo-50 text-indigo-500 transition group mt-0.5 cursor-pointer"
               >
                 <div className="w-7 h-7 rounded-lg border border-indigo-200 bg-white group-hover:bg-indigo-100 flex items-center justify-center shadow-sm">
                   <FaSearch size={11} className="text-indigo-400" />
@@ -394,6 +396,26 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
                 </p>
               ) : (
                 <>
+                  {/* PINNED GROUP */}
+                  {groups.pinned.length > 0 && (
+                    <>
+                      <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-indigo-400 flex items-center gap-1">
+                        <FaThumbtack size={10} className="rotate-45" /> Pinned
+                      </p>
+                      {groups.pinned.map((item) => (
+                        <HistoryRow
+                          key={item.id}
+                          item={item}
+                          onSelect={() => onSelectHistory(item)}
+                          onDelete={handleDeleteCaption}
+                          onRename={handleRenameCaption}
+                          onTogglePin={handleTogglePin}
+                        />
+                      ))}
+                    </>
+                  )}
+
+                  {/* TODAY GROUP */}
                   {groups.today.length > 0 && (
                     <>
                       <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-indigo-300">Today</p>
@@ -401,6 +423,7 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
                         <HistoryRow
                           key={item.id}
                           item={item}
+                          onSelect={() => onSelectHistory(item)}
                           onDelete={handleDeleteCaption}
                           onRename={handleRenameCaption}
                           onTogglePin={handleTogglePin}
@@ -408,6 +431,8 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
                       ))}
                     </>
                   )}
+
+                  {/* YESTERDAY GROUP */}
                   {groups.yesterday.length > 0 && (
                     <>
                       <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-indigo-300">Yesterday</p>
@@ -415,6 +440,7 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
                         <HistoryRow
                           key={item.id}
                           item={item}
+                          onSelect={() => onSelectHistory(item)}
                           onDelete={handleDeleteCaption}
                           onRename={handleRenameCaption}
                           onTogglePin={handleTogglePin}
@@ -422,6 +448,8 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
                       ))}
                     </>
                   )}
+
+                  {/* OLDER GROUP */}
                   {groups.older.length > 0 && (
                     <>
                       <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-indigo-300">Older</p>
@@ -429,6 +457,7 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
                         <HistoryRow
                           key={item.id}
                           item={item}
+                          onSelect={() => onSelectHistory(item)}
                           onDelete={handleDeleteCaption}
                           onRename={handleRenameCaption}
                           onTogglePin={handleTogglePin}
@@ -445,7 +474,7 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
               <div className="relative">
                 <button
                   onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-indigo-50 transition"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-indigo-50 transition cursor-pointer"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow flex-shrink-0">
                     {userName.charAt(0).toUpperCase()}
@@ -490,9 +519,6 @@ export default function GeneratorSidebar({ onNewChat, refreshKey }) {
             <MiniIconBtn icon={FaSearch} label="Search chats" onClick={expandSearch} />
 
             <div className="w-6 border-t border-indigo-100 my-2" />
-
-            {/* <MiniIconBtn icon={FaMagic} label="Caption Generator" /> */}
-
 
             <div className="flex-1" />
 

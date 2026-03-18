@@ -10,29 +10,43 @@ import WorkspaceDashboard from './pages/Workspace/WorkspaceDashboard';
 import { Toaster } from 'react-hot-toast';
 import { SidebarProvider } from "./Context/SidebarContext"
 
+const ProtectedRoute = ({ children }) => {
+    const isAuthenticated = !!localStorage.getItem("access");
+    return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
 export default function App() {
   return (
-    <div>
-      {/* Initialize the UI Alerts */}
-      <SidebarProvider>
-        <Toaster position="top-right" reverseOrder={false} />
-
+    // 2. WRAP YOUR APP IN THE PROVIDER
+    <SidebarProvider>
+      <div>
+        <Toaster position="top-right" reverseOrder={false} /> 
+        
         <Routes>
-          {/* home / landing page */}
           <Route path='/' element={<Home />} />
-
-          {/* register page */}
           <Route path='/register' element={<Register />} />
           <Route path='/login' element={<Login />} />
-
-          {/* Generator Page  */}
+          
           <Route path='/generator' element={<Generator />} />
-
-          <Route path='/workspace' element={<Workspace />} />
-
-          <Route path='/workspace/:id' element={<WorkspaceDashboard />} />
+          
+          <Route 
+            path='/workspace' 
+            element={
+              <ProtectedRoute>
+                <Workspace />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/workspace/:id' 
+            element={
+              <ProtectedRoute>
+                <WorkspaceDashboard />
+              </ProtectedRoute>
+            } 
+          /> 
         </Routes>
-      </SidebarProvider>
-    </div>
+      </div>
+    </SidebarProvider>
   )
 }

@@ -27,6 +27,11 @@ class BatchProfile(models.Model):
     brand = models.CharField(max_length=255)
     audience = models.CharField(max_length=255)
     tone = models.JSONField(default=list)
+    
+    language = models.CharField(max_length=50, default="English")
+    length = models.CharField(max_length=20, default="medium")
+    hashtag_count = models.IntegerField(null=True, blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -62,6 +67,7 @@ class CaptionHistory(models.Model):
     topic = models.TextField()
     caption = models.TextField()
     hashtags = models.JSONField(default=list)
+    is_pinned = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

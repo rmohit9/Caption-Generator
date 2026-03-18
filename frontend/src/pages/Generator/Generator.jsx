@@ -14,9 +14,9 @@ import { Link } from "react-router-dom";
 import GeneratorSidebar from "./GeneratorSidebar";
 import api from "../../services/api";
 import toast from "react-hot-toast";
-import { useSidebar } from "../../context/SidebarContext"; // adjust path
+import { useSidebar } from "../../Context/SidebarContext";
 
-// Platform definitions (same as in Home)
+// Platform definitions
 const PLATFORMS = [
     { id: "instagram", name: "Instagram", icon: <FaInstagram />, color: "from-pink-400 to-rose-500" },
     { id: "linkedin", name: "LinkedIn", icon: <FaLinkedin />, color: "from-blue-500 to-cyan-500" },
@@ -24,37 +24,12 @@ const PLATFORMS = [
     { id: "facebook", name: "Facebook", icon: <FaFacebook />, color: "from-indigo-500 to-blue-500" },
 ];
 
-// Fallback caption data for UI structure
 const getPlatformUI = (platform) => {
     const mockUI = {
-        instagram: {
-            icon: <FaInstagram className="text-pink-500" />,
-            label: "Instagram",
-            bg: "bg-gradient-to-br from-pink-50 to-rose-50",
-            border: "border-pink-200",
-            tag: "bg-pink-100 text-pink-600",
-        },
-        linkedin: {
-            icon: <FaLinkedin className="text-blue-600" />,
-            label: "LinkedIn",
-            bg: "bg-gradient-to-br from-blue-50 to-cyan-50",
-            border: "border-blue-200",
-            tag: "bg-blue-100 text-blue-600",
-        },
-        twitter: {
-            icon: <FaTwitter className="text-black" />,
-            label: "Twitter/X",
-            bg: "bg-gradient-to-br from-sky-50 to-cyan-50",
-            border: "border-sky-200",
-            tag: "bg-sky-100 text-sky-600",
-        },
-        facebook: {
-            icon: <FaFacebook className="text-blue-500" />,
-            label: "Facebook",
-            bg: "bg-gradient-to-br from-indigo-50 to-blue-50",
-            border: "border-indigo-200",
-            tag: "bg-indigo-100 text-indigo-600",
-        },
+        instagram: { icon: <FaInstagram className="text-pink-500" />, label: "Instagram", bg: "bg-gradient-to-br from-pink-50 to-rose-50", border: "border-pink-200", tag: "bg-pink-100 text-pink-600" },
+        linkedin: { icon: <FaLinkedin className="text-blue-600" />, label: "LinkedIn", bg: "bg-gradient-to-br from-blue-50 to-cyan-50", border: "border-blue-200", tag: "bg-blue-100 text-blue-600" },
+        twitter: { icon: <FaTwitter className="text-black" />, label: "Twitter/X", bg: "bg-gradient-to-br from-sky-50 to-cyan-50", border: "border-sky-200", tag: "bg-sky-100 text-sky-600" },
+        facebook: { icon: <FaFacebook className="text-blue-500" />, label: "Facebook", bg: "bg-gradient-to-br from-indigo-50 to-blue-50", border: "border-indigo-200", tag: "bg-indigo-100 text-indigo-600" },
     };
     return mockUI[platform] || mockUI.instagram;
 };
@@ -68,26 +43,17 @@ const LANGUAGE_OPTIONS = [
     { value: "Other", label: "Other" },
 ];
 
-const LanguageSelector = ({ label = "Language", onChange }) => {
-    const [language, setLanguage] = useState("");
-    const [customLanguage, setCustomLanguage] = useState("");
+// UPDATED: Now a Controlled Component receiving 'value' from parent
+const LanguageSelector = ({ label = "Language", value, onChange }) => {
     const selectId = useId();
     const inputId = useId();
-    const isOther = language === "Other";
-
-    const finalLanguage = useMemo(() => {
-        return isOther ? customLanguage.trim() : language;
-    }, [isOther, customLanguage, language]);
+    const isOther = value.language === "Other";
 
     const emitChange = (nextLanguage, nextCustom) => {
         if (!onChange) return;
         const nextIsOther = nextLanguage === "Other";
         const nextFinal = nextIsOther ? nextCustom.trim() : nextLanguage;
-        onChange({
-            language: nextLanguage,
-            customLanguage: nextCustom,
-            finalLanguage: nextFinal,
-        });
+        onChange({ language: nextLanguage, customLanguage: nextCustom, finalLanguage: nextFinal });
     };
 
     return (
@@ -98,21 +64,13 @@ const LanguageSelector = ({ label = "Language", onChange }) => {
             <div className="relative">
                 <select
                     id={selectId}
-                    value={language}
-                    onChange={(e) => {
-                        const nextLanguage = e.target.value;
-                        setLanguage(nextLanguage);
-                        emitChange(nextLanguage, customLanguage);
-                    }}
+                    value={value.language}
+                    onChange={(e) => emitChange(e.target.value, value.customLanguage)}
                     className="w-full appearance-none rounded-2xl px-4 py-3 pr-11 text-sm text-slate-800 font-semibold bg-white/90 border-2 border-indigo-200 shadow-sm shadow-indigo-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
                 >
-                    <option value="" disabled>
-                        Select Language
-                    </option>
+                    <option value="" disabled>Select Language</option>
                     {LANGUAGE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                        </option>
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                 </select>
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-indigo-400">
@@ -122,25 +80,14 @@ const LanguageSelector = ({ label = "Language", onChange }) => {
                 </span>
             </div>
 
-            <div
-                className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ${
-                    isOther ? "max-h-24 opacity-100 mt-3" : "max-h-0 opacity-0 mt-0"
-                }`}
-                aria-hidden={!isOther}
-            >
-                <label htmlFor={inputId} className="sr-only">
-                    Custom Language
-                </label>
+            <div className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ${isOther ? "max-h-24 opacity-100 mt-3" : "max-h-0 opacity-0 mt-0"}`} aria-hidden={!isOther}>
+                <label htmlFor={inputId} className="sr-only">Custom Language</label>
                 <input
                     id={inputId}
                     type="text"
                     placeholder="Type custom language..."
-                    value={customLanguage}
-                    onChange={(e) => {
-                        const nextCustom = e.target.value;
-                        setCustomLanguage(nextCustom);
-                        emitChange(language, nextCustom);
-                    }}
+                    value={value.customLanguage}
+                    onChange={(e) => emitChange(value.language, e.target.value)}
                     disabled={!isOther}
                     className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 />
@@ -150,7 +97,7 @@ const LanguageSelector = ({ label = "Language", onChange }) => {
 };
 
 const Generator = () => {
-    const { sidebarState } = useSidebar();  // get current sidebar state
+    const { sidebarState, setSidebarState } = useSidebar(); 
     const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
 
     useEffect(() => {
@@ -159,12 +106,11 @@ const Generator = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Compute left margin based on sidebar state and screen size
     const getMarginLeft = () => {
-        if (!isDesktop) return 0; // on mobile, sidebar overlays, no margin needed
+        if (!isDesktop) return 0;
         switch (sidebarState) {
-            case "full": return "16rem";   // 256px
-            case "mini": return "4rem";    // 64px
+            case "full": return "16rem";
+            case "mini": return "4rem";
             default: return 0;
         }
     };
@@ -173,32 +119,132 @@ const Generator = () => {
     const [generated, setGenerated] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [selectedPlatforms, setSelectedPlatforms] = useState(["instagram"]);
+    const [generatedHistoryIds, setGeneratedHistoryIds] = useState({});
+    const [refreshSidebar, setRefreshSidebar] = useState(0);
+
     const [demoInput, setDemoInput] = useState({
-        product: "Organic Green Tea",
-        description: "Promote natural energy and wellness",
-        audience: "Fitness Enthusiasts",
-        tone: "Motivational & Fresh",
+        product: "",
+        description: "",
+        audience: "",
+        tone: "",
         length: "medium",
         hashtagCount: "",
     });
+    
     const [generatedCaptions, setGeneratedCaptions] = useState({});
     const [refiningPlatform, setRefiningPlatform] = useState(null);
     const [refinePrompts, setRefinePrompts] = useState({});
-    const [copiedPlatform, setCopiedPlatform] = useState(null);
+    
+    // Initialized so it doesn't complain about being uncontrolled
     const [languageData, setLanguageData] = useState({
-        language: "",
-        customLanguage: "",
-        finalLanguage: "",
+        language: "", customLanguage: "", finalLanguage: "",
     });
 
     const handleTogglePlatform = (platformId) => {
         setSelectedPlatforms((prev) => {
-            if (prev.includes(platformId)) {
-                return prev.filter((p) => p !== platformId);
+            if (prev.includes(platformId)) return prev.filter((p) => p !== platformId);
+            return [...prev, platformId];
+        });
+    };
+
+    // UPDATED PARSER: Now grabs Language and Hashtag Count
+    const handleSelectHistory = (item) => {
+        let fullTopic = item.product || ""; 
+        let parsedAudience = "";
+        let parsedLength = "medium";
+        let parsedLanguage = "";
+        let parsedHashtagCount = item.hashtags ? item.hashtags.length.toString() : ""; // Fallback
+        let parsedRefinement = "";
+
+        const audienceRegex = /Audience:\s*([^.]+)/;
+        const audienceMatch = fullTopic.match(audienceRegex);
+        if (audienceMatch) {
+            parsedAudience = audienceMatch[1].trim();
+            fullTopic = fullTopic.replace(audienceMatch[0], "").trim();
+        }
+
+        const lengthRegex = /Length:\s*([^.]+)/;
+        const lengthMatch = fullTopic.match(lengthRegex);
+        if (lengthMatch) {
+            parsedLength = lengthMatch[1].trim();
+            fullTopic = fullTopic.replace(lengthMatch[0], "").trim();
+        }
+
+        const languageRegex = /Language:\s*([^.]+)/;
+        const languageMatch = fullTopic.match(languageRegex);
+        if (languageMatch) {
+            parsedLanguage = languageMatch[1].trim();
+            fullTopic = fullTopic.replace(languageMatch[0], "").trim();
+        }
+
+        const hashtagRegex = /Hashtags:\s*([^.]+)/;
+        const hashtagMatch = fullTopic.match(hashtagRegex);
+        if (hashtagMatch) {
+            parsedHashtagCount = hashtagMatch[1].trim();
+            fullTopic = fullTopic.replace(hashtagMatch[0], "").trim();
+        }
+
+        const refinementRegex = /Refinement:\s*([^.]+)/;
+        const refinementMatch = fullTopic.match(refinementRegex);
+        if (refinementMatch) {
+            parsedRefinement = refinementMatch[1].trim();
+            fullTopic = fullTopic.replace(refinementMatch[0], "").trim();
+        }
+
+        fullTopic = fullTopic.replace(/\.\s*\./g, ".").replace(/^\.+|\.+$/g, "").trim();
+
+        let parsedProduct = fullTopic;
+        let parsedDescription = "";
+        const firstDotIndex = fullTopic.indexOf(". "); 
+        if (firstDotIndex !== -1) {
+            parsedProduct = fullTopic.substring(0, firstDotIndex).trim();
+            parsedDescription = fullTopic.substring(firstDotIndex + 2).trim();
+            parsedDescription = parsedDescription.replace(/^\.+|\.+$/g, "").trim();
+        }
+
+        setDemoInput({
+            product: parsedProduct,
+            description: parsedDescription, 
+            audience: parsedAudience,
+            tone: item.caption_type || "",
+            length: parsedLength || "medium",
+            hashtagCount: parsedHashtagCount, 
+        });
+        
+        // Restore Language Dropdown visually
+        if (parsedLanguage) {
+            const isStandard = LANGUAGE_OPTIONS.find(opt => opt.value.toLowerCase() === parsedLanguage.toLowerCase());
+            if (isStandard) {
+                setLanguageData({ language: isStandard.value, customLanguage: "", finalLanguage: isStandard.value });
             } else {
-                return [...prev, platformId];
+                setLanguageData({ language: "Other", customLanguage: parsedLanguage, finalLanguage: parsedLanguage });
+            }
+        } else {
+            setLanguageData({ language: "", customLanguage: "", finalLanguage: "" });
+        }
+
+        if (parsedRefinement) {
+            setRefinePrompts(prev => ({ ...prev, [item.platform]: parsedRefinement }));
+        } else {
+            setRefinePrompts({});
+        }
+        
+        setSelectedPlatforms([item.platform]);
+        
+        setGeneratedCaptions({
+            [item.platform]: {
+                caption: item.caption,
+                hashtags: item.hashtags || []
             }
         });
+        
+        setGeneratedHistoryIds({ [item.platform]: item.id });
+        setGenerated(true);
+        setErrorMessage("");
+        
+        if (window.innerWidth < 768) {
+            setSidebarState("closed"); 
+        }
     };
 
     const handleGenerate = async () => {
@@ -213,11 +259,14 @@ const Generator = () => {
         }
 
         try {
+            // UPDATED: Append Language and Hashtags to the topic so it gets saved!
             const topicParts = [
                 demoInput.product,
                 demoInput.description,
                 demoInput.audience && `Audience: ${demoInput.audience}`,
                 demoInput.length && `Length: ${demoInput.length}`,
+                languageData.finalLanguage && `Language: ${languageData.finalLanguage}`,
+                demoInput.hashtagCount && `Hashtags: ${demoInput.hashtagCount}`,
             ].filter(Boolean);
 
             const responses = await Promise.all(
@@ -233,20 +282,24 @@ const Generator = () => {
             );
 
             const captions = {};
+            const historyIds = {};
             responses.forEach((response, index) => {
                 const platform = selectedPlatforms[index];
-                const hashtags = Array.isArray(response.data.hashtags)
-                    ? response.data.hashtags
-                    : [];
+                const hashtags = Array.isArray(response.data.hashtags) ? response.data.hashtags : [];
                 captions[platform] = {
                     caption: response.data.caption,
                     hashtags: hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)),
                 };
+                if (response.data.id) {
+                    historyIds[platform] = response.data.id;
+                }
             });
 
             setGeneratedCaptions(captions);
+            setGeneratedHistoryIds(historyIds); 
             setRefinePrompts({});
             setGenerated(true);
+            setRefreshSidebar(prev => prev + 1); 
             toast.success("Captions generated for all selected platforms!");
         } catch (err) {
             const message = err?.response?.data?.error || "Failed to generate captions. Please try again.";
@@ -265,13 +318,18 @@ const Generator = () => {
 
         setRefiningPlatform(platform);
         try {
+            // UPDATED: Keep language and hashtags in the refined topic string too!
             const topicParts = [
                 demoInput.product,
                 demoInput.description,
                 demoInput.audience && `Audience: ${demoInput.audience}`,
                 demoInput.length && `Length: ${demoInput.length}`,
+                languageData.finalLanguage && `Language: ${languageData.finalLanguage}`,
+                demoInput.hashtagCount && `Hashtags: ${demoInput.hashtagCount}`,
                 `Refinement: ${refinePrompts[platform]}`,
             ].filter(Boolean);
+
+            const historyIdToUpdate = generatedHistoryIds[platform];
 
             const response = await api.post("generate-caption/", {
                 platform: platform,
@@ -279,11 +337,10 @@ const Generator = () => {
                 topic: topicParts.join(". "),
                 language: languageData.finalLanguage || "",
                 hashtag_count: demoInput.hashtagCount || "",
+                history_id: historyIdToUpdate 
             });
 
-            const hashtags = Array.isArray(response.data.hashtags)
-                ? response.data.hashtags
-                : [];
+            const hashtags = Array.isArray(response.data.hashtags) ? response.data.hashtags : [];
 
             setGeneratedCaptions((prev) => ({
                 ...prev,
@@ -293,11 +350,11 @@ const Generator = () => {
                 },
             }));
 
-            setRefinePrompts((prev) => ({
-                ...prev,
-                [platform]: "",
-            }));
+            if (response.data.id) {
+                setGeneratedHistoryIds((prev) => ({ ...prev, [platform]: response.data.id }));
+            }
 
+            setRefreshSidebar(prev => prev + 1); 
             toast.success(`Caption refined for ${PLATFORMS.find((p) => p.id === platform)?.name}!`);
         } catch (err) {
             const message = err?.response?.data?.error || "Failed to refine caption. Please try again.";
@@ -310,25 +367,17 @@ const Generator = () => {
     const handleCopyCaptionForPlatform = (platform) => {
         const caption = generatedCaptions[platform];
         if (!caption) return;
-
         const text = `${caption.caption}\n\n${caption.hashtags.join(" ")}`;
         navigator.clipboard.writeText(text);
-        setCopiedPlatform(platform);
-        setTimeout(() => setCopiedPlatform(null), 2000);
         toast.success("Copied to clipboard!");
     };
 
     const handleNewChat = () => {
-        setDemoInput({
-            product: "",
-            description: "",
-            audience: "",
-            tone: "",
-            length: "medium",
-            hashtagCount: "",
-        });
-        setSelectedPlatforms([]);
+        setDemoInput({ product: "", description: "", audience: "", tone: "", length: "medium", hashtagCount: "" });
+        setLanguageData({ language: "", customLanguage: "", finalLanguage: "" }); // Reset language dropdown
+        setSelectedPlatforms(["instagram"]); // Default back to at least 1 platform
         setGeneratedCaptions({});
+        setGeneratedHistoryIds({});
         setRefinePrompts({});
         setGenerated(false);
         setErrorMessage("");
@@ -339,19 +388,18 @@ const Generator = () => {
         <div>
             <div
                 className="min-h-screen flex"
-                style={{
-                    background: "linear-gradient(135deg, #fff0f5 0%, #fce4ec 20%, #fdf2f8 40%, #fff0fb 60%, #fce8f5 80%, #fff5f7 100%)",
-                }}
+                style={{ background: "linear-gradient(135deg, #fff0f5 0%, #fce4ec 20%, #fdf2f8 40%, #fff0fb 60%, #fce8f5 80%, #fff5f7 100%)" }}
             >
-                {/* History Sidebar */}
-                <GeneratorSidebar onNewChat={handleNewChat} />
+                <GeneratorSidebar 
+                    onNewChat={handleNewChat} 
+                    onSelectHistory={handleSelectHistory} 
+                    refreshKey={refreshSidebar} 
+                />
 
-                {/* Main Content – margin adapts to sidebar */}
                 <div
                     className="flex-1 flex flex-col min-h-screen overflow-y-auto transition-all duration-300"
                     style={{ marginLeft: getMarginLeft() }}
                 >
-                    {/* Header with back link */}
                     <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-md border-b border-indigo-100 px-6 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-md">
@@ -362,7 +410,7 @@ const Generator = () => {
                             </h1>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="hidden sm:text-xs text-indigo-400 font-medium">AI Ready</span>
+                            <span className="hidden sm:inline-block text-xs text-indigo-400 font-medium">AI Ready</span>
                             <Link
                                 to="/"
                                 className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105 border border-indigo-200"
@@ -372,11 +420,9 @@ const Generator = () => {
                         </div>
                     </div>
 
-                    {/* Main Generator Area */}
                     <div className="flex-1 p-6 md:p-8">
                         <div className="max-w-7xl mx-auto">
                             <div className="grid lg:grid-cols-2 gap-8">
-                                {/* Input Form (unchanged) */}
                                 <div className="bg-white/80 backdrop-blur-md rounded-3xl p-7 shadow-xl shadow-indigo-200/30 border border-indigo-100">
                                     <h3 className="font-black text-slate-800 text-lg mb-6 flex items-center gap-2">
                                         <span className="w-8 h-8 rounded-xl flex items-center justify-center text-sm bg-gradient-to-br from-indigo-500 to-purple-500 text-white">
@@ -385,7 +431,6 @@ const Generator = () => {
                                         Campaign Details
                                     </h3>
                                     <div className="space-y-5">
-                                        {/* Product */}
                                         <div>
                                             <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
                                                 <FaShoppingBag className="w-4 h-4" /> Product / Brand Name
@@ -398,7 +443,6 @@ const Generator = () => {
                                             />
                                         </div>
 
-                                        {/* Description */}
                                         <div>
                                             <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
                                                 <FaFileAlt className="w-4 h-4" /> Description or Campaign Goal
@@ -412,7 +456,6 @@ const Generator = () => {
                                             />
                                         </div>
 
-                                        {/* Audience */}
                                         <div>
                                             <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
                                                 <FaBullseye className="w-4 h-4" /> Target Audience
@@ -425,7 +468,6 @@ const Generator = () => {
                                             />
                                         </div>
 
-                                        {/* Tone */}
                                         <div>
                                             <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
                                                 <FaPaintBrush className="w-4 h-4" /> Tone of Caption
@@ -438,13 +480,12 @@ const Generator = () => {
                                             />
                                         </div>
 
-                                        {/* Language */}
                                         <LanguageSelector
                                             label="Language Selection"
-                                            onChange={(data) => setLanguageData(data)}
+                                            value={languageData}
+                                            onChange={setLanguageData}
                                         />
 
-                                        {/* Length + Hashtag Count */}
                                         <div className="grid md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
@@ -482,7 +523,6 @@ const Generator = () => {
                                             </div>
                                         </div>
 
-                                        {/* Platforms */}
                                         <div>
                                             <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
                                                 <Share2 className="w-4 h-4" /> Select Platforms (Multiple)
@@ -493,8 +533,8 @@ const Generator = () => {
                                                         key={p.id}
                                                         onClick={() => handleTogglePlatform(p.id)}
                                                         className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms.includes(p.id)
-                                                            ? "text-white border-transparent shadow-md bg-gradient-to-r from-indigo-500 to-purple-500"
-                                                            : "border-indigo-200 text-indigo-400 hover:bg-indigo-50"
+                                                                ? "text-white border-transparent shadow-md bg-gradient-to-r from-indigo-500 to-purple-500"
+                                                                : "border-indigo-200 text-indigo-400 hover:bg-indigo-50"
                                                             }`}
                                                     >
                                                         {p.icon}
@@ -505,7 +545,6 @@ const Generator = () => {
                                             </div>
                                         </div>
 
-                                        {/* Generate Button */}
                                         <button
                                             onClick={handleGenerate}
                                             disabled={generating}
@@ -524,11 +563,10 @@ const Generator = () => {
                                     </div>
                                 </div>
 
-                                {/* Output (unchanged) */}
                                 <div
                                     className={`rounded-3xl overflow-hidden transition-all duration-700 ${generated
-                                        ? "bg-white/80 backdrop-blur-md shadow-2xl shadow-indigo-300/30 border border-indigo-200"
-                                        : "border-2 border-dashed border-indigo-200 bg-white/50"
+                                            ? "bg-white/80 backdrop-blur-md shadow-2xl shadow-indigo-300/30 border border-indigo-200"
+                                            : "border-2 border-dashed border-indigo-200 bg-white/50"
                                         }`}
                                 >
                                     {!generated && !generating ? (
@@ -562,7 +600,7 @@ const Generator = () => {
                                             <div className="flex items-center gap-2 mb-5 pb-4 border-b border-indigo-100">
                                                 <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-indigo-500" />
                                                 <span className="text-xs font-black text-indigo-700 uppercase tracking-wider">
-                                                    Generated for: {demoInput.product}
+                                                    Generated for: {demoInput.product || "Custom Subject"}
                                                 </span>
                                                 <span className="ml-auto text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
                                                     ✓ Ready
@@ -574,7 +612,6 @@ const Generator = () => {
                                                 </div>
                                             )}
 
-                                            {/* Captions for each platform */}
                                             <div className="space-y-4 max-h-[500px] overflow-y-auto">
                                                 {selectedPlatforms.map((platform) => {
                                                     const caption = generatedCaptions[platform];
@@ -585,7 +622,6 @@ const Generator = () => {
                                                             key={platform}
                                                             className={`rounded-2xl p-4 border-2 ${getPlatformUI(platform).bg} ${getPlatformUI(platform).border} hover:shadow-lg transition-all`}
                                                         >
-                                                            {/* Platform Header */}
                                                             <div className="flex items-center gap-2 mb-3">
                                                                 <span className="text-lg">{getPlatformUI(platform).icon}</span>
                                                                 <span className={`text-xs font-black px-2 py-1 rounded-full ${getPlatformUI(platform).tag}`}>
@@ -600,10 +636,8 @@ const Generator = () => {
                                                                 </button>
                                                             </div>
 
-                                                            {/* Caption Text */}
-                                                            <p className="text-sm text-slate-700 font-medium mb-2">{caption.caption}</p>
+                                                            <p className="text-sm text-slate-700 font-medium mb-2 whitespace-pre-wrap">{caption.caption}</p>
 
-                                                            {/* Hashtags */}
                                                             <div className="flex flex-wrap gap-1 mb-3">
                                                                 {caption.hashtags.map((h) => (
                                                                     <span
@@ -615,7 +649,6 @@ const Generator = () => {
                                                                 ))}
                                                             </div>
 
-                                                            {/* Refinement Section */}
                                                             <div className="space-y-2 pt-3 border-t border-current border-opacity-10">
                                                                 <div className="space-y-2">
                                                                     <input
@@ -639,15 +672,12 @@ const Generator = () => {
                                                                         {refiningPlatform === platform ? "Refining..." : "Refine"}
                                                                     </button>
                                                                 </div>
-
-                                                                {/* Copy removed: icon button in header */}
                                                             </div>
                                                         </div>
                                                     );
                                                 })}
                                             </div>
 
-                                            {/* Copy All Button */}
                                             {generated && Object.keys(generatedCaptions).length > 0 && (
                                                 <button
                                                     onClick={() => {

@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     generate_caption,
     caption_history,
-    delete_caption_history,
+    manage_caption_history,
     RegisterView,
     LogoutView,
     CustomTokenObtainPairView,
@@ -18,7 +18,7 @@ from .views import (
 urlpatterns = [
     path("generate-caption/", generate_caption, name="generate-caption"),
     path("caption-history/", caption_history, name="caption-history"),
-    path("caption-history/<int:history_id>/", delete_caption_history, name="delete-caption-history"),
+    path("caption-history/<int:history_id>/", manage_caption_history, name="manage-caption-history"),
     
     # Auth
     path('register/', RegisterView.as_view(), name='register'),

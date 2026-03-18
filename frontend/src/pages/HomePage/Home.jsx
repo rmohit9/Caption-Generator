@@ -365,7 +365,7 @@ export default function Home() {
     try {
       const token = getGuestToken();
       const res = await api.post(
-        "generate-caption",
+        "generate-caption/",
         {
           platform,
           caption_type: captionType,
