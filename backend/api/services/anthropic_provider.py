@@ -4,7 +4,7 @@ Supports Claude 3 family (Opus, Sonnet, Haiku)
 """
 import json
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 
 def _extract_json(text: str) -> dict | None:
@@ -42,7 +42,13 @@ def _fallback_parse(text: str) -> Tuple[str, List[str]]:
     return caption, hashtags
 
 
-def generate_caption_and_hashtags(platform: str, caption_type: str, topic: str) -> Tuple[str, List[str]]:
+def generate_caption_and_hashtags(
+    platform: str,
+    caption_type: str,
+    topic: str,
+    language: Optional[str] = None,
+    hashtag_count: Optional[int] = None,
+) -> Tuple[str, List[str]]:
     """Generate caption using Anthropic Claude model"""
     try:
         import anthropic
@@ -57,10 +63,17 @@ def generate_caption_and_hashtags(platform: str, caption_type: str, topic: str) 
     
     client = anthropic.Anthropic(api_key=api_key)
 
+    language_hint = f" Write the caption in {language}." if language else ""
+    hashtag_hint = (
+        f" Generate exactly {hashtag_count} relevant hashtags."
+        if isinstance(hashtag_count, int) and hashtag_count > 0
+        else " Generate 10–15 relevant hashtags."
+    )
+
     prompt = (
-        "Generate a high-quality social media caption and 10–15 relevant hashtags for "
+        "Generate a high-quality social media caption and hashtags for "
         f"{platform}. The tone should be {caption_type}. The topic is: {topic}. "
-        "The caption should be engaging, natural, and optimized for social media reach. "
+        f"The caption should be engaging, natural, and optimized for social media reach.{language_hint}{hashtag_hint} "
         "Respond in JSON with keys 'caption' and 'hashtags' (array of strings)."
     )
 

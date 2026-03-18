@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import api from '../../services/api';
 import NavBar from '../../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import './Workspace.css';
 
 const Workspace = () => {
     const navigate = useNavigate();
@@ -101,7 +102,13 @@ const Workspace = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative">
+        <div
+            className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative"
+            style={{
+                background:
+                    "linear-gradient(135deg, #fff0f5 0%, #fce4ec 20%, #fdf2f8 40%, #fff0fb 60%, #fce8f5 80%, #fff5f7 100%)",
+            }}
+        >
             <NavBar />
             
             <div className="max-w-7xl mx-auto relative z-10">
@@ -109,7 +116,8 @@ const Workspace = () => {
                     <h1 className="text-3xl font-black text-slate-800">My Workspaces</h1>
                     <button 
                         onClick={() => { setInputValue(""); setIsCreateModalOpen(true); }}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all hover:-translate-y-0.5"
+                        className="relative overflow-hidden text-white font-black py-2.5 px-6 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all shimmer-btn"
+                        style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}
                     >
                         + Create Workspace
                     </button>
@@ -133,33 +141,40 @@ const Workspace = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {workspaces.map((workspace) => (
-                            <div 
-                                key={workspace.id} 
-                                onClick={() => navigate(`/workspace/${workspace.id}`)} 
-                                className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between h-48 group cursor-pointer"
+                        {workspaces.map((workspace, index) => (
+                            <div
+                                key={workspace.id}
+                                onClick={() => navigate(`/workspace/${workspace.id}`)}
+                                className="workspace-card"
                             >
-                                <div>
-                                    <h2 className="text-xl font-bold text-slate-800 mb-2 truncate group-hover:text-indigo-600 transition-colors">
-                                        {workspace.name}
-                                    </h2>
-                                    <p className="text-xs text-slate-400 font-medium">
-                                        Created: {new Date(workspace.created_at).toLocaleDateString()}
-                                    </p>
+                                <div className="workspace-card-content">
+                                    <div className="workspace-card-top">
+                                        <span className="workspace-card-title">{workspace.name}</span>
+                                    </div>
+                                    <div className="workspace-card-bottom">
+                                        <p className="workspace-card-date">
+                                            Created: {new Date(workspace.created_at).toLocaleDateString()}
+                                        </p>
+                                        <div className="workspace-card-actions">
+                                            <button
+                                                onClick={(e) => openEditModal(e, workspace)}
+                                                className="workspace-card-action"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={(e) => openDeleteModal(e, workspace)}
+                                                className="workspace-card-action workspace-card-action-danger"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex justify-end gap-4 mt-4 pt-4 border-t border-slate-100">
-                                    <button 
-                                        onClick={(e) => openEditModal(e, workspace)}
-                                        className="text-sm font-bold text-indigo-500 hover:text-indigo-700 transition-colors z-10"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button 
-                                        onClick={(e) => openDeleteModal(e, workspace)}
-                                        className="text-sm font-bold text-red-400 hover:text-red-600 transition-colors z-10"
-                                    >
-                                        Delete
-                                    </button>
+                                <div className="workspace-card-image" aria-hidden="true">
+                                    <svg viewBox="0 -960 960 960" aria-hidden="true">
+                                        <path d="M120-240q-33 0-56.5-23.5T40-320v-360q0-33 23.5-56.5T120-760h240l80 80h400q33 0 56.5 23.5T920-600v280q0 33-23.5 56.5T840-240H120Zm0-80h720v-280H440l-80-80H120v360Zm0 0v-360 360Z" />
+                                    </svg>
                                 </div>
                             </div>
                         ))}
