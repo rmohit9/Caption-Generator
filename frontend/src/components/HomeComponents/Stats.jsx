@@ -14,10 +14,10 @@ const stats = [
 ];
 
 const AnimatedNumber = memo(function AnimatedNumber({ target, suffix = "" }) {
-    console.log("re-rendering again ")
     const [count, setCount] = useState(0);
     const ref = useRef(null);
     const started = useRef(false);
+    
     useEffect(() => {
         const observer = new IntersectionObserver(([entry]) => {
             if (entry.isIntersecting && !started.current) {
@@ -34,20 +34,19 @@ const AnimatedNumber = memo(function AnimatedNumber({ target, suffix = "" }) {
         if (ref.current) observer.observe(ref.current);
         return () => observer.disconnect();
     }, [target]);
+    
     return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 });
 
 
 export default function Stats() {
 
-
-
-
     return (
         <section
             className="relative z-10 py-14 px-4"
-            style={{ background: "linear-gradient(135deg, #be185d, #9d174d)" }}
+            style={{ backgroundColor: "#f08a5d" }}
         >
+            {/* Preserved background pattern */}
             <div
                 className="absolute inset-0 opacity-10"
                 style={{
@@ -69,7 +68,7 @@ export default function Stats() {
                             <AnimatedNumber target={s.num} suffix={s.suffix} />
                         </div>
 
-                        <div className="text-xs font-bold tracking-wide text-pink-200 uppercase">
+                        <div className="text-xs font-bold tracking-wide text-orange-200 uppercase">
                             {s.label}
                         </div>
 
