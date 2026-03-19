@@ -1,7 +1,7 @@
 import React from 'react'
 import "./App.css";
 import Home from './pages/HomePage/Home';
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Register from './pages/Authentication/Register';
 import Login from './pages/Authentication/Login';
 import Generator from './pages/Generator/Generator';
@@ -12,6 +12,22 @@ import { SidebarProvider } from "./Context/SidebarContext"
 import CookiePolicy from './pages/Legal/CookiePolicy';
 import Privacy from './pages/Legal/Privacy';
 import Terms from './pages/Legal/Terms';
+import { useEffect } from "react";
+
+const TitleUpdater = () => {
+  const location = useLocation();
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/') document.title = "Graphura AI | Free Caption & Hashtag Generator";
+    else if (path === '/generator') document.title = "Generator | Graphura AI";
+    else if (path === '/workspace') document.title = "My Workspaces | Graphura AI";
+    else if (path.startsWith('/workspace/')) document.title = "Workspace Dashboard | Graphura AI";
+    else if (path === '/login') document.title = "Login | Graphura AI";
+    else if (path === '/register') document.title = "Register | Graphura AI";
+    else document.title = "Graphura AI";
+  }, [location]);
+  return null;
+};
 
 const ProtectedRoute = ({ children }) => {
     const isAuthenticated = !!localStorage.getItem("access");
@@ -24,7 +40,7 @@ export default function App() {
     <SidebarProvider>
       <div>
         <Toaster position="top-right" reverseOrder={false} /> 
-        
+        <TitleUpdater />
         <Routes>
 
           <Route path="/cookie" element={<CookiePolicy />} />

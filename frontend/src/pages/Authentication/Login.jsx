@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { FaGoogle, FaApple, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import FloatingHashtag from "./FloatingHashtag";
 import FloatingHashSymbols from "../../components/Hashtag";
 import api from "../../services/api";
 import toast from 'react-hot-toast';
@@ -28,21 +27,19 @@ const Login = () => {
         e.preventDefault();
         try {
             const response = await api.post('login/', {
-                username: formData.email, // We still use email to log in
+                username: formData.email, 
                 password: formData.password
             });
 
-            // Store the JWT tokens for authenticated requests
             localStorage.setItem('access', response.data.access);
             localStorage.setItem('refresh', response.data.refresh);
             
-            // Explicitly save the Full Name
             if (response.data.full_name) {
                 localStorage.setItem('full_name', response.data.full_name);
             }
 
             toast.success("Successfully logged in!");
-            navigate('/'); // Redirect user to home
+            navigate('/'); 
         } catch (error) {
             console.error("Login Error: ", error.response?.data);
             toast.error("Invalid email or password. Please try again.");
@@ -50,101 +47,99 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
-            style={{
-                background: "linear-gradient(135deg, #fff0f5 0%, #fce4ec 20%, #fdf2f8 40%, #fff0fb 60%, #fce8f5 80%, #fff5f7 100%)",
-            }}
-        >
+        <div className="min-h-screen flex items-center justify-center p-4 py-12 relative overflow-hidden bg-[#fff7ed] overflow-y-auto">
+            
             {/* Floating hashtag symbols */}
-            <div className="absolute inset-0 z-10 pointer-events-none">
-                <FloatingHashSymbols count={150} opacity={0.15} />
+            <div className="absolute inset-0 z-10 pointer-events-none hidden sm:block">
+                <FloatingHashSymbols count={100} opacity={0.15} />
             </div>
 
             {/* Soft background blobs */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-                <div className="absolute -top-32 -left-32 w-96 h-96 bg-pink-200/30 rounded-full blur-3xl animate-float" />
-                <div className="absolute top-1/3 -right-40 w-80 h-80 bg-purple-200/30 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
-                <div className="absolute bottom-1/4 -left-24 w-72 h-72 bg-indigo-200/30 rounded-full blur-3xl animate-float" style={{ animationDelay: "4s" }} />
+                <div className="absolute -top-32 -left-32 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl animate-float" />
+                <div className="absolute top-1/3 -right-40 w-80 h-80 bg-amber-200/30 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+                <div className="absolute bottom-1/4 -left-24 w-72 h-72 bg-yellow-200/30 rounded-full blur-3xl animate-float" style={{ animationDelay: "4s" }} />
             </div>
 
             {/* Main container */}
-            <div className="relative z-10 max-w-6xl w-full bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl shadow-indigo-200/50 border border-white/50 overflow-hidden">
-                <div className="grid md:grid-cols-2">
+            <div className="relative z-10 max-w-5xl w-full bg-white/80 backdrop-blur-xl rounded-3xl sm:rounded-[2rem] shadow-2xl shadow-orange-200/50 border border-orange-100 overflow-hidden animate-fade-up">
+                <div className="grid md:grid-cols-2 h-full">
+                    
                     {/* Left side - Branding & Welcome Back */}
-                    <div className="relative bg-gradient-to-br from-pink-600 via-purple-600 to-indigo-600 p-8 md:p-12 text-white flex flex-col justify-between overflow-hidden">
-                        {/* Floating particles */}
-                        <div className="absolute inset-0 opacity-10">
+                    <div className="relative bg-gradient-to-br from-[#f08a5d] to-[#d97346] p-8 sm:p-10 md:p-14 text-white flex flex-col justify-between overflow-hidden">
+                        
+                        {/* Decorative Background Elements */}
+                        <div className="absolute inset-0 opacity-10 pointer-events-none hidden md:block">
                             <div className="absolute top-10 left-10 text-8xl font-black rotate-12">#</div>
                             <div className="absolute bottom-20 right-10 text-9xl font-black -rotate-12">#</div>
                             <div className="absolute top-1/3 right-1/4 text-7xl font-black rotate-45">#</div>
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_50%)]" />
                         </div>
 
-                        <div className="relative">
-                            <div className="flex items-center gap-2 mb-8">
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-2 mb-8 sm:mb-12">
                                 <img
                                     src="https://www.graphura.in/image/bg%20removed.webp"
                                     alt="Graphura Logo"
-                                    className="h-16 w-auto"
+                                    className="h-10 sm:h-12 md:h-14 w-auto"
                                     style={{ filter: 'brightness(0) invert(1)' }}
                                 />
                             </div>
 
-                            <h1 className="text-4xl md:text-5xl font-black leading-tight mb-6">
-                                Welcome Back to <br />
-                                <span className="text-yellow-300">Viral Success</span>
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight mb-4 sm:mb-6">
+                                Welcome Back to <br className="hidden sm:block" />
+                                <span className="text-yellow-300">AI - Caption Generator</span>
                             </h1>
 
-                            <p className="text-lg mb-8 text-white/90">
+                            <p className="text-base sm:text-lg mb-8 sm:mb-10 text-white/90 font-medium leading-relaxed max-w-sm">
                                 Log in to continue creating AI-powered captions and hashtags that dominate social media.
                             </p>
 
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-white"></span>
-                                    <span className="text-sm">Access your saved campaigns</span>
+                            <div className="space-y-3 sm:space-y-4 hidden sm:block">
+                                <div className="flex items-center gap-3">
+                                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs sm:text-sm">✓</span>
+                                    <span className="text-sm font-semibold text-white/90">Access your saved campaigns</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-white"></span>
-                                    <span className="text-sm">Continue where you left off</span>
+                                <div className="flex items-center gap-3">
+                                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs sm:text-sm">✓</span>
+                                    <span className="text-sm font-semibold text-white/90">Continue where you left off</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-white"></span>
-                                    <span className="text-sm">Get personalized hashtag suggestions</span>
+                                <div className="flex items-center gap-3">
+                                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs sm:text-sm">✓</span>
+                                    <span className="text-sm font-semibold text-white/90">Personalized hashtag suggestions</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="relative mt-8">
-                            <p className="text-white/80 text-sm">
+                        <div className="relative z-10 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/20">
+                            <p className="text-white/90 text-xs sm:text-sm font-medium">
                                 Don't have an account?{" "}
-                                <Link to="/register" className="text-white font-bold underline hover:text-yellow-300 transition">
-                                    Sign up free
+                                <Link to="/register" className="text-white font-black hover:text-yellow-300 transition-colors sm:ml-1">
+                                    Sign up free →
                                 </Link>
                             </p>
                         </div>
                     </div>
 
                     {/* Right side - Login Form */}
-
-                    <div className="p-8 md:p-12 bg-white/80 backdrop-blur-sm">
-                        {/* back button */}
-
-                        <div className="flex items-center mb-4">
-                            <Link to="/" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition group">
-                                <FaArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                                <span className="text-sm font-semibold">Back to Home</span>
+                    <div className="p-6 sm:p-10 md:p-14 bg-white/50 backdrop-blur-sm flex flex-col justify-center">
+                        
+                        <div className="flex items-center mb-6 sm:mb-8">
+                            <Link to="/" className="flex items-center gap-2 text-slate-500 hover:text-[#f08a5d] transition-colors group w-fit">
+                                <FaArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />
+                                <span className="text-xs sm:text-sm font-bold">Back to Home</span>
                             </Link>
                         </div>
 
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-800 mb-2">Log In</h2>
+                        <p className="text-sm sm:text-base text-slate-500 mb-8 sm:mb-10 font-medium">Access your HashCraft AI dashboard.</p>
 
-                        <h2 className="text-3xl font-black text-slate-800 mb-2">Welcome Back</h2>
-                        <p className="text-slate-600 mb-8">Log in to your account</p>
-
-                        <form onSubmit={handleSubmit} className="space-y-5">
+                        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                            
                             {/* Email */}
                             <div>
-                                <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
-                                    <FaEnvelope className="w-4 h-4" /> Email Address
+                                <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                    <FaEnvelope className="w-3.5 h-3.5" /> Email Address
                                 </label>
                                 <div className="relative">
                                     <input
@@ -153,17 +148,17 @@ const Login = () => {
                                         value={formData.email}
                                         onChange={handleChange}
                                         placeholder="hello@example.com"
-                                        className="w-full rounded-2xl px-4 py-3 pl-10 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                                        className="w-full rounded-xl sm:rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 pl-11 sm:pl-12 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-100 focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all shadow-sm"
                                         required
                                     />
-                                    <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 w-4 h-4" />
+                                    <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none" />
                                 </div>
                             </div>
 
                             {/* Password */}
                             <div>
-                                <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
-                                    <FaLock className="w-4 h-4" /> Password
+                                <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                    <FaLock className="w-3.5 h-3.5" /> Password
                                 </label>
                                 <div className="relative">
                                     <input
@@ -172,14 +167,14 @@ const Login = () => {
                                         value={formData.password}
                                         onChange={handleChange}
                                         placeholder="••••••••"
-                                        className="w-full rounded-2xl px-4 py-3 pl-10 pr-10 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                                        className="w-full rounded-xl sm:rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 pl-11 sm:pl-12 pr-12 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-100 focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all shadow-sm"
                                         required
                                     />
-                                    <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 w-4 h-4" />
+                                    <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none" />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-400 hover:text-indigo-600 transition"
+                                        className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#f08a5d] transition-colors p-1"
                                     >
                                         {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
                                     </button>
@@ -187,18 +182,23 @@ const Login = () => {
                             </div>
 
                             {/* Remember me & Forgot password */}
-                            <div className="flex items-center justify-between">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        name="remember"
-                                        checked={formData.remember}
-                                        onChange={handleChange}
-                                        className="w-4 h-4 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500"
-                                    />
-                                    <span className="text-sm text-slate-600">Remember me</span>
+                            <div className="flex items-center justify-between pt-1 sm:pt-2">
+                                <label className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group">
+                                    <div className="relative flex items-center justify-center">
+                                        <input
+                                            type="checkbox"
+                                            name="remember"
+                                            checked={formData.remember}
+                                            onChange={handleChange}
+                                            className="peer appearance-none w-4 h-4 sm:w-5 sm:h-5 border-2 border-orange-200 rounded bg-white checked:bg-[#f08a5d] checked:border-[#f08a5d] transition-all cursor-pointer"
+                                        />
+                                        <div className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
+                                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                        </div>
+                                    </div>
+                                    <span className="text-xs sm:text-sm font-semibold text-slate-600 group-hover:text-slate-800 transition-colors">Remember me</span>
                                 </label>
-                                <a href="#" className="text-sm text-indigo-600 font-semibold hover:underline">
+                                <a href="#" className="text-xs sm:text-sm font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors">
                                     Forgot password?
                                 </a>
                             </div>
@@ -206,43 +206,25 @@ const Login = () => {
                             {/* Submit */}
                             <button
                                 type="submit"
-                                className="w-full relative overflow-hidden text-white font-black py-3 
-                                rounded-2xl text-sm hover:-translate-y-1 transition-all duration-300 shadow-lg shimmer-btn
-                                " style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}
+                                className="w-full mt-2 sm:mt-4 bg-[#f08a5d] hover:bg-[#d97346] text-white font-black py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 shimmer-btn text-sm sm:text-base"
                             >
-                                Log In
+                                Log In to Dashboard
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
 
-            {/* Required animations (same as homepage) */}
             <style>{`
-        @keyframes float-very-slow {
-          0% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          33% { transform: translateY(-30px) translateX(20px) rotate(120deg); }
-          66% { transform: translateY(20px) translateX(-20px) rotate(240deg); }
-          100% { transform: translateY(0px) translateX(0px) rotate(360deg); }
-        }
-        .animate-float-very-slow {
-          animation: float-very-slow linear infinite;
-        }
-        .shimmer-btn::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-          animation: shimmer-move 2s infinite;
-        }
-        @keyframes shimmer-move {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                .animate-fade-up { animation: fadeUp 0.6s ease-out forwards; }
+                .shimmer-btn::after {
+                    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+                    animation: shimmer-move 2.5s infinite;
+                }
+                @keyframes shimmer-move { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+            `}</style>
         </div>
     );
 };

@@ -7,6 +7,8 @@ from .views import (
     RegisterView,
     LogoutView,
     CustomTokenObtainPairView,
+    UpdateProfileView,
+    ChangePasswordView,
     WorkspaceListCreateView, 
     WorkspaceDetailView,
     BatchProfileListCreateView, 
@@ -20,11 +22,14 @@ urlpatterns = [
     path("caption-history/", caption_history, name="caption-history"),
     path("caption-history/<int:history_id>/", manage_caption_history, name="manage-caption-history"),
     
-    # Auth
+    # Auth & Profile
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    
     # Workspaces
     path('workspaces/', WorkspaceListCreateView.as_view(), name='workspace-list'),
     path('workspaces/<uuid:pk>/', WorkspaceDetailView.as_view(), name='workspace-detail'),

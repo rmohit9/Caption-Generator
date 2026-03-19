@@ -203,6 +203,50 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({"error": "Invalid token or token already blacklisted."}, status=status.HTTP_400_BAD_REQUEST)
 
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        full_name = request.data.get("full_name")
+        
+        if not full_name or not str(full_name).strip():
+            return Response({"error": "Name cannot be empty."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user.first_name = str(full_name).strip()
+        user.save()
+        
+        return Response({
+            "message": "Profile updated successfully.", 
+            "full_name": user.first_name
+        }, status=status.HTTP_200_OK)
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+        
+        if not hasattr(user, 'check_password'):
+            # This should never happen if user model is correct, but safe check
+            return Response({"error": "User missing password details."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if not old_password or not new_password:
+            return Response({"error": "Both old and new passwords are required."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if not user.check_password(old_password):
+            return Response({"error": "Incorrect current password."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if len(new_password) < 8:
+            return Response({"error": "New password must be at least 8 characters long."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user.set_password(new_password)
+        user.save()
+        
+        return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
+
 class WorkspaceListCreateView(generics.ListCreateAPIView):
     serializer_class = WorkspaceSerializer
     permission_classes = [IsAuthenticated]

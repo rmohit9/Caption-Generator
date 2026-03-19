@@ -10,18 +10,18 @@ import toast from "react-hot-toast";
 import { useSidebar } from "../../Context/SidebarContext";
 
 const PLATFORMS = [
-    { id: "instagram", name: "Instagram", icon: <FaInstagram />, color: "from-pink-400 to-rose-500" },
-    { id: "linkedin", name: "LinkedIn", icon: <FaLinkedin />, color: "from-blue-500 to-cyan-500" },
-    { id: "twitter", name: "Twitter / X", icon: <FaTwitter />, color: "from-sky-400 to-cyan-400" },
-    { id: "facebook", name: "Facebook", icon: <FaFacebook />, color: "from-indigo-500 to-blue-500" },
+    { id: "instagram", name: "Instagram", icon: <FaInstagram />, color: "text-orange-500" },
+    { id: "linkedin", name: "LinkedIn", icon: <FaLinkedin />, color: "text-blue-600" },
+    { id: "twitter", name: "Twitter / X", icon: <FaTwitter />, color: "text-sky-500" },
+    { id: "facebook", name: "Facebook", icon: <FaFacebook />, color: "text-indigo-600" },
 ];
 
 const getPlatformUI = (platform) => {
     const mockUI = {
-        instagram: { icon: <FaInstagram className="text-pink-500" />, label: "Instagram", bg: "bg-gradient-to-br from-pink-50 to-rose-50", border: "border-pink-200", tag: "bg-pink-100 text-pink-600" },
-        linkedin: { icon: <FaLinkedin className="text-blue-600" />, label: "LinkedIn", bg: "bg-gradient-to-br from-blue-50 to-cyan-50", border: "border-blue-200", tag: "bg-blue-100 text-blue-600" },
-        twitter: { icon: <FaTwitter className="text-black" />, label: "Twitter/X", bg: "bg-gradient-to-br from-sky-50 to-cyan-50", border: "border-sky-200", tag: "bg-sky-100 text-sky-600" },
-        facebook: { icon: <FaFacebook className="text-blue-500" />, label: "Facebook", bg: "bg-gradient-to-br from-indigo-50 to-blue-50", border: "border-indigo-200", tag: "bg-indigo-100 text-indigo-600" },
+        instagram: { icon: <FaInstagram className="text-orange-500" />, label: "Instagram", bg: "bg-orange-50", border: "border-orange-200", tag: "bg-orange-100 text-orange-700" },
+        linkedin: { icon: <FaLinkedin className="text-blue-600" />, label: "LinkedIn", bg: "bg-blue-50", border: "border-blue-200", tag: "bg-blue-100 text-blue-700" },
+        twitter: { icon: <FaTwitter className="text-sky-500" />, label: "Twitter/X", bg: "bg-sky-50", border: "border-sky-200", tag: "bg-sky-100 text-sky-700" },
+        facebook: { icon: <FaFacebook className="text-indigo-600" />, label: "Facebook", bg: "bg-indigo-50", border: "border-indigo-200", tag: "bg-indigo-100 text-indigo-700" },
     };
     return mockUI[platform] || mockUI.instagram;
 };
@@ -44,18 +44,18 @@ const LanguageSelector = ({ label = "Language", value, onChange }) => {
 
     return (
         <div>
-            <label htmlFor={selectId} className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest">{label}</label>
+            <label htmlFor={selectId} className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest">{label}</label>
             <div className="relative">
-                <select id={selectId} value={value.language} onChange={(e) => emitChange(e.target.value, value.customLanguage)} className="w-full appearance-none rounded-2xl px-4 py-3 pr-11 text-sm text-slate-800 font-semibold bg-white/90 border-2 border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all">
+                <select id={selectId} value={value.language} onChange={(e) => emitChange(e.target.value, value.customLanguage)} className="w-full appearance-none rounded-2xl px-4 py-3 pr-11 text-sm text-slate-800 font-semibold bg-white/90 border-2 border-orange-200 shadow-sm focus:border-[#f08a5d] focus:ring-2 focus:ring-orange-200 transition-all">
                     <option value="" disabled>Select Language</option>
                     {LANGUAGE_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                 </select>
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-indigo-400">
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-orange-400">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
                 </span>
             </div>
             <div className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ${isOther ? "max-h-24 opacity-100 mt-3" : "max-h-0 opacity-0 mt-0"}`} aria-hidden={!isOther}>
-                <input id={inputId} type="text" placeholder="Type custom language..." value={value.customLanguage} onChange={(e) => emitChange(value.language, e.target.value)} disabled={!isOther} className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 transition-all disabled:opacity-60" />
+                <input id={inputId} type="text" placeholder="Type custom language..." value={value.customLanguage} onChange={(e) => emitChange(value.language, e.target.value)} disabled={!isOther} className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 transition-all disabled:opacity-60" />
             </div>
         </div>
     );
@@ -90,7 +90,6 @@ const Generator = () => {
     const [refinePrompts, setRefinePrompts] = useState({});
     const [languageData, setLanguageData] = useState({ language: "", customLanguage: "", finalLanguage: "" });
 
-    // Dynamic Scroll State & Ref
     const resultsContainerRef = useRef(null);
     const [shouldScroll, setShouldScroll] = useState(false);
 
@@ -236,20 +235,19 @@ const Generator = () => {
 
     return (
         <div>
-            <div className="min-h-screen flex" style={{ background: "linear-gradient(135deg, #fff0f5 0%, #fce4ec 20%, #fdf2f8 40%, #fff0fb 60%, #fce8f5 80%, #fff5f7 100%)" }}>
+            <div className="min-h-screen flex bg-[#fff7ed]">
                 <GeneratorSidebar onNewChat={handleNewChat} onSelectHistory={handleSelectHistory} refreshKey={refreshSidebar} />
 
                 <div className="flex-1 flex flex-col min-h-screen overflow-y-auto transition-all duration-300" style={{ marginLeft: getMarginLeft() }}>
-                    <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-md border-b border-indigo-100 px-6 py-3 flex items-center justify-between">
+                    <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-md border-b border-orange-100 px-6 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-md">
+                            <div className="w-8 h-8 rounded-xl bg-[#f08a5d] flex items-center justify-center shadow-md">
                                 <Sparkles className="w-4 h-4 text-white" />
                             </div>
-                            <h1 className="text-xl font-black bg-gradient-to-r from-indigo-800 to-purple-600 bg-clip-text text-transparent">Caption Generator</h1>
+                            <h1 className="text-xl font-black text-slate-800">Caption Generator</h1>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="hidden sm:inline-block text-xs text-indigo-400 font-medium">AI Ready</span>
-                            <Link to="/" className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105 border border-indigo-200"><span>←</span> Back</Link>
+                            <Link to="/" className="flex items-center gap-1.5 text-sm font-medium text-[#f08a5d] bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105 border border-orange-200"><span>←</span> Back To Home</Link>
                         </div>
                     </div>
 
@@ -257,97 +255,92 @@ const Generator = () => {
                         <div className="max-w-7xl mx-auto">
                             <div className="grid lg:grid-cols-2 gap-8 items-start">
                                 
-                                {/* ----------------------------------- */}
-                                {/* ORIGINAL STACKED FORM CONTAINER     */}
-                                {/* ----------------------------------- */}
-                                <div className="bg-white/80 backdrop-blur-md rounded-3xl p-7 shadow-xl shadow-indigo-200/30 border border-indigo-100">
+                                <div className="bg-white/80 backdrop-blur-md rounded-3xl p-7 shadow-xl shadow-orange-200/30 border border-orange-100">
                                     <h3 className="font-black text-slate-800 text-lg mb-6 flex items-center gap-2">
-                                        <span className="w-8 h-8 rounded-xl flex items-center justify-center text-sm bg-gradient-to-br from-indigo-500 to-purple-500 text-white"><PenTool size={16} /></span> Campaign Details
+                                        <span className="w-8 h-8 rounded-xl flex items-center justify-center text-sm bg-[#f08a5d] text-white"><PenTool size={16} /></span> Campaign Details
                                     </h3>
                                     
-                                    {/* Restore space-y-5 for vertical stacking */}
                                     <div className="space-y-5">
                                         <div>
-                                            <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaShoppingBag className="w-4 h-4" /> Product / Brand Name</label>
-                                            <input className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition" value={demoInput.product} onChange={(e) => setDemoInput({ ...demoInput, product: e.target.value })} placeholder="e.g. Organic Green Tea" />
+                                            <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaShoppingBag className="w-4 h-4" /> Product / Brand Name</label>
+                                            <input className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 focus:ring-orange-200 transition" value={demoInput.product} onChange={(e) => setDemoInput({ ...demoInput, product: e.target.value })} placeholder="e.g. Organic Green Tea" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaFileAlt className="w-4 h-4" /> Description or Campaign Goal</label>
-                                            <textarea rows="2" className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 transition" value={demoInput.description} onChange={(e) => setDemoInput({ ...demoInput, description: e.target.value })} placeholder="e.g. Promote wellness, boost morning energy" />
+                                            <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaFileAlt className="w-4 h-4" /> Description or Campaign Goal</label>
+                                            <textarea rows="2" className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 transition" value={demoInput.description} onChange={(e) => setDemoInput({ ...demoInput, description: e.target.value })} placeholder="e.g. Promote wellness, boost morning energy" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaBullseye className="w-4 h-4" /> Target Audience</label>
-                                            <input className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 transition" value={demoInput.audience} onChange={(e) => setDemoInput({ ...demoInput, audience: e.target.value })} placeholder="e.g. Fitness Enthusiasts" />
+                                            <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaBullseye className="w-4 h-4" /> Target Audience</label>
+                                            <input className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 transition" value={demoInput.audience} onChange={(e) => setDemoInput({ ...demoInput, audience: e.target.value })} placeholder="e.g. Fitness Enthusiasts" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaPaintBrush className="w-4 h-4" /> Tone of Caption</label>
-                                            <input className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 transition" value={demoInput.tone} onChange={(e) => setDemoInput({ ...demoInput, tone: e.target.value })} placeholder="e.g. Motivational & Fresh" />
+                                            <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaPaintBrush className="w-4 h-4" /> Tone of Caption</label>
+                                            <input className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 transition" value={demoInput.tone} onChange={(e) => setDemoInput({ ...demoInput, tone: e.target.value })} placeholder="e.g. Motivational & Fresh" />
                                         </div>
                                         
                                         <LanguageSelector label="Language Selection" value={languageData} onChange={setLanguageData} />
                                         
                                         <div className="grid md:grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5"><PenTool className="w-4 h-4" /> Caption Length</label>
+                                                <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5"><PenTool className="w-4 h-4" /> Caption Length</label>
                                                 <div className="flex gap-3">
                                                     {["short", "medium", "long"].map((len) => (
                                                         <label key={len} className="flex items-center gap-1 cursor-pointer">
-                                                            <input type="radio" name="length" value={len} checked={demoInput.length === len} onChange={(e) => setDemoInput({ ...demoInput, length: e.target.value })} className="w-4 h-4 text-indigo-600 border-indigo-300 focus:ring-indigo-500" />
+                                                            <input type="radio" name="length" value={len} checked={demoInput.length === len} onChange={(e) => setDemoInput({ ...demoInput, length: e.target.value })} className="w-4 h-4 text-[#f08a5d] border-orange-300 focus:ring-[#f08a5d]" />
                                                             <span className="text-sm text-slate-700 capitalize">{len}</span>
                                                         </label>
                                                     ))}
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5"><Sparkles className="w-4 h-4" /> Hashtag Count</label>
-                                                <input type="number" min="0" max="30" className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 transition" value={demoInput.hashtagCount} onChange={(e) => setDemoInput({ ...demoInput, hashtagCount: e.target.value })} placeholder="e.g. 12" />
+                                                <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5"><Sparkles className="w-4 h-4" /> Hashtag Count</label>
+                                                <input type="number" min="0" max="30" className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 transition" value={demoInput.hashtagCount} onChange={(e) => setDemoInput({ ...demoInput, hashtagCount: e.target.value })} placeholder="e.g. 12" />
                                             </div>
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5"><Share2 className="w-4 h-4" /> Select Platforms (Multiple)</label>
+                                            <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5"><Share2 className="w-4 h-4" /> Select Platforms (Multiple)</label>
                                             <div className="flex flex-wrap gap-2">
                                                 {PLATFORMS.map((p) => (
-                                                    <button key={p.id} type="button" onClick={() => handleTogglePlatform(p.id)} className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms.includes(p.id) ? "text-white border-transparent shadow-md bg-gradient-to-r from-indigo-500 to-purple-500" : "border-indigo-200 text-indigo-400 hover:bg-indigo-50"}`}>
+                                                    <button key={p.id} type="button" onClick={() => handleTogglePlatform(p.id)} className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms.includes(p.id) ? "text-white border-[#f08a5d] shadow-md bg-[#f08a5d]" : "border-orange-200 text-slate-500 hover:bg-orange-50"}`}>
                                                         {p.icon} {p.name} {selectedPlatforms.includes(p.id) && " ✓"}
                                                     </button>
                                                 ))}
                                             </div>
                                         </div>
 
-                                        <button onClick={handleGenerate} disabled={generating} className="relative overflow-hidden w-full text-white font-black py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shimmer-btn" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
+                                        <button onClick={handleGenerate} disabled={generating} className="relative overflow-hidden w-full bg-[#f08a5d] hover:bg-[#d97346] text-white font-black py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shimmer-btn">
                                             {generating ? <><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />Generating Magic...</> : <>Generate Captions & Hashtags →</>}
                                         </button>
                                     </div>
                                 </div>
 
-                                <div className={`rounded-3xl overflow-hidden transition-all duration-700 ${generated ? "bg-white/80 backdrop-blur-md shadow-2xl shadow-indigo-300/30 border border-indigo-200" : "border-2 border-dashed border-indigo-200 bg-white/50"}`}>
+                                <div className={`rounded-3xl overflow-hidden transition-all duration-700 ${generated ? "bg-white/80 backdrop-blur-md shadow-2xl shadow-orange-200/30 border border-orange-100" : "border-2 border-dashed border-orange-200 bg-white/50"}`}>
                                     {!generated && !generating ? (
                                         <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
-                                            <div className="text-7xl mb-5 opacity-20 animate-float"><Sparkles className="w-16 h-16 text-indigo-300" /></div>
-                                            <p className="text-indigo-400 font-bold text-sm">Fill in your campaign details<br />and click generate to see AI magic! ✨</p>
+                                            <div className="text-7xl mb-5 opacity-20 animate-float"><Sparkles className="w-16 h-16 text-orange-300" /></div>
+                                            <p className="text-orange-400 font-bold text-sm">Fill in your campaign details<br />and click generate to see AI magic! ✨</p>
                                         </div>
                                     ) : generating ? (
                                         <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
                                             <div className="relative w-20 h-20 mb-6">
-                                                <div className="absolute inset-0 rounded-full border-4 border-indigo-200" />
-                                                <div className="absolute inset-0 rounded-full border-4 border-t-indigo-500 animate-spin" />
-                                                <div className="absolute inset-2 rounded-full border-4 border-t-purple-400 animate-spin" style={{ animationDirection: "reverse", animationDuration: "0.8s" }} />
-                                                <span className="absolute inset-0 flex items-center justify-center text-2xl"><Sparkles className="w-8 h-8 text-indigo-500" /></span>
+                                                <div className="absolute inset-0 rounded-full border-4 border-orange-200" />
+                                                <div className="absolute inset-0 rounded-full border-4 border-t-[#f08a5d] animate-spin" />
+                                                <div className="absolute inset-2 rounded-full border-4 border-t-[#d97346] animate-spin" style={{ animationDirection: "reverse", animationDuration: "0.8s" }} />
+                                                <span className="absolute inset-0 flex items-center justify-center text-2xl"><Sparkles className="w-8 h-8 text-[#f08a5d]" /></span>
                                             </div>
-                                            <p className="font-black text-indigo-700 mb-1">Crafting your perfect captions...</p>
-                                            <p className="text-indigo-400 text-xs font-semibold">Generating for {selectedPlatforms.length} platform{selectedPlatforms.length > 1 ? "s" : ""}</p>
+                                            <p className="font-black text-[#f08a5d] mb-1">Crafting your perfect captions...</p>
+                                            <p className="text-orange-400 text-xs font-semibold">Generating for {selectedPlatforms.length} platform{selectedPlatforms.length > 1 ? "s" : ""}</p>
                                         </div>
                                     ) : (
                                         <div className="p-6">
-                                            <div className="flex items-center gap-2 mb-5 pb-4 border-b border-indigo-100">
-                                                <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-indigo-500" />
-                                                <span className="text-xs font-black text-indigo-700 uppercase tracking-wider">Generated for: {demoInput.product || "Custom Subject"}</span>
+                                            <div className="flex items-center gap-2 mb-5 pb-4 border-b border-orange-100">
+                                                <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-[#f08a5d]" />
+                                                <span className="text-xs font-black text-[#f08a5d] uppercase tracking-wider">Generated for: {demoInput.product || "Custom Subject"}</span>
                                                 <span className="ml-auto text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">✓ Ready</span>
                                             </div>
                                             {errorMessage && <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-2xl text-red-700 text-sm font-semibold">{errorMessage}</div>}
 
-                                            {/* Results mapped using Object.keys with Dynamic Scroll */}
                                             <div
                                                 ref={resultsContainerRef}
                                                 className={`space-y-4 transition-all duration-300 ${shouldScroll ? "max-h-[500px] overflow-y-auto pr-2" : ""}`}
@@ -389,12 +382,12 @@ const Generator = () => {
                                                                                 [platform]: e.target.value,
                                                                             }))
                                                                         }
-                                                                        className="w-full text-xs px-3 py-2.5 rounded-xl border border-current border-opacity-20 bg-white/50 focus:outline-none focus:bg-white transition"
+                                                                        className="w-full text-xs px-3 py-2.5 rounded-xl border border-current border-opacity-20 bg-white/50 focus:outline-none focus:border-[#f08a5d] focus:bg-white transition"
                                                                     />
                                                                     <button
                                                                         onClick={() => handleRefineCaption(platform)}
                                                                         disabled={refiningPlatform === platform}
-                                                                        className="w-full px-3 py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-md transition disabled:opacity-50 flex items-center justify-center gap-1"
+                                                                        className="w-full px-3 py-2 text-xs font-bold rounded-lg bg-[#f08a5d] hover:bg-[#d97346] text-white hover:shadow-md transition disabled:opacity-50 flex items-center justify-center gap-1"
                                                                     >
                                                                         <RotateCcw size={12} />
                                                                         {refiningPlatform === platform ? "Refining..." : "Refine"}
@@ -416,8 +409,7 @@ const Generator = () => {
                                                         navigator.clipboard.writeText(allText);
                                                         toast.success("All captions copied!");
                                                     }}
-                                                    className="w-full text-white font-black py-3 rounded-2xl mt-4 text-sm hover:-translate-y-1 transition-all shadow-lg relative overflow-hidden flex items-center justify-center gap-2"
-                                                    style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)" }}
+                                                    className="w-full text-white bg-[#f08a5d] hover:bg-[#d97346] font-black py-3 rounded-2xl mt-4 text-sm hover:-translate-y-1 transition-all shadow-lg relative overflow-hidden flex items-center justify-center gap-2 shimmer-btn"
                                                 >
                                                     <Copy size={16} />
                                                     Copy All Captions & Hashtags

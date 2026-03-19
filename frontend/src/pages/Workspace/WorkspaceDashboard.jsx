@@ -2,12 +2,14 @@ import React, { useState, useEffect, useId, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
-  Sparkles, PenTool, FolderPlus, Edit, Trash2, X, ChevronLeft, Share2, Plus, Menu, Copy, RotateCcw, Globe, Hash
+  Sparkles, PenTool, FolderPlus, Edit, Trash2, X, ChevronLeft, Share2, Plus, Menu, Copy, RotateCcw, Globe, Hash,
+  House
 } from 'lucide-react';
 import {
-  FaShoppingBag, FaFileAlt, FaInstagram, FaLinkedin, FaTwitter, FaFacebook, FaEllipsisV, FaThumbtack, FaSearch, FaTimes
+  FaShoppingBag, FaFileAlt, FaInstagram, FaLinkedin, FaTwitter, FaFacebook, FaEllipsisV, FaThumbtack, FaSearch, FaTimes, FaUser, FaSignOutAlt
 } from 'react-icons/fa';
 import api from '../../services/api';
+import ProfileModal from '../../components/ProfileModal';
 
 // --- TIME FORMATTER ---
 function formatRelativeTime(date) {
@@ -230,6 +232,34 @@ const WorkspaceDashboard = () => {
   });
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
 
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [userName, setUserName] = useState(localStorage.getItem('full_name') || 'User');
+  const profileMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+        setProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refresh");
+      await api.post("logout/", { refresh_token: refreshToken });
+    } catch (error) {
+      console.error("Logout error", error);
+    } finally {
+      localStorage.clear();
+      toast.success("Logged out successfully");
+      navigate("/");
+    }
+  };
+
   useEffect(() => {
     if (workspaceId) {
       fetchWorkspaceDetails();
@@ -446,21 +476,29 @@ const WorkspaceDashboard = () => {
         ].filter(Boolean);
 
         const response = await api.post("generate-caption/", {
-            platform: platform, caption_type: toneString, topic: topicParts.join(". "),
-            language: selectedItem.language || "English", hashtag_count: selectedItem.hashtag_count || "",
+            platforms: [platform],
+            caption_type: toneString, 
+            topic: topicParts.join(". "),
+            language: selectedItem.language || "English", 
+            hashtag_count: selectedItem.hashtag_count || "",
         });
 
-        const hashtags = Array.isArray(response.data.hashtags) ? response.data.hashtags : [];
-        const updatedResults = { ...selectedItem.results, [platform]: { caption: response.data.caption, hashtags: hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)) } };
+        const platformResult = response.data.results?.[platform] || {};
+        const hashtags = Array.isArray(platformResult.hashtags) ? platformResult.hashtags : [];
+        const updatedResults = { ...selectedItem.results, [platform]: { caption: platformResult.caption || "", hashtags: hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)) } };
         setSelectedItem(prev => ({ ...prev, results: updatedResults }));
         setCampaigns(prev => prev.map(c => c.id === selectedItem.id ? { ...c, results: updatedResults } : c));
-        try { await api.patch(`workspaces/${workspaceId}/campaigns/${selectedItem.id}/`, { results: updatedResults }); } catch (patchErr) {}
+
+        try { await api.patch(`campaigns/${selectedItem.id}/`, { results: updatedResults }); } catch (patchErr) {}
+
         setRefinePrompts((prev) => ({ ...prev, [platform]: "" }));
         toast.success(`Caption refined for ${PLATFORMS.find((p) => p.id === platform)?.name}!`);
-    } catch (err) { toast.error(err?.response?.data?.error || "Failed to refine caption."); } 
-    finally { setRefiningPlatform(null); }
+    } catch (err) {
+        toast.error(err?.response?.data?.error || "Failed to refine caption.");
+    } finally {
+        setRefiningPlatform(null);
+    }
   };
-
   const handleCopyCaptionForPlatform = (platform, data) => {
     if (!data) return;
     navigator.clipboard.writeText(`${data.caption}\n\n${data.hashtags.join(" ")}`);
@@ -573,7 +611,7 @@ const WorkspaceDashboard = () => {
             </span>
           </div>
           <button onClick={() => navigate('/workspace')} className="p-2 rounded-lg hover:bg-orange-50 text-slate-400 hover:text-[#f08a5d] transition-colors shrink-0" title="Back to Workspaces">
-            <ChevronLeft size={18} />
+            <House size={18} />
           </button>
         </div>
 
@@ -649,6 +687,33 @@ const WorkspaceDashboard = () => {
                     {renderSidebarGroup('Older', groupedData.older)}
                 </>
             )}
+        </div>
+
+        {/* BOTTOM PROFILE SECTION */}
+        <div className="border-t border-orange-100 px-4 py-4 flex-shrink-0 bg-white/50 relative" ref={profileMenuRef}>
+          <button 
+              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+              className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-white border border-transparent hover:border-orange-100 transition-all group cursor-pointer"
+          >
+              <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#f08a5d] to-[#d97346] flex items-center justify-center text-white font-black text-sm shadow-md shrink-0">
+                      {userName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex flex-col items-start truncate overflow-hidden">
+                      <span className="text-sm font-bold text-slate-800 truncate leading-tight w-full pr-2 text-left">{userName}</span>
+                      
+                  </div>
+              </div>
+              <FaEllipsisV size={12} className="text-slate-400 group-hover:text-[#f08a5d] shrink-0" />
+          </button>
+          
+          {profileMenuOpen && (
+              <div className="absolute bottom-full left-4 mb-2 w-56 bg-white border border-orange-200 rounded-xl shadow-2xl overflow-hidden z-50">
+                  <button onClick={() => { setProfileMenuOpen(false); setIsProfileModalOpen(true); }} className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-orange-50 flex items-center gap-2.5 transition cursor-pointer"><FaUser size={13} className="text-slate-400" /> Profile</button>
+                  <div className="border-t border-orange-100" />
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 flex items-center gap-2.5 transition cursor-pointer"><FaSignOutAlt size={13} /> Log out</button>
+              </div>
+          )}
         </div>
       </aside>
 
@@ -929,6 +994,13 @@ const WorkspaceDashboard = () => {
           </div>
         </div>
       )}
+      {/* RENDER PROFILE MODAL */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        fullName={userName}
+        setFullName={setUserName}
+      />
     </div>
   );
 };

@@ -17,6 +17,7 @@ import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import FloatingHashSymbols from "../../components/Hashtag";
 import api from "../../services/api";
+import { useNavigate } from "react-router-dom";
 
 // lucide react icons
 import {
@@ -181,7 +182,7 @@ const TESTIMONIALS = [
     name: "Priya Sharma",
     role: "Social Media Manager @ PixelAgency",
     avatar: "PS",
-    text: "HashCraft AI cut our caption writing time by 80%. The hashtag suggestions are incredibly accurate and helped double our reach within just two weeks.",
+    text: "Graphura AI cut our caption writing time by 80%. The hashtag suggestions are incredibly accurate and helped double our reach within just two weeks.",
     stars: 5,
   },
   {
@@ -281,6 +282,7 @@ function FloatingParticle({ style, icon }) {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("instagram");
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -311,6 +313,14 @@ export default function Home() {
     navigator.clipboard.writeText(current.text + "\n\n" + current.hashtags.join(" "));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCTAClick = () => {
+    if (localStorage.getItem("access")) {
+      navigate("/generator");
+    } else {
+      document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const getGuestToken = () => {
@@ -348,7 +358,7 @@ export default function Home() {
       const res = await api.post(
         "generate-caption/",
         {
-          platform,
+          platforms: [platform],
           caption_type: captionType,
           topic,
         },
@@ -357,8 +367,9 @@ export default function Home() {
         }
       );
 
-      const caption = res.data?.caption || "";
-      const hashtags = Array.isArray(res.data?.hashtags) ? res.data.hashtags : [];
+      const platformResult = res.data?.results?.[platform] || {};
+      const caption = platformResult.caption || "";
+      const hashtags = Array.isArray(platformResult.hashtags) ? platformResult.hashtags : [];
       const safeHashtags = hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`));
 
       const base = CAPTIONS[platform] || CAPTIONS.instagram;
@@ -401,7 +412,6 @@ export default function Home() {
     { icon: <FaLinkedin className="text-blue-600" />, text: "LinkedIn" },
     { icon: <FaXTwitter className="text-black" />, text: "Twitter / X" },
     { icon: <FaFacebook className="text-blue-500" />, text: "Facebook" },
-    { icon: <FaYoutube className="text-red-500" />, text: "YouTube" },
   ];
 
   const handleCopyAll = () => {
@@ -533,7 +543,10 @@ export default function Home() {
           className="flex flex-wrap justify-center gap-4 mb-6 animate-fade-up relative z-10"
           style={{ animationDelay: "0.3s" }}
         >
-          <button className="relative overflow-hidden flex items-center gap-2 text-white font-normal px-6 py-3 rounded-full shadow-2xl shadow-[#f08a5d]/30 transition-all duration-300 shimmer-btn text-base bg-[#f08a5d] hover:bg-[#d97346] hover:-translate-y-1 hover:shadow-[#f08a5d]/40">
+          <button 
+            onClick={handleCTAClick}
+            className="relative overflow-hidden flex items-center gap-2 text-white font-normal px-6 py-3 rounded-full shadow-2xl shadow-[#f08a5d]/30 transition-all duration-300 shimmer-btn text-base bg-[#f08a5d] hover:bg-[#d97346] hover:-translate-y-1 hover:shadow-[#f08a5d]/40"
+          >
             Generate Free
           </button>
         </div>
@@ -935,7 +948,7 @@ export default function Home() {
             </h2>
 
             <p className="text-slate-800 text-base font-light max-w-lg mx-auto mb-14">
-              HashCraft AI understands the language, format & algorithm of every major
+              Graphura AI understands the language, format & algorithm of every major
               platform.
             </p>
 
@@ -1039,7 +1052,7 @@ export default function Home() {
 
           {/* Description */}
           <p className="text-slate-600 text-sm md:text-base max-w-2xl mx-auto mb-10 font-light">
-            Join <span className="font-normal text-[#f08a5d]">10,000+ marketers</span> saving 80% of their content creation time with HashCraft AI.
+            Join <span className="font-normal text-[#f08a5d]">10,000+ marketers</span> saving 80% of their content creation time with Graphura AI.
           </p>
 
           {/* CTA Buttons */}
