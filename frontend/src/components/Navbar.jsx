@@ -60,8 +60,9 @@ const NavBar = () => {
   };
 
   const navLinks = [
-    { href: "#features", label: "Features" },
     { href: "#how-it-works", label: "How It Works" },
+    { href: "#demo", label: "Try It Live" },
+    { href: "#features", label: "Features" },
     { href: "#platforms", label: "Platforms" },
   ];
 

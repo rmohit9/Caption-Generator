@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
 // flavor icons and heart shape icons
 import { FaStar, FaHeart, FaBrain, FaFire, FaChartBar, FaBullseye, FaRecycle, FaShoppingBag, FaPaintBrush, FaRobot, FaFileAlt, FaRuler } from "react-icons/fa";
@@ -114,14 +115,20 @@ const CAPTIONS = {
 const FEATURES = [
   {
     icon: <FaBrain className="w-4 h-4" />,
-    title: "AI-Powered Captions",
-    desc: "GPT-grade copy tailored to your brand voice, audience & platform in seconds.",
+    title: "Client Workspaces",
+    desc: "Organize brands, clients, and projects into isolated workspaces effortlessly.",
     color: "bg-[#f08a5d]",
   },
   {
     icon: <FaFire className="w-4 h-4" />,
-    title: "Trending Hashtags",
-    desc: "Algorithmically sourced hashtags that maximize reach and discoverability.",
+    title: "Preset Brand Profiles",
+    desc: "Save audience, tone, and formatting settings as profiles. Never type it twice.",
+    color: "bg-[#f08a5d]",
+  },
+  {
+    icon: <Zap className="w-4 h-4" />,
+    title: "Multi-Platform Campaigns",
+    desc: "Generate tailored captions for 4 platforms from a single product prompt instantly.",
     color: "bg-[#f08a5d]",
   },
   {
@@ -137,15 +144,9 @@ const FEATURES = [
     color: "bg-[#f08a5d]",
   },
   {
-    icon: <Zap className="w-4 h-4" />,
-    title: "Instant Generation",
-    desc: "Generate 6 platform-ready posts simultaneously in under 3 seconds.",
-    color: "bg-[#f08a5d]",
-  },
-  {
     icon: <FaRecycle className="w-4 h-4" />,
     title: "Content Repurposing",
-    desc: "Turn one idea into 6 platform-native posts automatically. One click.",
+    desc: "Turn one idea into platform-native posts automatically with one click.",
     color: "bg-[#f08a5d]",
   },
 ];
@@ -154,26 +155,26 @@ const STEPS = [
   {
     num: "01",
     icon: <HiOutlineLightBulb />,
-    title: "Share Your Idea",
-    desc: "Tell the AI what you want to post about. Just a simple topic or idea is enough.",
+    title: "Create a Workspace",
+    desc: "Start by creating a workspace to keep your brands or clients perfectly organized.",
   },
   {
     num: "02",
-    icon: <HiOutlineSparkles />,
-    title: "AI Creates Content",
-    desc: "Our AI instantly generates engaging captions and post ideas optimized for reach.",
+    icon: <HiOutlineDocumentText />,
+    title: "Setup Brand Profiles",
+    desc: "Define the brand's tone, audience, and hashtag preferences. Save it for later.",
   },
   {
     num: "03",
-    icon: <HiOutlineDocumentText />,
-    title: "Customize & Refine",
-    desc: "Adjust tone, add hashtags, or tweak the content to perfectly match your style.",
+    icon: <HiOutlineSparkles />,
+    title: "Launch a Campaign",
+    desc: "Input your product details, pick your platforms, and let our AI do the heavy lifting.",
   },
   {
     num: "04",
     icon: <HiOutlineRocketLaunch />,
     title: "Publish & Grow",
-    desc: "Share your post and watch your engagement grow with AI-optimized content.",
+    desc: "Export platform-optimized captions instantly and watch your engagement soar.",
   },
 ];
 
@@ -182,21 +183,21 @@ const TESTIMONIALS = [
     name: "Priya Sharma",
     role: "Social Media Manager @ PixelAgency",
     avatar: "PS",
-    text: "Graphura AI cut our caption writing time by 80%. The hashtag suggestions are incredibly accurate and helped double our reach within just two weeks.",
+    text: "The Workspaces feature is a lifesaver. We currently manage 5 distinct brands and switching between their Brand Profiles is perfectly seamless and fast.",
     stars: 5,
   },
   {
     name: "Marcus Cole",
     role: "Founder @ FitLife Brand",
     avatar: "MC",
-    text: "What used to take me two hours per post now takes only minutes. The engagement scoring is surprisingly accurate and makes planning content effortless.",
+    text: "Being able to run a Campaign and get 4 unique platform captions in one click has reduced my workflow from two hours down to seconds.",
     stars: 5,
   },
   {
     name: "Ananya Verma",
     role: "Content Lead @ TrendPulse",
     avatar: "AV",
-    text: "The tone adaptation is brilliant. LinkedIn captions sound professional while Instagram captions stay fun and engaging without any extra effort.",
+    text: "The tone adaptation is brilliant. Our saved Brand Profile ensures LinkedIn captions sound professional while Instagram captions stay fun.",
     stars: 5,
   },
 ];
@@ -225,12 +226,6 @@ const PLATFORMS = [
     name: "Facebook",
     icon: <FaFacebook />,
     detail: "Posts · Groups · Stories",
-  },
-  {
-    id: "youtube",
-    name: "YouTube",
-    icon: <FaYoutube />,
-    detail: "Titles · Descriptions · Tags",
   },
 ];
 
@@ -596,7 +591,13 @@ export default function Home() {
 
       {/* HOW IT WORKS */}
       <section id="how-it-works" className="relative py-14 px-4 z-10">
-        <div className="max-w-6xl mx-auto">
+        <motion.div 
+          className="max-w-6xl mx-auto"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-orange-50 rounded-full px-5 py-2 mb-5 shadow-sm border border-orange-100">
               <span className="text-xs font-normal tracking-widest uppercase text-orange-600">
@@ -648,13 +649,19 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* INTERACTIVE DEMO */}
-      <section id="features" className="relative py-14 px-4 z-10">
+      <section id="demo" className="relative py-14 px-4 z-10">
         <div className="absolute inset-0 bg-orange-50/50" />
-        <div className="max-w-6xl mx-auto relative">
+        <motion.div 
+          className="max-w-6xl mx-auto relative"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
+        >
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm border border-orange-200 rounded-full px-5 py-2 mb-5 shadow-md">
               <span className="text-xs font-normal tracking-widest uppercase text-orange-600">
@@ -875,12 +882,18 @@ export default function Home() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* FEATURES GRID */}
-      <section className="relative py-20 px-4 z-10">
-        <div className="max-w-6xl mx-auto">
+      <section id="features" className="relative py-20 px-4 z-10">
+        <motion.div 
+          className="max-w-6xl mx-auto"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-orange-50 rounded-full px-5 py-2 mb-5 border border-orange-100">
               <span className="text-xs font-normal tracking-widest uppercase text-orange-600">
@@ -921,16 +934,24 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* PLATFORMS */}
-      < section id="platforms" className="relative py-14 px-4 z-10" >
-        <><div
+      <section id="platforms" className="relative py-14 px-4 z-10" >
+        <div
           className="absolute inset-0 opacity-90"
           style={{
             backgroundColor: "rgba(255,247,237,0.9)", // orange-50 slightly transparent
-          }} /><div className="max-w-5xl mx-auto text-center relative">
+          }} 
+        />
+        <motion.div 
+          className="max-w-5xl mx-auto text-center relative"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
             <div className="inline-flex items-center gap-2 glass-orange rounded-full px-5 py-2 mb-5">
               <span
                 className="text-xs font-normal tracking-widest uppercase text-[#f08a5d]"
@@ -952,11 +973,11 @@ export default function Home() {
               platform.
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+            {/* FIX: Changed grid to 1 col on mobile, 2 cols on tablet, 2 cols on desktop to create a perfect 2x2 square for 4 items */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {PLATFORMS.map((p, i) => (
                 <div
                   key={p.name}
-
                   className={`relative rounded-3xl p-[1px] transition-all duration-500 cursor-pointer group
                    ${activePlatform === p.name
                       ? "bg-[#f08a5d] scale-105"
@@ -964,9 +985,8 @@ export default function Home() {
                     }`}
                 >
                   {/* Card */}
-                  <div className="relative rounded-3xl bg-white/80 backdrop-blur-xl p-7 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
-
-                    <div className="relative z-10">
+                  <div className="relative rounded-3xl bg-white/80 backdrop-blur-xl p-7 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 h-full">
+                    <div className="relative z-10 flex flex-col items-center justify-center text-center">
 
                       {/* Icon */}
                       <div className="text-4xl text-[#f08a5d] mb-4 group-hover:scale-1.15 group-hover:-rotate-6 transition-all duration-300">
@@ -983,20 +1003,24 @@ export default function Home() {
                         {p.detail}
                       </p>
 
-
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div></>
-      </section >
+          </motion.div>
+      </section>
 
       {/* TESTIMONIALS */}
-      < section className="relative py-14 px-4 z-10" style={{ backgroundColor: "#f08a5d" }
-      }>
+      <section className="relative py-14 px-4 z-10" style={{ backgroundColor: "#f08a5d" }}>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
-        <div className="max-w-6xl mx-auto relative">
+        <motion.div 
+          className="max-w-6xl mx-auto relative"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-5 py-2 mb-5">
               <span className="text-xs font-normal tracking-widest uppercase text-white">Testimonials</span>
@@ -1024,8 +1048,8 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
-      </section >
+        </motion.div>
+      </section>
 
       {/* CTA BANNER*/}
       <section className="relative py-14 px-4 z-10 overflow-hidden">
@@ -1041,7 +1065,13 @@ export default function Home() {
         {/* Soft solid overlay instead of gradient */}
         <div className="absolute inset-0 bg-white/70" />
 
-        <div className="relative max-w-4xl mx-auto text-center">
+        <motion.div 
+          className="relative max-w-4xl mx-auto text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.5 }}
+        >
 
           {/* Headline */}
           <h2 className="poppins-heading text-slate-800 leading-tight mb-4 text-4xl md:text-5xl lg:text-6xl">
@@ -1062,7 +1092,7 @@ export default function Home() {
             </button>
 
           </div>
-        </div>
+        </motion.div>
       </section>
 
       <Footer />

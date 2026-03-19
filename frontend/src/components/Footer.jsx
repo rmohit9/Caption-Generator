@@ -1,17 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { BackgroundPaths } from './ui/background-paths';
 
 export default function Footer() {
   return (
-    <footer
-      className="relative z-10 py-16 px-4 border-t border-orange-200/40"
-      style={{ backgroundColor: "#fff7ed" }}
-    >
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-12">
+    <footer className="relative z-10 border-t border-orange-200/40">
+      <BackgroundPaths title="Graphura AI">
+        <div className="max-w-6xl mx-auto text-left">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10 mb-12">
           
           {/* Left Column with Logo */}
-          <div className="col-span-2">
+          <div className="col-span-1 sm:col-span-2 md:col-span-2">
             <div className="flex items-center gap-2.5 mb-5">
               
               {/* Graphura Logo */}
@@ -82,7 +81,7 @@ export default function Footer() {
 
           {/* Footer Columns */}
           {[
-            { title: "Quick Links", links: ["Login", "Home", "Generate", "My Workspace"] },
+            { title: "Quick Links", links: ["Home", "Generate", "My Workspace"] },
             { title: "Platforms", links: ["Instagram", "LinkedIn", "Twitter / X", "Facebook"] },
             { title: "Contact Us", links: ["Email: support@graphura.in", "Phone: +91 7378021327", "India"] },
           ].map((col) => (
@@ -93,14 +92,6 @@ export default function Footer() {
               <ul className="space-y-3">
                 {col.title === "Quick Links" ? (
                   <>
-                    <li>
-                      <a
-                        href="/login"
-                        className="text-sm text-orange-700/60 hover:text-orange-600 font-semibold transition-colors hover:translate-x-1 inline-block transition-transform"
-                      >
-                        Login
-                      </a>
-                    </li>
                     <li>
                       <a
                         href="/"
@@ -219,7 +210,8 @@ export default function Footer() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </BackgroundPaths>
     </footer>
   );
 }
