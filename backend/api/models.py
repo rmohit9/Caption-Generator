@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
+from datetime import timedelta
+from django.utils.timezone import now
 
 
 class GuestUsage(models.Model):
@@ -72,4 +74,15 @@ class CaptionHistory(models.Model):
     def __str__(self):
         platform_names = ", ".join(self.platforms) if isinstance(self.platforms, list) else "Unknown"
         return f"CaptionHistory({platform_names}, {self.created_at.strftime('%Y-%m-%d')})"
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_otps')
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_valid(self):
+        return now() < self.created_at + timedelta(minutes=10)
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.otp}"
 

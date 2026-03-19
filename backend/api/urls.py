@@ -14,7 +14,10 @@ from .views import (
     BatchProfileListCreateView, 
     BatchProfileDetailView,
     CampaignListCreateView,
-    CampaignDetailView
+    CampaignDetailView,
+    RequestOTPView,
+    VerifyOTPView,
+    ConfirmPasswordResetView
 )
 
 urlpatterns = [
@@ -29,6 +32,9 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('password-reset/request-otp/', RequestOTPView.as_view(), name='request-otp'),
+    path('password-reset/verify-otp/', VerifyOTPView.as_view(), name='verify-otp'),
+    path('password-reset/confirm/', ConfirmPasswordResetView.as_view(), name='confirm-password-reset'),
     
     # Workspaces
     path('workspaces/', WorkspaceListCreateView.as_view(), name='workspace-list'),

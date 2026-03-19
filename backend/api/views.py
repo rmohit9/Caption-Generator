@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import random
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -13,8 +14,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 
-from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory, Campaign
+from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory, Campaign, PasswordResetOTP
 from .services.model_router import generate_caption_and_hashtags
+from .services.email_service import send_otp_email
 from .serializers import UserSerializer, CustomTokenObtainPairSerializer, WorkspaceSerializer, BatchProfileSerializer, CaptionHistorySerializer, CampaignSerializer
 
 
@@ -341,4 +343,86 @@ class CampaignDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Campaign.objects.filter(workspace__user=self.request.user)
+
+
+class RequestOTPView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({"error": "No account found with this email."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Optional: delete existing OTPs for user
+        PasswordResetOTP.objects.filter(user=user).delete()
+        
+        # Generate 6 digit OTP
+        otp = f"{random.randint(100000, 999999)}"
+        
+        # Save OTP
+        PasswordResetOTP.objects.create(user=user, otp=otp)
+        
+        # Send email
+        success = send_otp_email(user.email, otp)
+        if success:
+            return Response({"message": "Verification code sent to your email!"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Failed to send email. Try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class VerifyOTPView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        otp = request.data.get("otp")
+        
+        if not email or not otp:
+            return Response({"error": "Email and OTP are required."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            user = User.objects.get(email__iexact=email)
+            otp_record = PasswordResetOTP.objects.get(user=user, otp=otp)
+            
+            if not otp_record.is_valid():
+                return Response({"error": "Code has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+                
+            return Response({"message": "Code verified successfully!"}, status=status.HTTP_200_OK)
+            
+        except (User.DoesNotExist, PasswordResetOTP.DoesNotExist):
+            return Response({"error": "Invalid code or email."}, status=status.HTTP_400_BAD_REQUEST)
+
+class ConfirmPasswordResetView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        otp = request.data.get("otp")
+        new_password = request.data.get("new_password")
+        
+        if not all([email, otp, new_password]):
+            return Response({"error": "Email, OTP, and new password are required."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            user = User.objects.get(email__iexact=email)
+            otp_record = PasswordResetOTP.objects.get(user=user, otp=otp)
+            
+            if not otp_record.is_valid():
+                return Response({"error": "Code has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+                
+            # Set new password
+            user.set_password(new_password)
+            user.save()
+            
+            # Delete OTP so it cannot be reused
+            otp_record.delete()
+            
+            return Response({"message": "Password reset successfully! You can now log in."}, status=status.HTTP_200_OK)
+            
+        except (User.DoesNotExist, PasswordResetOTP.DoesNotExist):
+            return Response({"error": "Invalid code or email."}, status=status.HTTP_400_BAD_REQUEST)
 
