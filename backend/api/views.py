@@ -258,14 +258,25 @@ class CampaignListCreateView(generics.ListCreateAPIView):
         product = serializer.validated_data.get('product', '')
         details = serializer.validated_data.get('details', '')
         
+        # Extract language and hashtag_count from the validated data
+        language = serializer.validated_data.get('language', 'English')
+        hashtag_count = serializer.validated_data.get('hashtag_count')
+        
         results = {}
         for platform in platforms:
             try:
+                # Convert the tone array into a comma-separated string
                 tones_str = ', '.join(profile.tone) if isinstance(profile.tone, list) else str(profile.tone)
-                topic = f"Product: {product}. Details: {details}. Brand Tone: {tones_str}. Brand Name: {profile.brand}. Target Audience: {profile.audience}"
                 
+                topic = f"Product: {product}. Details: {details}. Brand Name: {profile.brand}. Target Audience: {profile.audience}"
+                
+                # Pass tone, language, and hashtag_count to the AI
                 caption, hashtags = generate_caption_and_hashtags(
-                    platform.lower(), "promotional", topic
+                    platform.lower(), 
+                    tones_str,
+                    topic,
+                    language,
+                    hashtag_count
                 )
                 results[platform.lower()] = {
                     "caption": caption,
@@ -280,7 +291,7 @@ class CampaignListCreateView(generics.ListCreateAPIView):
                 
         serializer.save(workspace=workspace, results=results)
 
-class CampaignDetailView(generics.RetrieveDestroyAPIView):
+class CampaignDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CampaignSerializer
     permission_classes = [IsAuthenticated]
 

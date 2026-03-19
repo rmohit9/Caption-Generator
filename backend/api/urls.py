@@ -35,5 +35,6 @@ urlpatterns = [
 
     # Campaigns
     path('workspaces/<uuid:workspace_id>/campaigns/', CampaignListCreateView.as_view(), name='campaign-list'),
+    path('workspaces/<uuid:workspace_id>/campaigns/<uuid:pk>/', CampaignDetailView.as_view(), name='campaign-detail-workspace'),
     path('campaigns/<uuid:pk>/', CampaignDetailView.as_view(), name='campaign-detail'),
 ]
