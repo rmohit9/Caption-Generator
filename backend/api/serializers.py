@@ -94,13 +94,6 @@ class CaptionHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CaptionHistory
         fields = [
-            'id',
-            'platform',
-            'caption_type',
-            'topic',
-            'caption',
-            'hashtags',
-            'is_pinned',
-            'created_at',
+            'id', 'platforms', 'caption_type', 'topic', 
+            'results', 'is_pinned', 'created_at',
         ]
-

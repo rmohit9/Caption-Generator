@@ -41,12 +41,17 @@ def _hash_guest_id(raw: str) -> str:
 @permission_classes([AllowAny])
 def generate_caption(request):
     data = request.data or {}
-    platform = data.get("platform")
+    
+    # We now accept 'platforms' (list) for new chats, or 'platform' (string) for refine
+    platforms = data.get("platforms", [])
+    single_platform = data.get("platform") 
+    
     caption_type = data.get("caption_type")
     topic = data.get("topic")
     language = data.get("language")
     raw_hashtag_count = data.get("hashtag_count")
     history_id = data.get("history_id")
+    
     hashtag_count = None
     if raw_hashtag_count not in (None, "", []):
         try:
@@ -54,124 +59,78 @@ def generate_caption(request):
         except (TypeError, ValueError):
             hashtag_count = None
 
-    if not platform or not caption_type or not topic:
-        return Response(
-            {"error": "platform, caption_type, and topic are required."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    if not caption_type or not topic:
+        return Response({"error": "caption_type and topic are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-    if isinstance(platform, (list, tuple)):
-        if len(platform) != 1:
-            if not request.user.is_authenticated:
-                return Response(
-                    {
-                        "error": "Guest users can generate captions for only one platform. Please login for multi-platform support."
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            return Response(
-                {"error": "Only one platform per request is supported."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        platform = platform[0]
-
-    if not isinstance(platform, str):
-        return Response(
-            {"error": "Invalid platform input."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    normalized_platform = platform.strip().lower()
-    if normalized_platform not in ALLOWED_PLATFORMS:
-        return Response(
-            {"error": "Invalid platform input."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
+    guest_hash = None
     if not request.user.is_authenticated:
         guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
         guest_hash = _hash_guest_id(guest_raw)
-        if GuestUsage.objects.filter(identifier_hash=guest_hash).exists():
-            return Response(
-                {"error": "Free generation limit reached. Please login to continue."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        if not history_id and GuestUsage.objects.filter(identifier_hash=guest_hash).exists():
+            return Response({"error": "Free generation limit reached. Please login."}, status=status.HTTP_403_FORBIDDEN)
 
-    try:
-        caption, hashtags = generate_caption_and_hashtags(
-            normalized_platform,
-            str(caption_type).strip(),
-            str(topic).strip(),
-            str(language).strip() if language else None,
-            hashtag_count,
-        )
-    except Exception:
-        logger.exception("Gemini generation failed")
-        return Response(
-            {"error": "Gemini API failure."},
-            status=status.HTTP_502_BAD_GATEWAY,
-        )
-
-    if not caption:
-        return Response(
-            {"error": "Gemini API failure."},
-            status=status.HTTP_502_BAD_GATEWAY,
-        )
-
-    if not request.user.is_authenticated:
-        guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
-        guest_hash = _hash_guest_id(guest_raw)
-        GuestUsage.objects.get_or_create(
-            identifier_hash=guest_hash,
-            defaults={"source": getattr(request, "guest_token_source", "ip")},
-        )
-
-    # Save generation history for analytics and display
-    history_record = None
-
-    if request.user.is_authenticated and history_id:
-        # Refining an existing caption – update in place instead of creating a duplicate
+    # --- CASE A: REFINEMENT (Update existing chat session) ---
+    if history_id and single_platform:
+        normalized_platform = single_platform.strip().lower()
         try:
-            history_record = CaptionHistory.objects.get(id=history_id, user=request.user)
-            history_record.topic = str(topic).strip()
-            history_record.caption = caption
-            history_record.hashtags = hashtags
+            caption, hashtags = generate_caption_and_hashtags(
+                normalized_platform, str(caption_type).strip(), str(topic).strip(),
+                str(language).strip() if language else None, hashtag_count
+            )
+            
+            if request.user.is_authenticated:
+                history_record = CaptionHistory.objects.get(id=history_id, user=request.user)
+            else:
+                history_record = CaptionHistory.objects.get(id=history_id, guest_identifier_hash=guest_hash)
+                
+            # Update results dict with the new refined text
+            results = history_record.results or {}
+            results[normalized_platform] = {"caption": caption, "hashtags": hashtags}
+            history_record.results = results
+            history_record.topic = str(topic).strip() # Update topic for sidebar context
             history_record.save()
-        except CaptionHistory.DoesNotExist:
-            history_record = None  # fall through to create a new one
+            
+            return Response({"id": history_record.id, "results": history_record.results}, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            logger.exception("Refinement failed")
+            return Response({"error": "Generation failed."}, status=status.HTTP_502_BAD_GATEWAY)
 
-    if history_record is None:
-        guest_identifier_hash = None
-        if not request.user.is_authenticated:
-            guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
-            guest_identifier_hash = _hash_guest_id(guest_raw)
+    # --- CASE B: NEW CHAT SESSION (Generate all selected platforms) ---
+    if not platforms or not isinstance(platforms, list):
+        return Response({"error": "platforms list is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        history_record = CaptionHistory.objects.create(
-            user=request.user if request.user.is_authenticated else None,
-            guest_identifier_hash=guest_identifier_hash,
-            platform=normalized_platform,
-            caption_type=str(caption_type).strip(),
-            topic=str(topic).strip(),
-            caption=caption,
-            hashtags=hashtags,
-        )
+    results = {}
+    for plat in platforms:
+        norm_plat = plat.strip().lower()
+        try:
+            cap, tags = generate_caption_and_hashtags(
+                norm_plat, str(caption_type).strip(), str(topic).strip(),
+                str(language).strip() if language else None, hashtag_count
+            )
+            results[norm_plat] = {"caption": cap, "hashtags": tags}
+        except Exception as e:
+            logger.exception(f"Generation failed for {norm_plat}")
+            results[norm_plat] = {"caption": f"Error: {str(e)}", "hashtags": []}
 
-    response = Response(
-        {"id": history_record.id, "caption": caption, "hashtags": hashtags},
-        status=status.HTTP_200_OK,
+    if not request.user.is_authenticated:
+        GuestUsage.objects.get_or_create(identifier_hash=guest_hash, defaults={"source": getattr(request, "guest_token_source", "ip")})
+
+    history_record = CaptionHistory.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        guest_identifier_hash=guest_hash,
+        platforms=platforms,
+        caption_type=str(caption_type).strip(),
+        topic=str(topic).strip(),
+        results=results,
     )
 
+    response = Response({"id": history_record.id, "results": results}, status=status.HTTP_200_OK)
+    
     if not request.user.is_authenticated and getattr(request, "guest_new_token", None):
-        response.set_cookie(
-            "guest_token",
-            request.guest_new_token,
-            max_age=60 * 60 * 24 * 365,
-            httponly=True,
-            samesite="Lax",
-        )
+        response.set_cookie("guest_token", request.guest_new_token, max_age=60*60*24*365, httponly=True, samesite="Lax")
 
     return response
-
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
