@@ -9,6 +9,9 @@ import Workspace from './pages/Workspace/Workspace';
 import WorkspaceDashboard from './pages/Workspace/WorkspaceDashboard';
 import { Toaster } from 'react-hot-toast';
 import { SidebarProvider } from "./Context/SidebarContext"
+import CookiePolicy from './pages/Legal/CookiePolicy';
+import Privacy from './pages/Legal/Privacy';
+import Terms from './pages/Legal/Terms';
 
 const ProtectedRoute = ({ children }) => {
     const isAuthenticated = !!localStorage.getItem("access");
@@ -23,6 +26,11 @@ export default function App() {
         <Toaster position="top-right" reverseOrder={false} /> 
         
         <Routes>
+
+          <Route path="/cookie" element={<CookiePolicy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          {/* home / landing page */}
           <Route path='/' element={<Home />} />
           <Route path='/register' element={<Register />} />
           <Route path='/login' element={<Login />} />
