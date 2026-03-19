@@ -230,9 +230,9 @@ const Register = () => {
                                     </div>
                                     <span className="text-xs sm:text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors leading-snug">
                                         I agree to the{" "}
-                                        <a href="#" className="font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors">Terms of Service</a>
+                                        <Link to="/terms" className="font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors">Terms of Service</Link>
                                         {" "}and{" "}
-                                        <a href="#" className="font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors">Privacy Policy</a>.
+                                        <Link to="/privacy" className="font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors">Privacy Policy</Link>.
                                     </span>
                                 </label>
                             </div>

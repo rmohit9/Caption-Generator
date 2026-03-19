@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
@@ -197,15 +198,24 @@ export default function Footer() {
             
             {/* Legal Links */}
             <div className="flex gap-6 text-xs">
-              {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((l) => (
-                <a
-                  key={l}
-                  href="#"
+                <Link
+                  to="/privacy"
                   className="text-orange-400 hover:text-orange-600 font-semibold transition-colors"
                 >
-                  {l}
-                </a>
-              ))}
+                  Privacy Policy
+                </Link>
+                <Link
+                  to="/terms"
+                  className="text-orange-400 hover:text-orange-600 font-semibold transition-colors"
+                >
+                  Terms of Service
+                </Link>
+                <Link
+                  to="/cookie"
+                  className="text-orange-400 hover:text-orange-600 font-semibold transition-colors"
+                >
+                  Cookie Policy
+                </Link>
             </div>
           </div>
         </div>
