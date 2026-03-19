@@ -112,37 +112,37 @@ const CAPTIONS = {
 
 const FEATURES = [
   {
-    icon: <FaBrain className="w-6 h-6" />,
+    icon: <FaBrain className="w-4 h-4" />,
     title: "AI-Powered Captions",
     desc: "GPT-grade copy tailored to your brand voice, audience & platform in seconds.",
     color: "bg-[#f08a5d]",
   },
   {
-    icon: <FaFire className="w-6 h-6" />,
+    icon: <FaFire className="w-4 h-4" />,
     title: "Trending Hashtags",
     desc: "Algorithmically sourced hashtags that maximize reach and discoverability.",
     color: "bg-[#f08a5d]",
   },
   {
-    icon: <FaChartBar className="w-6 h-6" />,
+    icon: <FaChartBar className="w-4 h-4" />,
     title: "Engagement Scoring",
     desc: "Every post gets a real-time AI engagement score before you publish.",
     color: "bg-[#f08a5d]",
   },
   {
-    icon: <FaBullseye className="w-6 h-6" />,
+    icon: <FaBullseye className="w-4 h-4" />,
     title: "Audience Targeting",
     desc: "Captions crafted for your exact demographic — age, interest & behavior.",
     color: "bg-[#f08a5d]",
   },
   {
-    icon: <Zap className="w-6 h-6" />,
+    icon: <Zap className="w-4 h-4" />,
     title: "Instant Generation",
     desc: "Generate 6 platform-ready posts simultaneously in under 3 seconds.",
     color: "bg-[#f08a5d]",
   },
   {
-    icon: <FaRecycle className="w-6 h-6" />,
+    icon: <FaRecycle className="w-4 h-4" />,
     title: "Content Repurposing",
     desc: "Turn one idea into 6 platform-native posts automatically. One click.",
     color: "bg-[#f08a5d]",
@@ -425,8 +425,11 @@ export default function Home() {
       }}
     >
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { font-family: 'Inter', sans-serif; }
+        .poppins-heading { font-family: 'Poppins', sans-serif; font-weight: 500; }
+        .poppins-heading-hero { font-family: 'Poppins', sans-serif; font-weight: 500; }
 
         @keyframes floatY { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-20px)} }
         @keyframes floatX { 0%,100%{transform:translateX(0px)} 50%{transform:translateX(10px)} }
@@ -479,23 +482,10 @@ export default function Home() {
           style={{ animationDirection: "reverse", animationDuration: "30s" }}
         />
 
-        {/* Badge */}
-        <div className="relative animate-fade-up mb-4">
-          <div className="bg-white/70 backdrop-blur-md rounded-full px-5 py-2.5 flex items-center gap-2.5 shadow-lg shadow-[#f08a5d]/10 border border-[#f08a5d]/20">
-            <span className="w-2.5 h-2.5 rounded-full animate-pulse-ring bg-[#f08a5d]" />
-            <span className="text-xs font-black tracking-widest uppercase text-[#f08a5d]">
-              AI-Powered Social Media Generator
-            </span>
-            <span className="text-xs text-[#d97346] font-semibold bg-[#fff7ed] px-2 py-0.5 rounded-full">
-              Now Live
-            </span>
-          </div>
-        </div>
-
         {/* Headline */}
         <h1
-          className="font-black text-center leading-none tracking-tight mb-3 animate-fade-up relative z-10"
-          style={{ fontSize: "clamp(2.8rem,7.5vw,5.8rem)" }}
+          className="poppins-heading-hero text-center leading-none tracking-tight mb-3 animate-fade-up relative z-10 pt-16"
+          style={{ fontSize: "clamp(1.8rem,6.5vw,4.8rem)" }}
         >
           <span className="text-slate-800">Create </span>
           <span className="text-[#f08a5d]">
@@ -529,11 +519,11 @@ export default function Home() {
         </h1>
 
         <p
-          className="text-center text-slate-600 font-light text-base sm:text-lg lg:text-xl max-w-2xl mx-auto px-4 mb-5 animate-fade-up relative z-10"
+          className="text-center text-slate-600 font-light text-xs sm:text-sm lg:text-base max-w-2xl mx-auto px-4 mb-5 animate-fade-up relative z-10"
           style={{ animationDelay: "0.2s" }}
         >
           Instantly generate platform-optimized posts for{" "}
-          <span className="font-semibold inline-block align-middle">
+          <span className="font-normal inline-block align-middle">
             <TypewriterText texts={socialTexts} />
           </span>
         </p>
@@ -543,7 +533,7 @@ export default function Home() {
           className="flex flex-wrap justify-center gap-4 mb-6 animate-fade-up relative z-10"
           style={{ animationDelay: "0.3s" }}
         >
-          <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-8 py-4 rounded-full shadow-2xl shadow-[#f08a5d]/30 transition-all duration-300 shimmer-btn text-base bg-[#f08a5d] hover:bg-[#d97346] hover:-translate-y-1 hover:shadow-[#f08a5d]/40">
+          <button className="relative overflow-hidden flex items-center gap-2 text-white font-normal px-6 py-3 rounded-full shadow-2xl shadow-[#f08a5d]/30 transition-all duration-300 shimmer-btn text-base bg-[#f08a5d] hover:bg-[#d97346] hover:-translate-y-1 hover:shadow-[#f08a5d]/40">
             Generate Free
           </button>
         </div>
@@ -559,7 +549,7 @@ export default function Home() {
                 <span className="w-3 h-3 bg-yellow-400 rounded-full" />
                 <span className="w-3 h-3 bg-green-400 rounded-full" />
               </div>
-              <span className="text-xs font-semibold text-orange-600">
+              <span className="text-xs font-normal text-orange-600">
                 Hashtag Studio
               </span>
             </div>
@@ -574,7 +564,7 @@ export default function Home() {
                 {active.hashtags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-full border border-orange-200 text-orange-700 hover:bg-orange-100 transition cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-normal rounded-full border border-orange-200 text-orange-700 hover:bg-orange-100 transition cursor-pointer"
                   >
                     {tag}
                   </span>
@@ -582,7 +572,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="absolute -top-4 -right-4 px-3 py-1.5 text-xs font-semibold text-white bg-[#f08a5d] rounded-xl shadow-md flex items-center gap-1">
+          <div className="absolute -top-4 -right-4 px-3 py-1.5 text-xs font-normal text-white bg-[#f08a5d] rounded-xl shadow-md flex items-center gap-1">
             <Zap size={14} />
             3s Generation
           </div>
@@ -596,12 +586,12 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-orange-50 rounded-full px-5 py-2 mb-5 shadow-sm border border-orange-100">
-              <span className="text-xs font-black tracking-widest uppercase text-orange-600">
+              <span className="text-xs font-normal tracking-widest uppercase text-orange-600">
                 How It Works
               </span>
             </div>
             <h2
-              className="font-black leading-tight mb-4"
+              className="poppins-heading leading-tight mb-4"
               style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
             >
               <span className="text-slate-800">From Idea to </span>
@@ -611,7 +601,7 @@ export default function Home() {
               <br />
               <span className="text-slate-800">in 4 Simple Steps</span>
             </h2>
-            <p className="text-slate-600 text-lg max-w-lg mx-auto">
+            <p className="text-slate-600 text-base max-w-lg mx-auto">
               No complicated tools. No learning curve. Just simple AI-powered
               content creation.
             </p>
@@ -628,17 +618,17 @@ export default function Home() {
                 <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#f08a5d]/10" />
                 <div className="relative">
                   <div className="flex justify-between items-center">
-                    <div className="text-6xl font-black text-slate-100 mb-4 group-hover:text-[#f08a5d]/30 transition-colors">
+                    <div className="text-6xl font-normal text-slate-100 mb-4 group-hover:text-[#f08a5d]/30 transition-colors">
                       {s.num}
                     </div>
-                    <div className="w-14 h-14 flex items-center justify-center rounded-xl bg-[#f08a5d] text-white text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 mb-4">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#f08a5d] text-white text-lg shadow-lg group-hover:scale-110 transition-transform duration-300 mb-4">
                       {s.icon}
                     </div>
                   </div>
-                  <h3 className="font-semibold text-lg text-slate-800 mb-2">
+                  <h3 className="poppins-heading text-base text-slate-800 mb-2">
                     {s.title}
                   </h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">
+                  <p className="text-slate-600 text-sm leading-relaxed font-normal">
                     {s.desc}
                   </p>
                 </div>
@@ -654,12 +644,12 @@ export default function Home() {
         <div className="max-w-6xl mx-auto relative">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm border border-orange-200 rounded-full px-5 py-2 mb-5 shadow-md">
-              <span className="text-xs font-black tracking-widest uppercase text-orange-600">
+              <span className="text-xs font-normal tracking-widest uppercase text-orange-600">
                 Try It Live
               </span>
             </div>
             <h2
-              className="font-black leading-tight mb-4"
+              className="poppins-heading leading-tight mb-4"
               style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
             >
               <span className="text-slate-800">See the </span>
@@ -668,7 +658,7 @@ export default function Home() {
               </span>
               <span className="text-slate-800"> Happen</span>
             </h2>
-            <p className="text-slate-600 text-lg font-light max-w-md mx-auto">
+            <p className="text-slate-600 text-base font-light max-w-md mx-auto">
               Fill in your details and watch captions appear live.
             </p>
           </div>
@@ -676,7 +666,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-8 items-start">
             {/* Input */}
             <div className="bg-white/80 backdrop-blur-md rounded-3xl p-7 shadow-xl shadow-orange-200/30 border border-orange-100">
-              <h3 className="font-black text-slate-800 text-lg mb-6 flex items-center gap-2">
+              <h3 className="poppins-heading text-base text-slate-800 mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-xl flex items-center justify-center text-sm bg-[#f08a5d] text-white">
                   <PenTool size={16} />
                 </span>
@@ -710,11 +700,11 @@ export default function Home() {
                   },
                 ].map((f) => (
                   <div key={f.key}>
-                    <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                    <label className="block text-xs font-normal text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5">
                       {f.icon} {f.label}
                     </label>
                     <input
-                      className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 focus:ring-[#f08a5d]/30 transition"
+                      className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-normal placeholder-slate-400 bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 focus:ring-[#f08a5d]/30 transition"
                       value={demoInput[f.key]}
                       onChange={(e) => setDemoInput({ ...demoInput, [f.key]: e.target.value })}
                       placeholder={f.placeholder}
@@ -723,7 +713,7 @@ export default function Home() {
                 ))}
 
                 <div>
-                  <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                  <label className="block text-xs font-normal text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5">
                     <Share2 className="w-4 h-4" /> Select Platforms
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -733,7 +723,7 @@ export default function Home() {
                         <button
                           key={p.id}
                           onClick={() => togglePlatform(p.id)}
-                          className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms === p.id
+                          className={`flex items-center gap-1.5 text-xs font-normal px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms === p.id
                             ? "text-white border-transparent shadow-md bg-[#f08a5d]"
                             : "border-orange-200 text-orange-400 hover:bg-orange-50"
                             }`}
@@ -749,7 +739,7 @@ export default function Home() {
                 <button
                   onClick={handleGenerate}
                   disabled={generating}
-                  className="relative overflow-hidden w-full text-white font-black py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 
+                  className="relative overflow-hidden w-full text-white font-normal py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 
                   transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shimmer-btn bg-[#f08a5d] hover:bg-[#d97346]"
                 >
                   {generating ? (
@@ -762,7 +752,7 @@ export default function Home() {
                   )}
                 </button>
                 {errorMessage && (
-                  <p className="mt-3 text-sm font-semibold text-red-600">
+                  <p className="mt-3 text-sm font-normal text-red-600">
                     {errorMessage}
                   </p>
                 )}
@@ -781,7 +771,7 @@ export default function Home() {
                   <div className="text-7xl mb-5 opacity-20 animate-float">
                     <FaRobot className="w-16 h-16 text-[#f08a5d]" />
                   </div>
-                  <p className="text-[#f08a5d]/60 font-bold text-sm">
+                  <p className="text-[#f08a5d]/60 font-normal text-sm">
                     Fill in your campaign details
                     <br />
                     and click generate to see AI magic! ✨
@@ -797,10 +787,10 @@ export default function Home() {
                       <Sparkles className="w-8 h-8 text-[#f08a5d]" />
                     </span>
                   </div>
-                  <p className="font-black text-[#f08a5d] mb-1">
+                  <p className="font-normal text-[#f08a5d] mb-1">
                     Crafting your perfect captions...
                   </p>
-                  <p className="text-[#d97346]/70 text-xs font-semibold">
+                  <p className="text-[#d97346]/70 text-xs font-normal">
                     Analyzing audience, tone & trending hashtags
                   </p>
                   <div className="mt-4 flex gap-1.5">
@@ -817,10 +807,10 @@ export default function Home() {
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-5 pb-4 border-b border-[#d97346]">
                     <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-[#f08a5d]" />
-                    <span className="text-xs font-black text-[#f08a5d] uppercase tracking-wider">
+                    <span className="text-xs font-normal text-[#f08a5d] uppercase tracking-wider">
                       Generated for: {demoInput.product}
                     </span>
-                    <span className="ml-auto text-xs font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
+                    <span className="ml-auto text-xs font-normal text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
                       ✓ Ready
                     </span>
                   </div>
@@ -835,28 +825,27 @@ export default function Home() {
                           const current = generatedCaptions[key] || val;
                           return (
                             <>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-base">{current.icon}</span>
-                          <span
-                            className={`text-xs font-black capitalize px-2 py-0.5 rounded-full ${current.tag}`}
-                          >
-                            {current.label}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-700 leading-relaxed font-semibold mb-2">
-                          {val.text}
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {val.hashtags.map((h) => (
-                            <span
-                              key={h}
-                              className={`text-xs ${current.tag} px-2 py-0.5 rounded-full font-black`}
-                            >
-                              {h}
-                            </span>
-                          ))}
-                          
-                        </div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-base">{current.icon}</span>
+                                <span
+                                  className={`text-xs font-normal capitalize px-2 py-0.5 rounded-full ${current.tag}`}
+                                >
+                                  {current.label}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-700 leading-relaxed font-normal mb-2">
+                                {val.text}
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {val.hashtags.map((h) => (
+                                  <span
+                                    key={h}
+                                    className={`text-xs ${current.tag} px-2 py-0.5 rounded-full font-normal`}
+                                  >
+                                    {h}
+                                  </span>
+                                ))}
+                              </div>
                             </>
                           );
                         })()}
@@ -864,7 +853,7 @@ export default function Home() {
                     ))}
                   <button
                     onClick={handleCopyAll}
-                    className="w-full text-white font-black py-3 rounded-2xl mt-2 text-sm hover:-translate-y-1 transition-all shadow-lg shimmer-btn 
+                    className="w-full text-white font-normal py-3 rounded-2xl mt-2 text-sm hover:-translate-y-1 transition-all shadow-lg shimmer-btn 
                     relative overflow-hidden bg-[#f08a5d] hover:bg-[#d97346]"
                   >
                     {copied ? "✓ Copied to Clipboard!" : "Copy All Selected Captions & Hashtags"}
@@ -881,12 +870,12 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-orange-50 rounded-full px-5 py-2 mb-5 border border-orange-100">
-              <span className="text-xs font-black tracking-widest uppercase text-orange-600">
+              <span className="text-xs font-normal tracking-widest uppercase text-orange-600">
                 Features
               </span>
             </div>
             <h2
-              className="font-black leading-tight"
+              className="poppins-heading leading-tight"
               style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
             >
               <span className="text-slate-800">Everything to </span>
@@ -905,14 +894,14 @@ export default function Home() {
               >
                 <div className="relative">
                   <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-4 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 ${f.color} text-white`}
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center text-base mb-4 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 ${f.color} text-white`}
                   >
                     {f.icon}
                   </div>
-                  <h3 className="font-black text-slate-800 text-base mb-2 group-hover:text-[#f08a5d] transition-colors">
+                  <h3 className="poppins-heading text-base text-slate-800 mb-2">
                     {f.title}
                   </h3>
-                  <p className="text-slate-600 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-600 text-sm leading-relaxed font-normal">
                     {f.desc}
                   </p>
                 </div>
@@ -931,21 +920,21 @@ export default function Home() {
           }} /><div className="max-w-5xl mx-auto text-center relative">
             <div className="inline-flex items-center gap-2 glass-orange rounded-full px-5 py-2 mb-5">
               <span
-                className="text-xs font-black tracking-widest uppercase text-[#f08a5d]"
+                className="text-xs font-normal tracking-widest uppercase text-[#f08a5d]"
               >
                 Platforms
               </span>
             </div>
 
             <h2
-              className="font-display font-black leading-tight mb-4"
+              className="poppins-heading leading-tight mb-4"
               style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
             >
-              <span className="text-[#d97346]">One Tool. </span>
+              <span className="text-slate-800">One Tool. </span>
               <span className="text-[#f08a5d]">Every Platform.</span>
             </h2>
 
-            <p className="text-[#f08a5d]/80 text-lg font-light max-w-lg mx-auto mb-14">
+            <p className="text-slate-800 text-base font-light max-w-lg mx-auto mb-14">
               HashCraft AI understands the language, format & algorithm of every major
               platform.
             </p>
@@ -972,7 +961,7 @@ export default function Home() {
                       </div>
 
                       {/* Name */}
-                      <h3 className="font-black text-[#f08a5d] text-base mb-1 tracking-wide">
+                      <h3 className="poppins-heading text-[#f08a5d] text-base mb-1 tracking-wide">
                         {p.name}
                       </h3>
 
@@ -997,9 +986,9 @@ export default function Home() {
         <div className="max-w-6xl mx-auto relative">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-5 py-2 mb-5">
-              <span className="text-xs font-black tracking-widest uppercase text-white">Testimonials</span>
+              <span className="text-xs font-normal tracking-widest uppercase text-white">Testimonials</span>
             </div>
-            <h2 className="font-display font-black text-white leading-tight" style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}>
+            <h2 className="poppins-heading text-white leading-tight" style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}>
               Loved by <span className="text-yellow-300">10,000+</span> Marketers
             </h2>
           </div>
@@ -1011,11 +1000,11 @@ export default function Home() {
                 </div>
                 <p className="text-white/85 text-sm leading-relaxed mb-6 font-medium">"{t.text}"</p>
                 <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-black text-white shadow-lg`} style={{ backgroundColor: "#d97346" }}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-normal text-white shadow-lg`} style={{ backgroundColor: "#d97346" }}>
                     {t.avatar}
                   </div>
                   <div>
-                    <div className="text-white font-black text-sm">{t.name}</div>
+                    <div className="text-white font-normal text-sm">{t.name}</div>
                     <div className="text-orange-200 text-xs font-semibold">{t.role}</div>
                   </div>
                 </div>
@@ -1042,20 +1031,20 @@ export default function Home() {
         <div className="relative max-w-4xl mx-auto text-center">
 
           {/* Headline */}
-          <h2 className="font-black text-slate-800 leading-tight mb-4 text-4xl md:text-5xl lg:text-6xl">
+          <h2 className="poppins-heading text-slate-800 leading-tight mb-4 text-4xl md:text-5xl lg:text-6xl">
             Start Creating Viral Content
             <br />
             Today – <span className="text-[#f08a5d]">It's Free</span>
           </h2>
 
           {/* Description */}
-          <p className="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-light">
-            Join <span className="font-bold text-[#f08a5d]">10,000+ marketers</span> saving 80% of their content creation time with HashCraft AI.
+          <p className="text-slate-600 text-sm md:text-base max-w-2xl mx-auto mb-10 font-light">
+            Join <span className="font-normal text-[#f08a5d]">10,000+ marketers</span> saving 80% of their content creation time with HashCraft AI.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-            <button className="relative overflow-hidden flex items-center justify-center gap-2 text-white font-black px-8 py-4 rounded-full shadow-2xl shadow-[#f08a5d]/30 transition-all duration-300 shimmer-btn text-base bg-[#f08a5d] hover:bg-[#d97346] hover:-translate-y-1 hover:shadow-[#f08a5d]/40">
+            <button className="relative overflow-hidden flex items-center gap-2 text-white font-normal px-6 py-3 rounded-full shadow-2xl shadow-[#f08a5d]/30 transition-all duration-300 shimmer-btn text-base bg-[#f08a5d] hover:bg-[#d97346] hover:-translate-y-1 hover:shadow-[#f08a5d]/40">
               Generate Free
             </button>
 
