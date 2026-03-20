@@ -33,3 +33,37 @@ def send_otp_email(to_email, otp):
         if getattr(e, 'response', None) is not None:
             print(f"Response: {e.response.text}")
         return False
+
+def send_admin_alert_email(subject, message):
+    from django.contrib.auth.models import User
+    
+    # Get all users who have is_staff=True
+    admin_emails = list(User.objects.filter(is_staff=True).values_list('email', flat=True))
+    if not admin_emails:
+        print("No admin users found to send alert.")
+        return False
+
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": settings.BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+
+    payload = {
+        "sender": {
+            "name": settings.BREVO_SENDER_NAME,
+            "email": settings.BREVO_SENDER_EMAIL 
+        },
+        "to": [{"email": email} for email in admin_emails],
+        "subject": subject,
+        "htmlContent": f"<html><body><div style='font-family: Arial, sans-serif; padding: 20px;'><h2 style='color: #d9534f;'>System Alert</h2><p>{message}</p></div></body></html>"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending admin alert email: {e}")
+        return False

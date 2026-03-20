@@ -7,6 +7,8 @@ import Login from './pages/Authentication/Login';
 import Generator from './pages/Generator/Generator';
 import Workspace from './pages/Workspace/Workspace';
 import WorkspaceDashboard from './pages/Workspace/WorkspaceDashboard';
+import AdminLogin from './pages/Admin/AdminLogin';
+import AdminDashboard from './pages/Admin/AdminDashboard';
 import { Toaster } from 'react-hot-toast';
 import { SidebarProvider } from "./Context/SidebarContext"
 import CookiePolicy from './pages/Legal/CookiePolicy';
@@ -24,6 +26,8 @@ const TitleUpdater = () => {
     else if (path.startsWith('/workspace/')) document.title = "Workspace Dashboard | Graphura AI";
     else if (path === '/login') document.title = "Login | Graphura AI";
     else if (path === '/register') document.title = "Register | Graphura AI";
+    else if (path === '/admin' || path === '/admin/') document.title = "Admin Login | Graphura AI";
+    else if (path === '/admin/dashboard') document.title = "Admin Dashboard | Graphura AI";
     else document.title = "Graphura AI";
   }, [location]);
   return null;
@@ -52,6 +56,10 @@ export default function App() {
           <Route path='/login' element={<Login />} />
           
           <Route path='/generator' element={<Generator />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           
           <Route 
             path='/workspace' 

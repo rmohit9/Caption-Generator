@@ -17,7 +17,9 @@ from .views import (
     CampaignDetailView,
     RequestOTPView,
     VerifyOTPView,
-    ConfirmPasswordResetView
+    ConfirmPasswordResetView,
+    AdminLoginView,
+    SystemConfigView
 )
 
 urlpatterns = [
@@ -48,4 +50,8 @@ urlpatterns = [
     path('workspaces/<uuid:workspace_id>/campaigns/', CampaignListCreateView.as_view(), name='campaign-list'),
     path('workspaces/<uuid:workspace_id>/campaigns/<uuid:pk>/', CampaignDetailView.as_view(), name='campaign-detail-workspace'),
     path('campaigns/<uuid:pk>/', CampaignDetailView.as_view(), name='campaign-detail'),
+
+    # Admin
+    path('admin/login/', AdminLoginView.as_view(), name='admin-login'),
+    path('admin/config/', SystemConfigView.as_view(), name='admin-config'),
 ]

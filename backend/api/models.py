@@ -86,3 +86,22 @@ class PasswordResetOTP(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.otp}"
 
+class SystemConfig(models.Model):
+    gemini_api_key = models.CharField(max_length=255, blank=True, null=True)
+    token_limit = models.IntegerField(default=1000000) # e.g., 1M tokens
+    tokens_used = models.IntegerField(default=0)
+    is_exhausted = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "System Configuration"
+        verbose_name_plural = "System Configuration"
+
+    def save(self, *args, **kwargs):
+        # Force the ID to be 1 so we only ever have one configuration row
+        self.pk = 1 
+        super(SystemConfig, self).save(*args, **kwargs)
+
+    @classmethod
+    def get_solo(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj

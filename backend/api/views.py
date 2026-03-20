@@ -7,14 +7,15 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 
-from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory, Campaign, PasswordResetOTP
+from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory, Campaign, PasswordResetOTP, SystemConfig
 from .services.model_router import generate_caption_and_hashtags
 from .services.email_service import send_otp_email
 from .serializers import UserSerializer, CustomTokenObtainPairSerializer, WorkspaceSerializer, BatchProfileSerializer, CaptionHistorySerializer, CampaignSerializer
@@ -425,4 +426,75 @@ class ConfirmPasswordResetView(APIView):
             
         except (User.DoesNotExist, PasswordResetOTP.DoesNotExist):
             return Response({"error": "Invalid code or email."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        admin_key = request.data.get('admin_access_key')
+
+        # 1. Verify the secret .env key first
+        if admin_key != getattr(settings, 'ADMIN_ACCESS_KEY', ''):
+            return Response({"error": "Invalid Admin Access Key. Intrusion logged."}, status=403)
+
+        # 2. Verify user credentials
+        user = authenticate(username=email, password=password)
+        if user:
+            # Promote to staff if they aren't already, so they pass IsAdminUser checks
+            if not user.is_staff:
+                user.is_staff = True
+                user.save()
+
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'full_name': getattr(user, 'first_name', user.username),
+                'is_admin': True
+            })
+            
+        return Response({"error": "Invalid email or password"}, status=401)
+
+
+class SystemConfigView(APIView):
+    permission_classes = [IsAdminUser] # Only staff can access this
+
+    def get(self, request):
+        config = SystemConfig.get_solo()
+        # Compute dynamic exhaustion on the fly
+        is_exhausted = config.is_exhausted or (config.token_limit > 0 and config.tokens_used >= config.token_limit)
+        
+        # Mask the API key for security (only show last 4 chars)
+        masked_key = f"••••••••••••••••{config.gemini_api_key[-4:]}" if config.gemini_api_key else ""
+        
+        return Response({
+            "gemini_api_key": masked_key,
+            "token_limit": config.token_limit,
+            "tokens_used": config.tokens_used,
+            "is_exhausted": is_exhausted
+        })
+
+    def post(self, request):
+        config = SystemConfig.get_solo()
+        new_key = request.data.get('gemini_api_key')
+        
+        # If they sent a new key (not the masked one), update it and reset usage
+        if new_key and not new_key.startswith('••••'):
+            config.gemini_api_key = new_key
+            config.tokens_used = 0 
+            config.is_exhausted = False
+
+        config.token_limit = request.data.get('token_limit', config.token_limit)
+        
+        # Recalculate exhaustion if they lower the limit below their usage
+        if config.token_limit > 0 and config.tokens_used >= config.token_limit:
+            config.is_exhausted = True
+        elif config.token_limit <= 0 or config.tokens_used < config.token_limit:
+            config.is_exhausted = False
+            
+        config.save()
+        return Response({"message": "System Configuration updated successfully!"})
 

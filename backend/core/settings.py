@@ -31,6 +31,8 @@ BREVO_API_KEY = os.environ.get('BREVO_API_KEY')
 BREVO_SENDER_EMAIL = os.environ.get('BREVO_SENDER_EMAIL', 'hr@graphura.in')
 BREVO_SENDER_NAME = os.environ.get('BREVO_SENDER_NAME', 'Graphura AI')
 
+ADMIN_ACCESS_KEY = os.environ.get('ADMIN_ACCESS_KEY', '')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
