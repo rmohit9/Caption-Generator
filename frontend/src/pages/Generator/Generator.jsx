@@ -246,8 +246,17 @@ const Generator = () => {
                             </div>
                             <h1 className="text-xl font-black text-slate-800">Caption Generator</h1>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Link to="/" className="flex items-center gap-1.5 text-sm font-medium text-[#f08a5d] bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105 border border-orange-200"><span>←</span> Back To Home</Link>
+                        {/* Desktop Navigation Pill */}
+                        <div className="hidden md:flex items-center gap-1 bg-orange-50/80 p-1 rounded-full border border-orange-200 shadow-sm backdrop-blur-md">
+                            <Link to="/" className="text-sm font-bold text-slate-500 hover:text-slate-800 hover:bg-orange-100 px-5 py-1.5 rounded-full transition-all duration-300">Home</Link>
+                            <Link to="/generator" className="text-sm font-black text-white bg-[#f08a5d] shadow-md px-5 py-1.5 rounded-full transition-all duration-300 cursor-default pointer-events-none">Generate</Link>
+                            <Link to="/workspace" className="text-sm font-bold text-slate-500 hover:text-slate-800 hover:bg-orange-100 px-5 py-1.5 rounded-full transition-all duration-300">Workspace</Link>
+                        </div>
+                        {/* Mobile Navigation */}
+                        <div className="md:hidden flex items-center gap-1 bg-orange-50/80 p-1 rounded-full border border-orange-200 shadow-sm backdrop-blur-md">
+                            <Link to="/" className="text-[10px] sm:text-xs font-bold text-slate-500 px-2 py-1.5 rounded-full">Home</Link>
+                            <Link to="/generator" className="text-[10px] sm:text-xs font-black text-white bg-[#f08a5d] px-2 py-1.5 rounded-full shadow-sm pointer-events-none">Gen</Link>
+                            <Link to="/workspace" className="text-[10px] sm:text-xs font-bold text-slate-500 px-2 py-1.5 rounded-full">Work</Link>
                         </div>
                     </div>
 
