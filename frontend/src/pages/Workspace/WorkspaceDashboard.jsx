@@ -217,6 +217,7 @@ const WorkspaceDashboard = () => {
   // --- SEARCH AND MODAL STATES ---
   const [searchQuery, setSearchQuery] = useState("");
   const [renameModal, setRenameModal] = useState({ isOpen: false, id: null, type: null, text: "" });
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, type: null, message: "" });
 
   const [profileName, setProfileName] = useState("");
   const [brandName, setBrandName] = useState("");
@@ -290,26 +291,34 @@ const WorkspaceDashboard = () => {
   };
 
   // --- CRUD ACTIONS (Refactored to accept explicit IDs) ---
-  const handleDeleteProfile = async (id = selectedItem?.id) => {
+  const handleDeleteProfile = (id = selectedItem?.id) => {
     if (!id) return;
-    if (!window.confirm("Are you sure you want to delete this Batch Profile?")) return;
-    try {
-      await api.delete(`profiles/${id}/`);
-      setProfiles(profiles.filter(p => p.id !== id));
-      if(selectedItem?.id === id) { setSelectedItem(null); setMainView('new_profile'); }
-      toast.success("Batch Profile deleted.");
-    } catch (error) { toast.error("Failed to delete Batch Profile."); }
+    setDeleteModal({ isOpen: true, id, type: 'profile', message: "Are you sure you want to delete this Batch Profile?" });
   };
 
-  const handleDeleteCampaign = async (id = selectedItem?.id) => {
+  const handleDeleteCampaign = (id = selectedItem?.id) => {
     if (!id) return;
-    if (!window.confirm("Are you sure you want to delete this Campaign?")) return;
-    try {
-      await api.delete(`workspaces/${workspaceId}/campaigns/${id}/`);
-      setCampaigns(campaigns.filter(c => c.id !== id));
-      if(selectedItem?.id === id) { setSelectedItem(null); setMainView('new_campaign'); }
-      toast.success("Campaign deleted.");
-    } catch (error) { toast.error("Failed to delete Campaign."); }
+    setDeleteModal({ isOpen: true, id, type: 'campaign', message: "Are you sure you want to delete this Campaign?" });
+  };
+
+  const confirmDelete = async () => {
+    const { id, type } = deleteModal;
+    if (type === 'campaign') {
+      try {
+        await api.delete(`workspaces/${workspaceId}/campaigns/${id}/`);
+        setCampaigns(campaigns.filter(c => c.id !== id));
+        if(selectedItem?.id === id) { setSelectedItem(null); setMainView('new_campaign'); }
+        toast.success("Campaign deleted.");
+      } catch (error) { toast.error("Failed to delete Campaign."); }
+    } else {
+      try {
+        await api.delete(`profiles/${id}/`);
+        setProfiles(profiles.filter(p => p.id !== id));
+        if(selectedItem?.id === id) { setSelectedItem(null); setMainView('new_profile'); }
+        toast.success("Batch Profile deleted.");
+      } catch (error) { toast.error("Failed to delete Batch Profile."); }
+    }
+    setDeleteModal({ isOpen: false, id: null, type: null, message: "" });
   };
 
   const openRenameModal = (id, type, currentName) => {
@@ -994,6 +1003,34 @@ const WorkspaceDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* DELETE MODAL */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-fade-down border border-red-100">
+            <div className="px-6 py-5 border-b border-red-100 flex justify-between items-center bg-red-50/50">
+              <h3 className="font-black text-slate-800 flex items-center gap-2">
+                <Trash2 className="text-red-500" size={16} /> Confirm Deletion
+              </h3>
+              <button onClick={() => setDeleteModal({ isOpen: false, id: null, type: null, message: "" })} className="text-slate-400 hover:text-slate-600 bg-white hover:bg-slate-100 p-1.5 rounded-full transition-colors border border-slate-100 shadow-sm">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-6 text-center text-slate-700 font-medium text-sm">
+                {deleteModal.message}
+            </div>
+            <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+              <button onClick={() => setDeleteModal({ isOpen: false, id: null, type: null, message: "" })} className="px-5 py-2.5 text-sm font-bold text-slate-500 hover:bg-white hover:shadow-sm rounded-xl transition-all border border-transparent hover:border-slate-200">
+                Cancel
+              </button>
+              <button onClick={confirmDelete} className="px-5 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 hover:shadow-lg hover:-translate-y-0.5 rounded-xl transition-all">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* RENDER PROFILE MODAL */}
       <ProfileModal
         isOpen={isProfileModalOpen}
