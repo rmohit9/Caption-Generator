@@ -54,7 +54,7 @@ function MiniIconBtn({ icon: Icon, label, onClick }) {
   );
 }
 
-function HistoryRow({ item, onSelect, onDelete, onRename, onTogglePin }) {
+function HistoryRow({ item, onSelect, onDelete, onRename, onTogglePin, isActive }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -67,7 +67,7 @@ function HistoryRow({ item, onSelect, onDelete, onRename, onTogglePin }) {
   }, []);
 
   return (
-    <div onClick={onSelect} className="group relative flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-orange-50 transition cursor-pointer">
+    <div onClick={onSelect} className={`group relative flex items-center gap-2 px-3 py-2 rounded-xl transition cursor-pointer ${isActive ? 'bg-orange-100 border border-orange-200' : 'hover:bg-orange-50 border border-transparent'}`}>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           {item.pinned && <FaThumbtack size={14} className="text-[#f08a5d] rotate-45 shrink-0" />}
@@ -98,7 +98,7 @@ function HistoryRow({ item, onSelect, onDelete, onRename, onTogglePin }) {
   );
 }
 
-export default function GeneratorSidebar({ onNewChat, onSelectHistory, refreshKey }) {
+export default function GeneratorSidebar({ onNewChat, onSelectHistory, refreshKey, activeChatId }) {
   const { sidebarState, setSidebarState } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -317,25 +317,25 @@ export default function GeneratorSidebar({ onNewChat, onSelectHistory, refreshKe
                   {groups.pinned.length > 0 && (
                     <>
                       <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[#f08a5d] flex items-center gap-1"><FaThumbtack size={10} className="rotate-45" /> Pinned</p>
-                      {groups.pinned.map((item) => <HistoryRow key={item.id} item={item} onSelect={() => onSelectHistory(item)} onDelete={handleDeleteCaption} onRename={handleRenameCaption} onTogglePin={handleTogglePin} />)}
+                      {groups.pinned.map((item) => <HistoryRow key={item.id} item={item} onSelect={() => onSelectHistory(item)} onDelete={handleDeleteCaption} onRename={handleRenameCaption} onTogglePin={handleTogglePin} isActive={activeChatId === item.id} />)}
                     </>
                   )}
                   {groups.today.length > 0 && (
                     <>
                       <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Today</p>
-                      {groups.today.map((item) => <HistoryRow key={item.id} item={item} onSelect={() => onSelectHistory(item)} onDelete={handleDeleteCaption} onRename={handleRenameCaption} onTogglePin={handleTogglePin} />)}
+                      {groups.today.map((item) => <HistoryRow key={item.id} item={item} onSelect={() => onSelectHistory(item)} onDelete={handleDeleteCaption} onRename={handleRenameCaption} onTogglePin={handleTogglePin} isActive={activeChatId === item.id} />)}
                     </>
                   )}
                   {groups.yesterday.length > 0 && (
                     <>
                       <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Yesterday</p>
-                      {groups.yesterday.map((item) => <HistoryRow key={item.id} item={item} onSelect={() => onSelectHistory(item)} onDelete={handleDeleteCaption} onRename={handleRenameCaption} onTogglePin={handleTogglePin} />)}
+                      {groups.yesterday.map((item) => <HistoryRow key={item.id} item={item} onSelect={() => onSelectHistory(item)} onDelete={handleDeleteCaption} onRename={handleRenameCaption} onTogglePin={handleTogglePin} isActive={activeChatId === item.id} />)}
                     </>
                   )}
                   {groups.older.length > 0 && (
                     <>
                       <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Older</p>
-                      {groups.older.map((item) => <HistoryRow key={item.id} item={item} onSelect={() => onSelectHistory(item)} onDelete={handleDeleteCaption} onRename={handleRenameCaption} onTogglePin={handleTogglePin} />)}
+                      {groups.older.map((item) => <HistoryRow key={item.id} item={item} onSelect={() => onSelectHistory(item)} onDelete={handleDeleteCaption} onRename={handleRenameCaption} onTogglePin={handleTogglePin} isActive={activeChatId === item.id} />)}
                     </>
                   )}
                 </>

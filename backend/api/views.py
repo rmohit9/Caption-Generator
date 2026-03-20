@@ -46,21 +46,30 @@ def _hash_guest_id(raw: str) -> str:
         raise ImproperlyConfigured("SECRET_KEY must be securely configured.")
     return hashlib.sha256(f"{secret}:{raw}".encode("utf-8")).hexdigest()
 
+# --- NEW HELPER FUNCTION TO GET REAL IP BEHIND PROXIES (RENDER/HEROKU) ---
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR', '')
+    return ip
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def generate_caption(request):
     data = request.data or {}
     
-    # We now accept 'platforms' (list) for new chats, or 'platform' (string) for refine
     platforms = data.get("platforms", [])
     single_platform = data.get("platform") 
-    
     caption_type = data.get("caption_type")
     topic = data.get("topic")
     language = data.get("language")
     raw_hashtag_count = data.get("hashtag_count")
     history_id = data.get("history_id")
+    
+    # NEW: Catch the workspace flag
+    is_workspace = data.get("is_workspace", False)
     
     hashtag_count = None
     if raw_hashtag_count not in (None, "", []):
@@ -72,15 +81,21 @@ def generate_caption(request):
     if not caption_type or not topic:
         return Response({"error": "caption_type and topic are required."}, status=status.HTTP_400_BAD_REQUEST)
 
+    # --- GUEST LIMIT LOGIC ---
     guest_hash = None
-    if not request.user.is_authenticated:
-        guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
+    if not request.user.is_authenticated and not is_workspace:
+        client_ip = get_client_ip(request)
+        guest_raw = request.COOKIES.get("guest_token") or getattr(request, "guest_token", None) or client_ip
         guest_hash = _hash_guest_id(guest_raw)
-        if not history_id and GuestUsage.objects.filter(identifier_hash=guest_hash).count() >= 5:
-            return Response({"error": "Free generation limit reached. Please login."}, status=status.HTTP_403_FORBIDDEN)
+        
+        if not history_id and GuestUsage.objects.filter(identifier_hash=guest_hash).exists():
+            return Response(
+                {"error": "You have used your 1 free generation. Please create an account to continue."}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
 
-    # --- CASE A: REFINEMENT (Update existing chat session) ---
-    if history_id and single_platform:
+    # --- CASE A: REFINEMENT (Generator Sidebar Only) ---
+    if history_id and single_platform and not is_workspace:
         normalized_platform = single_platform.strip().lower()
         try:
             caption, hashtags = generate_caption_and_hashtags(
@@ -95,21 +110,20 @@ def generate_caption(request):
                     history_record = CaptionHistory.objects.get(id=history_id, guest_identifier_hash=guest_hash)
             except CaptionHistory.DoesNotExist:
                 return Response({"error": "Caption not found."}, status=status.HTTP_404_NOT_FOUND)
-                
-            # Update results dict with the new refined text
+            
             results = history_record.results or {}
             results[normalized_platform] = {"caption": caption, "hashtags": hashtags}
             history_record.results = results
-            history_record.topic = str(topic).strip() # Update topic for sidebar context
+            history_record.topic = str(topic).strip()
             history_record.save()
             
             return Response({"id": history_record.id, "results": history_record.results}, status=status.HTTP_200_OK)
-            
+        
         except Exception as e:
             logger.exception("Refinement failed")
             return Response({"error": f"Generation failed: {str(e)}"}, status=status.HTTP_502_BAD_GATEWAY)
 
-    # --- CASE B: NEW CHAT SESSION (Generate all selected platforms) ---
+    # --- CASE B: NEW CHAT SESSION OR WORKSPACE REFINEMENT ---
     if not platforms or not isinstance(platforms, list):
         return Response({"error": "platforms list is required."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -126,9 +140,15 @@ def generate_caption(request):
             logger.exception(f"Generation failed for {norm_plat}")
             results[norm_plat] = {"caption": f"Error: {str(e)}", "hashtags": []}
 
-    if not request.user.is_authenticated:
-        GuestUsage.objects.get_or_create(identifier_hash=guest_hash, defaults={"source": getattr(request, "guest_token_source", "ip")})
+    # --- FIX: IF THIS IS FROM THE WORKSPACE, RETURN IMMEDIATELY. DO NOT SAVE TO CAPTION HISTORY ---
+    if is_workspace:
+        return Response({"results": results}, status=status.HTTP_200_OK)
 
+    # Record the guest usage so they can't generate a NEW post again
+    if not request.user.is_authenticated:
+        GuestUsage.objects.get_or_create(identifier_hash=guest_hash)
+
+    # Save to Generator Sidebar History
     history_record = CaptionHistory.objects.create(
         user=request.user if request.user.is_authenticated else None,
         guest_identifier_hash=guest_hash,
@@ -152,7 +172,8 @@ def caption_history(request):
     if request.user.is_authenticated:
         history = CaptionHistory.objects.filter(user=request.user)
     else:
-        guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
+        client_ip = get_client_ip(request)
+        guest_raw = request.COOKIES.get("guest_token") or getattr(request, "guest_token", None) or client_ip
         guest_hash = _hash_guest_id(guest_raw)
         history = CaptionHistory.objects.filter(guest_identifier_hash=guest_hash)
 
@@ -168,7 +189,8 @@ def manage_caption_history(request, history_id):
         if request.user.is_authenticated:
             caption = CaptionHistory.objects.get(id=history_id, user=request.user)
         else:
-            guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
+            client_ip = get_client_ip(request)
+            guest_raw = request.COOKIES.get("guest_token") or getattr(request, "guest_token", None) or client_ip
             guest_hash = _hash_guest_id(guest_raw)
             caption = CaptionHistory.objects.get(id=history_id, guest_identifier_hash=guest_hash)
         

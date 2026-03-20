@@ -490,6 +490,7 @@ const WorkspaceDashboard = () => {
             topic: topicParts.join(". "),
             language: selectedItem.language || "English", 
             hashtag_count: selectedItem.hashtag_count || "",
+            is_workspace: true
         });
 
         const platformResult = response.data.results?.[platform] || {};

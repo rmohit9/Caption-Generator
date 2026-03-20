@@ -236,7 +236,7 @@ const Generator = () => {
     return (
         <div>
             <div className="min-h-screen flex bg-[#fff7ed]">
-                <GeneratorSidebar onNewChat={handleNewChat} onSelectHistory={handleSelectHistory} refreshKey={refreshSidebar} />
+                <GeneratorSidebar onNewChat={handleNewChat} onSelectHistory={handleSelectHistory} refreshKey={refreshSidebar} activeChatId={activeChatId} />
 
                 <div className="flex-1 flex flex-col min-h-screen overflow-y-auto transition-all duration-300" style={{ marginLeft: getMarginLeft() }}>
                     <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-md border-b border-orange-100 px-6 py-3 flex items-center justify-between">
