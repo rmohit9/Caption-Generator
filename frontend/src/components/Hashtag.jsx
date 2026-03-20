@@ -1,24 +1,9 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 
 const FloatingHashSymbols = ({ count = 80, opacity = 0.03 }) => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
-
-  // Track mouse position
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setMousePos({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-        });
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  const elementsRef = useRef([]);
+  const mouseRef = useRef({ x: -1000, y: -1000 }); // Out of bounds initially
 
   // Generate random properties once
   const symbols = useMemo(() => {
@@ -31,17 +16,11 @@ const FloatingHashSymbols = ({ count = 80, opacity = 0.03 }) => {
       const fontSize = 2 + Math.random() * 4; // 2rem to 6rem
       const weight = Math.random() > 0.5 ? "font-black" : "font-bold";
       
-      // Store original position
-      const originalTop = top;
-      const originalLeft = left;
-      
       return {
         id: i,
-        originalTop,
-        originalLeft,
-        top: `${top}%`,
-        left: `${left}%`,
-        transform: `rotate(${rotate}deg)`,
+        originalTop: top,
+        originalLeft: left,
+        rotate,
         animationDuration: `${duration}s`,
         animationDelay: `${delay}s`,
         fontSize: `${fontSize}rem`,
@@ -50,75 +29,95 @@ const FloatingHashSymbols = ({ count = 80, opacity = 0.03 }) => {
     });
   }, [count]);
 
-  // Calculate repellent position for each hashtag
-  const getRepellentPosition = (symbol) => {
-    const containerWidth = window.innerWidth;
-    const containerHeight = window.innerHeight;
-    
-    // Convert percentage to pixels
-    const symbolX = (symbol.originalLeft / 100) * containerWidth;
-    const symbolY = (symbol.originalTop / 100) * containerHeight;
-    
-    // Calculate distance from mouse
-    const dx = symbolX - mousePos.x;
-    const dy = symbolY - mousePos.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    
-    // Repellent radius (in pixels) - increased for more sensitivity
-    const repellentRadius = 250;
-    
-    if (distance < repellentRadius) {
-      // Calculate repellent force (stronger when closer)
-      const force = 1 - (distance / repellentRadius);
-      const maxOffset = 100; // Maximum offset in pixels - increased for more movement
-      
-      // Calculate offset direction (away from mouse)
-      const offsetX = (dx / distance) * force * maxOffset;
-      const offsetY = (dy / distance) * force * maxOffset;
-      
-      // Convert back to percentage
-      const newLeftPercent = ((symbolX + offsetX) / containerWidth) * 100;
-      const newTopPercent = ((symbolY + offsetY) / containerHeight) * 100;
-      
-      // Keep within bounds
-      const boundedLeft = Math.max(0, Math.min(100, newLeftPercent));
-      const boundedTop = Math.max(0, Math.min(100, newTopPercent));
-      
-      return {
-        top: `${boundedTop}%`,
-        left: `${boundedLeft}%`,
-      };
-    }
-    
-    // Return original position if outside repellent radius
-    return {
-      top: `${symbol.originalTop}%`,
-      left: `${symbol.originalLeft}%`,
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        mouseRef.current = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        };
+      }
     };
-  };
+    
+    const handleMouseLeave = () => {
+      mouseRef.current = { x: -1000, y: -1000 };
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    
+    let animationFrameId;
+    const repellentRadius = 250;
+    const maxOffset = 100;
+
+    const renderLoop = () => {
+      const { innerWidth, innerHeight } = window;
+      const mouse = mouseRef.current;
+
+      elementsRef.current.forEach((el, index) => {
+        if (!el) return;
+        
+        const symbol = symbols[index];
+        const symbolPxX = (symbol.originalLeft / 100) * innerWidth;
+        const symbolPxY = (symbol.originalTop / 100) * innerHeight;
+
+        let targetX = 0;
+        let targetY = 0;
+
+        const dx = symbolPxX - mouse.x;
+        const dy = symbolPxY - mouse.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < repellentRadius) {
+          const force = 1 - (distance / repellentRadius);
+          targetX = (dx / distance) * force * maxOffset;
+          targetY = (dy / distance) * force * maxOffset;
+        }
+
+        // Apply smooth transition using top/left to avoid overriding CSS transform animations
+        const newLeftPercent = ((symbolPxX + targetX) / innerWidth) * 100;
+        const newTopPercent = ((symbolPxY + targetY) / innerHeight) * 100;
+        
+        const boundedLeft = Math.max(0, Math.min(100, newLeftPercent));
+        const boundedTop = Math.max(0, Math.min(100, newTopPercent));
+
+        el.style.left = `${boundedLeft}%`;
+        el.style.top = `${boundedTop}%`;
+      });
+
+      animationFrameId = requestAnimationFrame(renderLoop);
+    };
+
+    renderLoop();
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [symbols]);
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {symbols.map((symbol) => {
-        const position = getRepellentPosition(symbol);
-        return (
-          <span
-            key={symbol.id}
-            className={`absolute text-gray-400 select-none animate-float-very-slow ${symbol.weight} transition-all duration-300 ease-out`}
-            style={{
-              top: position.top,
-              left: position.left,
-              transform: symbol.transform,
-              animationDuration: symbol.animationDuration,
-              animationDelay: symbol.animationDelay,
-              fontSize: symbol.fontSize,
-              opacity: opacity,
-            }}
-          >
-            #
-          </span>
-        );
-      })}
+      {symbols.map((symbol, i) => (
+        <span
+          key={symbol.id}
+          ref={(el) => (elementsRef.current[i] = el)}
+          className={`absolute text-slate-400 select-none animate-float-very-slow ${symbol.weight} transition-all duration-300 ease-out`}
+          style={{
+            top: `${symbol.originalTop}%`,
+            left: `${symbol.originalLeft}%`,
+            transform: `rotate(${symbol.rotate}deg)`,
+            animationDuration: symbol.animationDuration,
+            animationDelay: symbol.animationDelay,
+            fontSize: symbol.fontSize,
+            opacity: opacity,
+          }}
+        >
+          #
+        </span>
+      ))}
     </div>
   );
 };
