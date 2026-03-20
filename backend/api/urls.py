@@ -19,7 +19,11 @@ from .views import (
     VerifyOTPView,
     ConfirmPasswordResetView,
     AdminLoginView,
-    SystemConfigView
+    SystemConfigView,
+    RequestSignupOTPView,
+    VerifySignupOTPView,
+    OTPRegisterView,
+    test_signup_otp
 )
 
 urlpatterns = [
@@ -37,6 +41,12 @@ urlpatterns = [
     path('password-reset/request-otp/', RequestOTPView.as_view(), name='request-otp'),
     path('password-reset/verify-otp/', VerifyOTPView.as_view(), name='verify-otp'),
     path('password-reset/confirm/', ConfirmPasswordResetView.as_view(), name='confirm-password-reset'),
+    
+    # OTP Signup
+    path('signup/test/', test_signup_otp, name='signup-test'),
+    path('signup/request-otp/', RequestSignupOTPView.as_view(), name='signup-request-otp'),
+    path('signup/verify-otp/', VerifySignupOTPView.as_view(), name='signup-verify-otp'),
+    path('signup/otp-register/', OTPRegisterView.as_view(), name='signup-otp-register'),
     
     # Workspaces
     path('workspaces/', WorkspaceListCreateView.as_view(), name='workspace-list'),

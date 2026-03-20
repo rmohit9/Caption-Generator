@@ -20,9 +20,9 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.http import Http404
 
-from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory, Campaign, PasswordResetOTP, SystemConfig
+from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory, Campaign, PasswordResetOTP, EmailVerificationOTP, SystemConfig
 from .services.model_router import generate_caption_and_hashtags
-from .services.email_service import send_otp_email
+from .services.email_service import send_otp_email, send_signup_otp_email
 from .serializers import UserSerializer, CustomTokenObtainPairSerializer, WorkspaceSerializer, BatchProfileSerializer, CaptionHistorySerializer, CampaignSerializer
 
 
@@ -538,4 +538,126 @@ class SystemConfigView(APIView):
             
         config.save()
         return Response({"message": "System Configuration updated successfully!"})
+
+
+# OTP Signup Views
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def test_signup_otp(request):
+    """Test endpoint to debug OTP issues"""
+    try:
+        email = request.data.get("email")
+        return Response({
+            "message": "Test endpoint working",
+            "email_received": email,
+            "brevo_configured": bool(getattr(settings, 'BREVO_API_KEY', None)),
+            "sender_email": getattr(settings, 'BREVO_SENDER_EMAIL', None)
+        })
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+class RequestSignupOTPView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        
+        if not email:
+            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user already exists
+        if User.objects.filter(email__iexact=email).exists():
+            return Response({"error": "An account with this email already exists."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generate 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+        
+        # Delete any existing OTP for this email
+        EmailVerificationOTP.objects.filter(email=email).delete()
+        
+        # Create new OTP record
+        EmailVerificationOTP.objects.create(email=email, otp=otp)
+        
+        # Send OTP email
+        if send_signup_otp_email(email, otp):
+            return Response({"message": "Verification code sent to your email."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Failed to send verification code. Please try again."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class VerifySignupOTPView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        otp = request.data.get("otp")
+        
+        if not all([email, otp]):
+            return Response({"error": "Email and OTP are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            otp_record = EmailVerificationOTP.objects.get(email=email, otp=otp)
+            
+            if not otp_record.is_valid():
+                return Response({"error": "Code has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Mark OTP as verified
+            otp_record.is_verified = True
+            otp_record.save()
+            
+            return Response({"message": "Email verified successfully! You can now create your account."}, status=status.HTTP_200_OK)
+            
+        except EmailVerificationOTP.DoesNotExist:
+            return Response({"error": "Invalid verification code."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OTPRegisterView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        otp = request.data.get("otp")
+        name = request.data.get("name")
+        password = request.data.get("password")
+        
+        if not all([email, otp, name, password]):
+            return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Verify OTP
+            otp_record = EmailVerificationOTP.objects.get(email=email, otp=otp, is_verified=True)
+            
+            if not otp_record.is_valid():
+                return Response({"error": "Code has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if user already exists (double check)
+            if User.objects.filter(email__iexact=email).exists():
+                return Response({"error": "An account with this email already exists."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Create user
+            user = User.objects.create_user(
+                username=email,  # Use email as username
+                email=email,
+                password=password,
+                first_name=name
+            )
+            
+            # Delete the OTP record
+            otp_record.delete()
+            
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'full_name': name,
+                'message': 'Account created successfully!'
+            }, status=status.HTTP_201_CREATED)
+            
+        except EmailVerificationOTP.DoesNotExist:
+            return Response({"error": "Invalid or unverified code. Please verify your email first."}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.exception("OTP registration failed")
+            return Response({"error": "Registration failed. Please try again."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

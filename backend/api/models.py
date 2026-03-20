@@ -98,6 +98,18 @@ class PasswordResetOTP(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.otp}"
 
+class EmailVerificationOTP(models.Model):
+    email = models.EmailField()
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    def is_valid(self):
+        return now() < self.created_at + timedelta(minutes=10)
+    
+    def __str__(self):
+        return f"{self.email} - {self.otp}"
+
 class SystemConfig(models.Model):
     gemini_api_key_encrypted = models.TextField(blank=True, null=True)
     token_limit = models.IntegerField(default=1000000) # e.g., 1M tokens

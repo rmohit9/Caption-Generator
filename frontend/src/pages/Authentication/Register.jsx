@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft, FaKey } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import FloatingHashSymbols from "../../components/Hashtag";
 import api from "../../services/api";
@@ -7,10 +7,13 @@ import toast from 'react-hot-toast';
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [signupStep, setSignupStep] = useState(1); // 1 = Email, 2 = OTP, 3 = Complete Registration
+    const [isSignupLoading, setIsSignupLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
+        otp: "",
         agree: false,
     });
 
@@ -24,38 +27,85 @@ const Register = () => {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    // --- OTP SIGNUP HANDLERS ---
+    
+    // STEP 1: Send OTP via Brevo
+    const handleSendOtp = async (e) => {
         e.preventDefault();
+        if (!formData.email) return toast.error("Please enter your email.");
+        
+        setIsSignupLoading(true);
         try {
-            await api.post('register/', {
-                name: formData.name,
+            await api.post('signup/request-otp/', { email: formData.email });
+            toast.success("Verification code sent to your email!");
+            setSignupStep(2);
+        } catch (error) {
+            console.error("OTP error:", error.response?.data);
+            toast.error(error.response?.data?.error || "Failed to send OTP. Please try again.");
+        } finally {
+            setIsSignupLoading(false);
+        }
+    };
+
+    // STEP 2: Verify OTP
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        if (!formData.otp) return toast.error("Please enter the verification code.");
+
+        setIsSignupLoading(true);
+        try {
+            await api.post('signup/verify-otp/', { 
+                email: formData.email, 
+                otp: formData.otp 
+            });
+            toast.success("Email verified successfully!");
+            setSignupStep(3);
+        } catch (error) {
+            toast.error(error.response?.data?.error || "Invalid or expired verification code.");
+        } finally {
+            setIsSignupLoading(false);
+        }
+    };
+
+    // STEP 3: Complete Registration
+    const handleCompleteRegistration = async (e) => {
+        e.preventDefault();
+        if (!formData.name || !formData.password) {
+            return toast.error("Please fill in all fields.");
+        }
+        if (!formData.agree) {
+            return toast.error("Please agree to the terms and privacy policy.");
+        }
+
+        setIsSignupLoading(true);
+        try {
+            const response = await api.post('signup/otp-register/', {
                 email: formData.email,
+                otp: formData.otp,
+                name: formData.name,
                 password: formData.password
             });
-            toast.success("Account created successfully! Redirecting to login...");
             
-            setTimeout(() => {
-                navigate('/login');
-            }, 1500);
+            // Store tokens and user info
+            localStorage.setItem('access', response.data.access);
+            localStorage.setItem('refresh', response.data.refresh);
+            if (response.data.full_name) {
+                localStorage.setItem('full_name', response.data.full_name);
+            }
             
+            toast.success("Account created successfully! Welcome to Graphura AI!");
+            navigate('/'); 
         } catch (error) {
             console.error("Registration Error: ", error.response?.data);
-            const errData = error.response?.data;
-            
-            if (errData && typeof errData === 'object') {
-                const firstKey = Object.keys(errData)[0];
-                if (firstKey) {
-                    const msg = errData[firstKey];
-                    const formattedMessage = Array.isArray(msg) ? msg[0] : msg;
-                    const fieldName = firstKey.charAt(0).toUpperCase() + firstKey.slice(1);
-                    toast.error(`${fieldName}: ${formattedMessage}`);
-                } else {
-                     toast.error("Registration failed. Please check your information.");
-                }
-            } else {
-                toast.error("An unexpected error occurred. Please try again later.");
-            }
+            toast.error(error.response?.data?.error || "Registration failed. Please try again.");
+        } finally {
+            setIsSignupLoading(false);
         }
+    };
+
+    const resetSignupFlow = () => {
+        setSignupStep(1);
+        setFormData(prev => ({ ...prev, otp: '' }));
     };
     
     return (
@@ -146,104 +196,202 @@ const Register = () => {
                         <h2 className="poppins-heading text-2xl sm:text-3xl md:text-4xl text-slate-800 mb-2">Create Account</h2>
                         <p className="text-sm sm:text-base text-slate-500 mb-8 sm:mb-10 font-medium">Start your journey with HashCraft AI.</p>
 
-                        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-                            {/* Name */}
-                            <div>
-                                <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
-                                    <FaUser className="w-3.5 h-3.5" /> Full Name
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        placeholder="John Doe"
-                                        className="w-full rounded-xl sm:rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 pl-11 sm:pl-12 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-100 focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all shadow-sm"
-                                        required
-                                    />
-                                    <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none" />
-                                </div>
-                            </div>
-
-                            {/* Email */}
-                            <div>
-                                <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
-                                    <FaEnvelope className="w-3.5 h-3.5" /> Email Address
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        placeholder="hello@example.com"
-                                        className="w-full rounded-xl sm:rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 pl-11 sm:pl-12 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-100 focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all shadow-sm"
-                                        required
-                                    />
-                                    <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none" />
-                                </div>
-                            </div>
-
-                            {/* Password */}
-                            <div>
-                                <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
-                                    <FaLock className="w-3.5 h-3.5" /> Password
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        name="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        placeholder="••••••••"
-                                        className="w-full rounded-xl sm:rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 pl-11 sm:pl-12 pr-12 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-100 focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all shadow-sm"
-                                        required
-                                    />
-                                    <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none" />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#f08a5d] transition-colors p-1"
-                                    >
-                                        {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Terms */}
-                            <div className="pt-1 sm:pt-2">
-                                <label className="flex items-start gap-2.5 sm:gap-3 cursor-pointer group">
-                                    <div className="relative flex items-center justify-center mt-0.5 shrink-0">
-                                        <input
-                                            type="checkbox"
-                                            name="agree"
-                                            id="agree"
-                                            checked={formData.agree}
-                                            onChange={handleChange}
-                                            className="peer appearance-none w-4 h-4 sm:w-5 sm:h-5 border-2 border-orange-200 rounded bg-white checked:bg-[#f08a5d] checked:border-[#f08a5d] transition-all cursor-pointer"
-                                            required
-                                        />
-                                        <div className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
-                                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <form onSubmit={(e) => e.preventDefault()} className="space-y-5 sm:space-y-6">
+                            {/* STEP 1: Email Input */}
+                            {signupStep === 1 && (
+                                <>
+                                    <div>
+                                        <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                            <FaEnvelope className="w-3.5 h-3.5" /> Email Address
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                placeholder="hello@example.com"
+                                                className="w-full rounded-xl sm:rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 pl-11 sm:pl-12 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-100 focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all shadow-sm"
+                                                required
+                                            />
+                                            <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none" />
                                         </div>
                                     </div>
-                                    <span className="text-xs sm:text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors leading-snug">
-                                        I agree to the{" "}
-                                        <Link to="/terms" className="font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors">Terms of Service</Link>
-                                        {" "}and{" "}
-                                        <Link to="/privacy" className="font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors">Privacy Policy</Link>.
-                                    </span>
-                                </label>
-                            </div>
 
-                            {/* Submit */}
-                            <button
-                                type="submit"
-                                className="w-full mt-2 sm:mt-4 bg-[#f08a5d] hover:bg-[#d97346] text-white font-black py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 shimmer-btn text-sm sm:text-base"
-                            >
-                                Create Account
-                            </button>
+                                    <button
+                                        type="submit"
+                                        onClick={handleSendOtp}
+                                        disabled={isSignupLoading}
+                                        className="w-full mt-2 sm:mt-4 bg-[#f08a5d] hover:bg-[#d97346] text-white font-black py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 shimmer-btn text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                    >
+                                        {isSignupLoading ? "Sending..." : "Send Verification Code"}
+                                    </button>
+                                </>
+                            )}
+
+                            {/* STEP 2: OTP Verification */}
+                            {signupStep === 2 && (
+                                <>
+                                    <div className="text-center mb-6">
+                                        <div className="inline-flex items-center justify-center w-16 h-16 bg-[#f08a5d]/10 rounded-full mb-4">
+                                            <FaKey className="w-8 h-8 text-[#f08a5d]" />
+                                        </div>
+                                        <p className="text-sm text-slate-600">
+                                            We've sent a verification code to<br />
+                                            <span className="font-bold text-slate-800">{formData.email}</span>
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                            <FaKey className="w-3.5 h-3.5" /> Verification Code
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                name="otp"
+                                                value={formData.otp}
+                                                onChange={handleChange}
+                                                placeholder="Enter 6-digit code"
+                                                maxLength="6"
+                                                className="w-full rounded-xl sm:rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 pl-11 sm:pl-12 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-100 focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all shadow-sm text-center text-lg tracking-widest"
+                                                required
+                                            />
+                                            <FaKey className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none" />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={resetSignupFlow}
+                                            className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 text-sm sm:text-base"
+                                        >
+                                            Back
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            onClick={handleVerifyOtp}
+                                            disabled={isSignupLoading}
+                                            className="flex-1 bg-[#f08a5d] hover:bg-[#d97346] text-white font-black py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 shimmer-btn text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                        >
+                                            {isSignupLoading ? "Verifying..." : "Verify Code"}
+                                        </button>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleSendOtp}
+                                        disabled={isSignupLoading}
+                                        className="w-full text-sm text-[#f08a5d] hover:text-[#d97346] font-medium transition-colors"
+                                    >
+                                        Didn't receive the code? Resend
+                                    </button>
+                                </>
+                            )}
+
+                            {/* STEP 3: Complete Registration */}
+                            {signupStep === 3 && (
+                                <>
+                                    <div className="text-center mb-6">
+                                        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                        </div>
+                                        <p className="text-sm text-green-600 font-medium">Email verified! Complete your registration</p>
+                                    </div>
+
+                                    {/* Name */}
+                                    <div>
+                                        <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                            <FaUser className="w-3.5 h-3.5" /> Full Name
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                placeholder="John Doe"
+                                                className="w-full rounded-xl sm:rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 pl-11 sm:pl-12 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-100 focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all shadow-sm"
+                                                required
+                                            />
+                                            <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none" />
+                                        </div>
+                                    </div>
+
+                                    {/* Password */}
+                                    <div>
+                                        <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                            <FaLock className="w-3.5 h-3.5" /> Password
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                name="password"
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                                placeholder="••••••••"
+                                                className="w-full rounded-xl sm:rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 pl-11 sm:pl-12 pr-12 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-100 focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all shadow-sm"
+                                                required
+                                            />
+                                            <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 w-3.5 h-3.5 sm:w-4 sm:h-4 pointer-events-none" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#f08a5d] transition-colors p-1"
+                                            >
+                                                {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Terms */}
+                                    <div className="pt-1 sm:pt-2">
+                                        <label className="flex items-start gap-2.5 sm:gap-3 cursor-pointer group">
+                                            <div className="relative flex items-center justify-center mt-0.5 shrink-0">
+                                                <input
+                                                    type="checkbox"
+                                                    name="agree"
+                                                    id="agree"
+                                                    checked={formData.agree}
+                                                    onChange={handleChange}
+                                                    className="peer appearance-none w-4 h-4 sm:w-5 sm:h-5 border-2 border-orange-200 rounded bg-white checked:bg-[#f08a5d] checked:border-[#f08a5d] transition-all cursor-pointer"
+                                                    required
+                                                />
+                                                <div className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
+                                                    <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                                </div>
+                                            </div>
+                                            <span className="text-xs sm:text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors leading-snug">
+                                                I agree to the{" "}
+                                                <Link to="/terms" className="font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors">Terms of Service</Link>
+                                                {" "}and{" "}
+                                                <Link to="/privacy" className="font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors">Privacy Policy</Link>.
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={resetSignupFlow}
+                                            className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 text-sm sm:text-base"
+                                        >
+                                            Back
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            onClick={handleCompleteRegistration}
+                                            disabled={isSignupLoading}
+                                            className="flex-1 bg-[#f08a5d] hover:bg-[#d97346] text-white font-black py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 shimmer-btn text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                        >
+                                            {isSignupLoading ? "Creating Account..." : "Create Account"}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </form>
                     </div>
                 </div>
