@@ -12,8 +12,13 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.throttling import AnonRateThrottle
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError, ImproperlyConfigured
+from django.http import Http404
 
 from .models import GuestUsage, Workspace, BatchProfile, CaptionHistory, Campaign, PasswordResetOTP, SystemConfig
 from .services.model_router import generate_caption_and_hashtags
@@ -36,7 +41,9 @@ logger = logging.getLogger(__name__)
 
 
 def _hash_guest_id(raw: str) -> str:
-    secret = settings.SECRET_KEY or "guest"
+    secret = getattr(settings, 'SECRET_KEY', None)
+    if not secret:
+        raise ImproperlyConfigured("SECRET_KEY must be securely configured.")
     return hashlib.sha256(f"{secret}:{raw}".encode("utf-8")).hexdigest()
 
 
@@ -69,7 +76,7 @@ def generate_caption(request):
     if not request.user.is_authenticated:
         guest_raw = getattr(request, "guest_token", None) or request.META.get("REMOTE_ADDR", "")
         guest_hash = _hash_guest_id(guest_raw)
-        if not history_id and GuestUsage.objects.filter(identifier_hash=guest_hash).exists():
+        if not history_id and GuestUsage.objects.filter(identifier_hash=guest_hash).count() >= 5:
             return Response({"error": "Free generation limit reached. Please login."}, status=status.HTTP_403_FORBIDDEN)
 
     # --- CASE A: REFINEMENT (Update existing chat session) ---
@@ -81,10 +88,13 @@ def generate_caption(request):
                 str(language).strip() if language else None, hashtag_count
             )
             
-            if request.user.is_authenticated:
-                history_record = CaptionHistory.objects.get(id=history_id, user=request.user)
-            else:
-                history_record = CaptionHistory.objects.get(id=history_id, guest_identifier_hash=guest_hash)
+            try:
+                if request.user.is_authenticated:
+                    history_record = CaptionHistory.objects.get(id=history_id, user=request.user)
+                else:
+                    history_record = CaptionHistory.objects.get(id=history_id, guest_identifier_hash=guest_hash)
+            except CaptionHistory.DoesNotExist:
+                return Response({"error": "Caption not found."}, status=status.HTTP_404_NOT_FOUND)
                 
             # Update results dict with the new refined text
             results = history_record.results or {}
@@ -97,7 +107,7 @@ def generate_caption(request):
             
         except Exception as e:
             logger.exception("Refinement failed")
-            return Response({"error": "Generation failed."}, status=status.HTTP_502_BAD_GATEWAY)
+            return Response({"error": f"Generation failed: {str(e)}"}, status=status.HTTP_502_BAD_GATEWAY)
 
     # --- CASE B: NEW CHAT SESSION (Generate all selected platforms) ---
     if not platforms or not isinstance(platforms, list):
@@ -242,11 +252,18 @@ class ChangePasswordView(APIView):
         if not user.check_password(old_password):
             return Response({"error": "Incorrect current password."}, status=status.HTTP_400_BAD_REQUEST)
             
-        if len(new_password) < 8:
-            return Response({"error": "New password must be at least 8 characters long."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            validate_password(new_password, user)
+        except ValidationError as e:
+            return Response({"error": list(e.messages)[0]}, status=status.HTTP_400_BAD_REQUEST)
             
         user.set_password(new_password)
         user.save()
+        
+        # Blacklist outstanding tokens
+        tokens = OutstandingToken.objects.filter(user=user)
+        for token in tokens:
+            BlacklistedToken.objects.get_or_create(token=token)
         
         return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
 
@@ -348,6 +365,8 @@ class CampaignDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class RequestOTPView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [AnonRateThrottle]
+    throttle_scope = 'otp'
     
     def post(self, request):
         email = request.data.get("email")
@@ -362,8 +381,9 @@ class RequestOTPView(APIView):
         # Optional: delete existing OTPs for user
         PasswordResetOTP.objects.filter(user=user).delete()
         
-        # Generate 6 digit OTP
-        otp = f"{random.randint(100000, 999999)}"
+        import secrets
+        # Generate 6 digit OTP securely
+        otp = str(secrets.randbelow(900000) + 100000)
         
         # Save OTP
         PasswordResetOTP.objects.create(user=user, otp=otp)
@@ -377,6 +397,8 @@ class RequestOTPView(APIView):
 
 class VerifyOTPView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [AnonRateThrottle]
+    throttle_scope = 'otp'
     
     def post(self, request):
         email = request.data.get("email")
@@ -387,10 +409,17 @@ class VerifyOTPView(APIView):
             
         try:
             user = User.objects.get(email__iexact=email)
-            otp_record = PasswordResetOTP.objects.get(user=user, otp=otp)
+            otp_record = PasswordResetOTP.objects.filter(user=user).latest('created_at')
             
             if not otp_record.is_valid():
-                return Response({"error": "Code has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "Code has expired or is locked. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+                
+            if otp_record.otp != otp:
+                otp_record.failed_attempts += 1
+                if otp_record.failed_attempts >= 5:
+                    otp_record.is_locked = True
+                otp_record.save()
+                return Response({"error": "Invalid code or email."}, status=status.HTTP_400_BAD_REQUEST)
                 
             return Response({"message": "Code verified successfully!"}, status=status.HTTP_200_OK)
             
@@ -399,6 +428,8 @@ class VerifyOTPView(APIView):
 
 class ConfirmPasswordResetView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [AnonRateThrottle]
+    throttle_scope = 'otp'
     
     def post(self, request):
         email = request.data.get("email")
@@ -410,10 +441,15 @@ class ConfirmPasswordResetView(APIView):
             
         try:
             user = User.objects.get(email__iexact=email)
-            otp_record = PasswordResetOTP.objects.get(user=user, otp=otp)
+            otp_record = PasswordResetOTP.objects.filter(user=user).latest('created_at')
             
-            if not otp_record.is_valid():
-                return Response({"error": "Code has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+            if not otp_record.is_valid() or otp_record.otp != otp:
+                return Response({"error": "Invalid or expired code."}, status=status.HTTP_400_BAD_REQUEST)
+                
+            try:
+                validate_password(new_password, user)
+            except ValidationError as e:
+                return Response({"error": list(e.messages)[0]}, status=status.HTTP_400_BAD_REQUEST)
                 
             # Set new password
             user.set_password(new_password)
@@ -421,6 +457,11 @@ class ConfirmPasswordResetView(APIView):
             
             # Delete OTP so it cannot be reused
             otp_record.delete()
+            
+            # Blacklist outstanding tokens
+            tokens = OutstandingToken.objects.filter(user=user)
+            for token in tokens:
+                BlacklistedToken.objects.get_or_create(token=token)
             
             return Response({"message": "Password reset successfully! You can now log in."}, status=status.HTTP_200_OK)
             

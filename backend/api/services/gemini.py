@@ -4,6 +4,7 @@ from typing import List, Tuple, Optional
 
 from django.conf import settings
 from google import genai
+from django.db.models import F
 from api.models import SystemConfig
 from api.services.email_service import send_admin_alert_email
 
@@ -96,10 +97,9 @@ def generate_caption_and_hashtags(
         try:
             actual_tokens = response.usage_metadata.total_token_count
         except (AttributeError, ValueError):
-            actual_tokens = 300 # Fallback safety
+            actual_tokens = len(prompt) // 4 + len(response.text or "") // 4 # Basic estimate fallback
             
-        config.tokens_used += actual_tokens
-        config.save()
+        SystemConfig.objects.filter(pk=config.pk).update(tokens_used=F('tokens_used') + actual_tokens)
             
     except Exception as e:
         if "429" in str(e) or "quota" in str(e).lower():

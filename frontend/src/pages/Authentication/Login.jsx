@@ -10,6 +10,7 @@ const Login = () => {
 
     // --- STANDARD LOGIN STATES ---
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -27,6 +28,7 @@ const Login = () => {
         confirmPassword: ""
     });
     const [showForgotNewPassword, setShowForgotNewPassword] = useState(false);
+    const [showForgotConfirmPassword, setShowForgotConfirmPassword] = useState(false);
 
     // --- CLOSE MODAL ON ESCAPE ---
     useEffect(() => {
@@ -58,6 +60,7 @@ const Login = () => {
     // --- STANDARD LOGIN HANDLER ---
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         try {
             const response = await api.post('login/', {
                 username: formData.email, 
@@ -75,7 +78,9 @@ const Login = () => {
             navigate('/'); 
         } catch (error) {
             console.error("Login Error: ", error.response?.data);
-            toast.error("Invalid email or password. Please try again.");
+            toast.error(error.response?.data?.detail || error.response?.data?.error || "Invalid email or password. Please try again.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -304,9 +309,10 @@ const Login = () => {
                             {/* Submit */}
                             <button
                                 type="submit"
-                                className="w-full mt-2 sm:mt-4 bg-[#f08a5d] hover:bg-[#d97346] text-white font-black py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 shimmer-btn text-sm sm:text-base"
+                                disabled={isLoading}
+                                className="w-full mt-2 sm:mt-4 bg-[#f08a5d] hover:bg-[#d97346] text-white font-black py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 shimmer-btn text-sm sm:text-base flex justify-center items-center disabled:opacity-70 disabled:hover:translate-y-0"
                             >
-                                Log In to Dashboard
+                                {isLoading ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : "Log In to Dashboard"}
                             </button>
                         </form>
                     </div>
@@ -422,16 +428,21 @@ const Login = () => {
                                             <label className="block text-[10px] font-black text-[#f08a5d] mb-1.5 uppercase tracking-widest flex items-center gap-1.5">
                                                 <FaLock className="w-3 h-3" /> Confirm Password
                                             </label>
-                                            <input
-                                                type="password"
-                                                name="confirmPassword"
-                                                value={forgotData.confirmPassword}
-                                                onChange={handleForgotChange}
-                                                placeholder="••••••••"
-                                                className="w-full rounded-xl px-4 py-3 text-sm text-slate-800 font-semibold bg-slate-50 border-2 border-orange-100 focus:bg-white focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all"
-                                                required
-                                                minLength={8}
-                                            />
+                                            <div className="relative">
+                                                <input
+                                                    type={showForgotConfirmPassword ? "text" : "password"}
+                                                    name="confirmPassword"
+                                                    value={forgotData.confirmPassword}
+                                                    onChange={handleForgotChange}
+                                                    placeholder="••••••••"
+                                                    className="w-full rounded-xl px-4 py-3 pr-12 text-sm text-slate-800 font-semibold bg-slate-50 border-2 border-orange-100 focus:bg-white focus:border-[#f08a5d] focus:ring-4 focus:ring-[#f08a5d]/10 outline-none transition-all"
+                                                    required
+                                                    minLength={8}
+                                                />
+                                                <button type="button" onClick={() => setShowForgotConfirmPassword(!showForgotConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#f08a5d] p-1">
+                                                    {showForgotConfirmPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 

@@ -1,8 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
+import base64
 from datetime import timedelta
 from django.utils.timezone import now
+from django.conf import settings
+from cryptography.fernet import Fernet
+
+def get_fernet():
+    secret = (getattr(settings, 'SECRET_KEY', 'default-dev-secret')).encode('utf-8')
+    key = base64.urlsafe_b64encode(secret[:32].ljust(32, b'0'))
+    return Fernet(key)
 
 
 class GuestUsage(models.Model):
@@ -78,16 +86,20 @@ class CaptionHistory(models.Model):
 class PasswordResetOTP(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_otps')
     otp = models.CharField(max_length=6)
+    failed_attempts = models.IntegerField(default=0)
+    is_locked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def is_valid(self):
+        if self.is_locked:
+            return False
         return now() < self.created_at + timedelta(minutes=10)
     
     def __str__(self):
         return f"{self.user.email} - {self.otp}"
 
 class SystemConfig(models.Model):
-    gemini_api_key = models.CharField(max_length=255, blank=True, null=True)
+    gemini_api_key_encrypted = models.TextField(blank=True, null=True)
     token_limit = models.IntegerField(default=1000000) # e.g., 1M tokens
     tokens_used = models.IntegerField(default=0)
     is_exhausted = models.BooleanField(default=False)
@@ -105,3 +117,19 @@ class SystemConfig(models.Model):
     def get_solo(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+    @property
+    def gemini_api_key(self):
+        if not self.gemini_api_key_encrypted:
+            return None
+        try:
+            return get_fernet().decrypt(self.gemini_api_key_encrypted.encode('utf-8')).decode('utf-8')
+        except Exception:
+            return None
+
+    @gemini_api_key.setter
+    def gemini_api_key(self, value):
+        if value:
+            self.gemini_api_key_encrypted = get_fernet().encrypt(value.encode('utf-8')).decode('utf-8')
+        else:
+            self.gemini_api_key_encrypted = None
