@@ -141,7 +141,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 py-12 relative overflow-hidden bg-[#fff7ed] overflow-y-auto">
+        <div className="min-h-screen flex items-center justify-center py-2 relative overflow-hidden bg-[#fff7ed] overflow-y-auto">
             
             {/* Floating hashtag symbols */}
             <div className="absolute inset-0 z-10 pointer-events-none hidden sm:block">
@@ -160,7 +160,7 @@ const Login = () => {
                 <div className="grid md:grid-cols-2 h-full">
                     
                     {/* Left side - Branding & Welcome Back */}
-                    <div className="relative bg-gradient-to-br from-[#f08a5d] to-[#d97346] p-8 sm:p-10 md:p-14 text-white flex flex-col justify-between overflow-hidden">
+                    <div className="relative bg-gradient-to-br from-[#f08a5d] to-[#d97346] p-6 sm:p-8 md:p-10 text-white flex flex-col justify-between overflow-hidden">
                         
                         {/* Decorative Background Elements */}
                         <div className="absolute inset-0 opacity-10 pointer-events-none hidden md:block">
@@ -171,7 +171,7 @@ const Login = () => {
                         </div>
 
                         <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-8 sm:mb-12">
+                            <div className="flex items-center gap-2 mb-4 sm:mb-6">
                                 <img
                                     src="https://www.graphura.in/image/bg%20removed.webp"
                                     alt="Graphura Logo"
@@ -180,12 +180,12 @@ const Login = () => {
                                 />
                             </div>
 
-                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight mb-4 sm:mb-6">
+                            <h1 className="poppins-heading-hero text-3xl sm:text-4xl md:text-5xl font-black leading-tight mb-3 sm:mb-4">
                                 Welcome Back to <br className="hidden sm:block" />
-                                <span className="text-yellow-300">Graphura AI - Caption Generator</span>
+                                <span className="text-yellow-300">Graphura AI</span>
                             </h1>
 
-                            <p className="text-base sm:text-lg mb-8 sm:mb-10 text-white/90 font-medium leading-relaxed max-w-sm">
+                            <p className="text-base sm:text-lg mb-6 sm:mb-8 text-white/90 font-medium leading-relaxed max-w-sm">
                                 Log in to continue creating AI-powered captions and hashtags that dominate social media.
                             </p>
 
@@ -205,7 +205,7 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <div className="relative z-10 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/20">
+                        <div className="relative z-10 mt-6 md:mt-8 pt-4 md:pt-6 border-t border-white/20">
                             <p className="text-white/90 text-xs sm:text-sm font-medium">
                                 Don't have an account?{" "}
                                 <Link to="/register" className="text-white font-black hover:text-yellow-300 transition-colors sm:ml-1">
@@ -225,7 +225,7 @@ const Login = () => {
                             </Link>
                         </div>
 
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-800 mb-2">Log In</h2>
+                        <h2 className="poppins-heading text-2xl sm:text-3xl md:text-4xl text-slate-800 mb-2">Log In</h2>
                         <p className="text-sm sm:text-base text-slate-500 mb-8 sm:mb-10 font-medium">Access your HashCraft AI dashboard.</p>
 
                         <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
@@ -447,6 +447,12 @@ const Login = () => {
             )}
 
             <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+                * { font-family: 'Inter', sans-serif; }
+                .poppins-heading { font-family: 'Poppins', sans-serif; font-weight: 500; }
+                .poppins-heading-hero { font-family: 'Poppins', sans-serif; font-weight: 500; }
+                
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
                 .animate-fade-up { animation: fadeUp 0.6s ease-out forwards; }
                 .shimmer-btn::after {
@@ -455,6 +461,8 @@ const Login = () => {
                     animation: shimmer-move 2.5s infinite;
                 }
                 @keyframes shimmer-move { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+                @keyframes floatY { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-20px)} }
+                .animate-float { animation: floatY 6s ease-in-out infinite; }
             `}</style>
         </div>
     );
