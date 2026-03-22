@@ -478,34 +478,21 @@ export default function Home() {
       {/* HERO */}
       <section
         ref={heroRef}
-        className="relative min-h-screen flex flex-col items-center justify-center pt-25 pb-8 px-4 z-10"
+        className="relative flex flex-col items-center justify-center py-16 sm:py-20 lg:py-24 px-4 z-10"
       >
-        {/* Orbiting rings */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-dashed border-[#f08a5d]/30 animate-spin-slow" />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-dashed border-[#d97346]/20 animate-spin-slow"
-          style={{ animationDirection: "reverse", animationDuration: "30s" }}
-        />
-
         {/* Headline */}
         <h1
-          className="poppins-heading-hero text-center leading-none tracking-tight mb-3 animate-fade-up relative z-10 pt-16"
-          style={{ fontSize: "clamp(1.8rem,6.5vw,4.8rem)" }}
+          className="poppins-heading-hero text-center leading-none tracking-tight mb-4 sm:mb-6 animate-fade-up relative z-10"
+          style={{ fontSize: "clamp(1.8rem, 6.5vw, 4.8rem)" }}
         >
           <span className="text-slate-800">Create </span>
-          <span className="text-[#f08a5d]">
-            Viral Captions
-          </span>
+          <span className="text-[#f08a5d]">Viral Captions</span>
           <br />
           <span className="text-slate-800">&amp; </span>
-          <span className="text-[#f08a5d]">
-            Hashtags
-          </span>
+          <span className="text-[#f08a5d]">Hashtags</span>
           <span className="text-slate-800"> in </span>
           <span className="relative inline-block">
-            <span className="text-[#f08a5d]">
-              3 Seconds
-            </span>
+            <span className="text-[#f08a5d]">3 Seconds</span>
             <svg
               className="absolute -bottom-2 left-0 w-full"
               viewBox="0 0 300 12"
@@ -524,7 +511,7 @@ export default function Home() {
         </h1>
 
         <p
-          className="text-center text-slate-600 font-light text-xs sm:text-sm lg:text-base max-w-2xl mx-auto px-4 mb-5 animate-fade-up relative z-10"
+          className="text-center text-slate-600 font-light text-sm sm:text-base lg:text-lg max-w-2xl mx-auto px-4 mb-6 sm:mb-8 animate-fade-up relative z-10"
           style={{ animationDelay: "0.2s" }}
         >
           Instantly generate platform-optimized posts for{" "}
@@ -535,10 +522,10 @@ export default function Home() {
 
         {/* CTA */}
         <div
-          className="flex flex-wrap justify-center gap-4 mb-6 animate-fade-up relative z-10"
+          className="flex flex-wrap justify-center gap-4 mb-8 sm:mb-12 animate-fade-up relative z-10"
           style={{ animationDelay: "0.3s" }}
         >
-          <button 
+          <button
             onClick={handleCTAClick}
             className="relative overflow-hidden flex items-center gap-2 text-white font-normal px-6 py-3 rounded-full shadow-2xl shadow-[#f08a5d]/30 transition-all duration-300 shimmer-btn text-base bg-[#f08a5d] hover:bg-[#d97346] hover:-translate-y-1 hover:shadow-[#f08a5d]/40"
           >
@@ -547,11 +534,11 @@ export default function Home() {
         </div>
 
         {/* Interactive Demo Card */}
-        <div className="relative w-full max-w-3xl">
+        <div className="relative w-full max-w-3xl mx-auto">
           <div className="absolute inset-0 bg-[#f08a5d] blur-3xl opacity-20 rounded-3xl" />
           <div className="relative bg-white/80 backdrop-blur-xl border border-orange-100 rounded-3xl shadow-2xl shadow-orange-200/30">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-orange-100">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-orange-100">
               <div className="flex gap-2">
                 <span className="w-3 h-3 bg-red-400 rounded-full" />
                 <span className="w-3 h-3 bg-yellow-400 rounded-full" />
@@ -563,12 +550,12 @@ export default function Home() {
             </div>
 
             {/* Content */}
-            <div className="p-6">
-              <div className="mb-6 p-5 rounded-xl bg-orange-50 border border-orange-100 text-sm text-slate-700">
+            <div className="p-4 sm:p-6">
+              <div className="mb-4 sm:mb-6 p-4 sm:p-5 rounded-xl bg-orange-50 border border-orange-100 text-sm text-slate-700">
                 {active.text}
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
                 {active.hashtags.map((tag) => (
                   <span
                     key={tag}
@@ -580,7 +567,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="absolute -top-4 -right-4 px-3 py-1.5 text-xs font-normal text-white bg-[#f08a5d] rounded-xl shadow-md flex items-center gap-1">
+          <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-normal text-white bg-[#f08a5d] rounded-xl shadow-md flex items-center gap-1">
             <Zap size={14} />
             3s Generation
           </div>
@@ -591,7 +578,7 @@ export default function Home() {
 
       {/* HOW IT WORKS */}
       <section id="how-it-works" className="relative py-14 px-4 z-10">
-        <motion.div 
+        <motion.div
           className="max-w-6xl mx-auto"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -655,7 +642,7 @@ export default function Home() {
       {/* INTERACTIVE DEMO */}
       <section id="demo" className="relative py-14 px-4 z-10">
         <div className="absolute inset-0 bg-orange-50/50" />
-        <motion.div 
+        <motion.div
           className="max-w-6xl mx-auto relative"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -887,7 +874,7 @@ export default function Home() {
 
       {/* FEATURES GRID */}
       <section id="features" className="relative py-20 px-4 z-10">
-        <motion.div 
+        <motion.div
           className="max-w-6xl mx-auto"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -943,78 +930,78 @@ export default function Home() {
           className="absolute inset-0 opacity-90"
           style={{
             backgroundColor: "rgba(255,247,237,0.9)", // orange-50 slightly transparent
-          }} 
+          }}
         />
-        <motion.div 
+        <motion.div
           className="max-w-5xl mx-auto text-center relative"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
         >
-            <div className="inline-flex items-center gap-2 glass-orange rounded-full px-5 py-2 mb-5">
-              <span
-                className="text-xs font-normal tracking-widest uppercase text-[#f08a5d]"
-              >
-                Platforms
-              </span>
-            </div>
-
-            <h2
-              className="poppins-heading leading-tight mb-4"
-              style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
+          <div className="inline-flex items-center gap-2 glass-orange rounded-full px-5 py-2 mb-5">
+            <span
+              className="text-xs font-normal tracking-widest uppercase text-[#f08a5d]"
             >
-              <span className="text-slate-800">One Tool. </span>
-              <span className="text-[#f08a5d]">Every Platform.</span>
-            </h2>
+              Platforms
+            </span>
+          </div>
 
-            <p className="text-slate-800 text-base font-light max-w-lg mx-auto mb-14">
-              Graphura AI understands the language, format & algorithm of every major
-              platform.
-            </p>
+          <h2
+            className="poppins-heading leading-tight mb-4"
+            style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
+          >
+            <span className="text-slate-800">One Tool. </span>
+            <span className="text-[#f08a5d]">Every Platform.</span>
+          </h2>
 
-            {/* FIX: Changed grid to 1 col on mobile, 2 cols on tablet, 2 cols on desktop to create a perfect 2x2 square for 4 items */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              {PLATFORMS.map((p, i) => (
-                <div
-                  key={p.name}
-                  className={`relative rounded-3xl p-[1px] transition-all duration-500 cursor-pointer group
+          <p className="text-slate-800 text-base font-light max-w-lg mx-auto mb-14">
+            Graphura AI understands the language, format & algorithm of every major
+            platform.
+          </p>
+
+          {/* FIX: Changed grid to 1 col on mobile, 2 cols on tablet, 2 cols on desktop to create a perfect 2x2 square for 4 items */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {PLATFORMS.map((p, i) => (
+              <div
+                key={p.name}
+                className={`relative rounded-3xl p-[1px] transition-all duration-500 cursor-pointer group
                    ${activePlatform === p.name
-                      ? "bg-[#f08a5d] scale-105"
-                      : "bg-orange-200/40 hover:bg-[#f08a5d] hover:scale-105"
-                    }`}
-                >
-                  {/* Card */}
-                  <div className="relative rounded-3xl bg-white/80 backdrop-blur-xl p-7 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 h-full">
-                    <div className="relative z-10 flex flex-col items-center justify-center text-center">
+                    ? "bg-[#f08a5d] scale-105"
+                    : "bg-orange-200/40 hover:bg-[#f08a5d] hover:scale-105"
+                  }`}
+              >
+                {/* Card */}
+                <div className="relative rounded-3xl bg-white/80 backdrop-blur-xl p-7 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 h-full">
+                  <div className="relative z-10 flex flex-col items-center justify-center text-center">
 
-                      {/* Icon */}
-                      <div className="text-4xl text-[#f08a5d] mb-4 group-hover:scale-1.15 group-hover:-rotate-6 transition-all duration-300">
-                        {p.icon}
-                      </div>
-
-                      {/* Name */}
-                      <h3 className="poppins-heading text-[#f08a5d] text-base mb-1 tracking-wide">
-                        {p.name}
-                      </h3>
-
-                      {/* Detail */}
-                      <p className="text-xs text-[#d97346] font-semibold">
-                        {p.detail}
-                      </p>
-
+                    {/* Icon */}
+                    <div className="text-4xl text-[#f08a5d] mb-4 group-hover:scale-1.15 group-hover:-rotate-6 transition-all duration-300">
+                      {p.icon}
                     </div>
+
+                    {/* Name */}
+                    <h3 className="poppins-heading text-[#f08a5d] text-base mb-1 tracking-wide">
+                      {p.name}
+                    </h3>
+
+                    {/* Detail */}
+                    <p className="text-xs text-[#d97346] font-semibold">
+                      {p.detail}
+                    </p>
+
                   </div>
                 </div>
-              ))}
-            </div>
-          </motion.div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </section>
 
       {/* TESTIMONIALS */}
       <section className="relative py-14 px-4 z-10" style={{ backgroundColor: "#f08a5d" }}>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
-        <motion.div 
+        <motion.div
           className="max-w-6xl mx-auto relative"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1065,7 +1052,7 @@ export default function Home() {
         {/* Soft solid overlay instead of gradient */}
         <div className="absolute inset-0 bg-white/70" />
 
-        <motion.div 
+        <motion.div
           className="relative max-w-4xl mx-auto text-center"
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
