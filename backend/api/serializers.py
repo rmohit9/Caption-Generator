@@ -3,7 +3,7 @@ from rest_framework import serializers
 from email_validator import validate_email, EmailNotValidError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import Workspace, BatchProfile, Campaign
+from .models import Workspace, BatchProfile, Campaign, CaptionHistory
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -86,21 +86,12 @@ class CampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = Campaign
         fields = ('id', 'workspace', 'batch_profile', 'profile_name', 'name', 'product', 'details', 'hashtag_count', 'language', 'platforms', 'results', 'created_at')
-        read_only_fields = ('id', 'workspace', 'results', 'created_at', 'profile_name')
-
-from .models import CaptionHistory
+        read_only_fields = ('id', 'workspace', 'created_at', 'profile_name')
 
 class CaptionHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CaptionHistory
         fields = [
-            'id',
-            'platform',
-            'caption_type',
-            'topic',
-            'caption',
-            'hashtags',
-            'is_pinned',
-            'created_at',
+            'id', 'platforms', 'caption_type', 'topic', 
+            'results', 'is_pinned', 'created_at',
         ]
-

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
 // flavor icons and heart shape icons
 import { FaStar, FaHeart, FaBrain, FaFire, FaChartBar, FaBullseye, FaRecycle, FaShoppingBag, FaPaintBrush, FaRobot, FaFileAlt, FaRuler } from "react-icons/fa";
@@ -17,6 +18,7 @@ import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import FloatingHashSymbols from "../../components/Hashtag";
 import api from "../../services/api";
+import { useNavigate } from "react-router-dom";
 
 // lucide react icons
 import {
@@ -55,13 +57,12 @@ const CAPTIONS = {
       "#NaturalWellness",
     ],
     score: 94,
-    icon: <FaInstagram className="text-pink-500" />,
+    icon: <FaInstagram className="text-orange-500" />,
     label: "Instagram",
-    gradient: "from-indigo-500 via-purple-500 to-pink-500",
-    bg: "bg-gradient-to-br from-indigo-50 to-purple-50",
-    border: "border-indigo-200",
-    tag: "bg-indigo-100 text-indigo-700",
-    dot: "bg-indigo-500",
+    bg: "bg-orange-50",
+    border: "border-orange-200",
+    tag: "bg-orange-100 text-orange-700",
+    dot: "bg-orange-500",
   },
   linkedin: {
     text: "Health starts with mindful choices. Our Organic Green Tea blends premium wellness with everyday productivity - because peak performance begins before the boardroom. Make the switch that matters. 💼🍃",
@@ -76,8 +77,7 @@ const CAPTIONS = {
     score: 87,
     icon: <FaLinkedin className="text-blue-600" />,
     label: "LinkedIn",
-    gradient: "from-blue-600 via-blue-500 to-cyan-400",
-    bg: "bg-gradient-to-br from-blue-50 to-cyan-50",
+    bg: "bg-blue-50",
     border: "border-blue-200",
     tag: "bg-blue-100 text-blue-700",
     dot: "bg-blue-500",
@@ -94,8 +94,7 @@ const CAPTIONS = {
     score: 91,
     icon: <FaXTwitter className="text-black" />,
     label: "Twitter/X",
-    gradient: "from-sky-500 via-cyan-400 to-teal-400",
-    bg: "bg-gradient-to-br from-sky-50 to-cyan-50",
+    bg: "bg-sky-50",
     border: "border-sky-200",
     tag: "bg-sky-100 text-sky-700",
     dot: "bg-sky-500",
@@ -106,8 +105,7 @@ const CAPTIONS = {
     score: 90,
     icon: <FaFacebook className="text-blue-600" />,
     label: "Facebook",
-    gradient: "from-indigo-500 via-blue-500 to-sky-400",
-    bg: "bg-gradient-to-br from-indigo-50 to-blue-50",
+    bg: "bg-indigo-50",
     border: "border-indigo-200",
     tag: "bg-indigo-100 text-indigo-700",
     dot: "bg-indigo-500",
@@ -116,40 +114,40 @@ const CAPTIONS = {
 
 const FEATURES = [
   {
-    icon: <FaBrain className="w-6 h-6" />,
-    title: "AI-Powered Captions",
-    desc: "GPT-grade copy tailored to your brand voice, audience & platform in seconds.",
-    color: "from-indigo-500 to-purple-600",
+    icon: <FaBrain className="w-4 h-4" />,
+    title: "Client Workspaces",
+    desc: "Organize brands, clients, and projects into isolated workspaces effortlessly.",
+    color: "bg-[#f08a5d]",
   },
   {
-    icon: <FaFire className="w-6 h-6" />,
-    title: "Trending Hashtags",
-    desc: "Algorithmically sourced hashtags that maximize reach and discoverability.",
-    color: "from-indigo-500 to-purple-600",
+    icon: <FaFire className="w-4 h-4" />,
+    title: "Preset Brand Profiles",
+    desc: "Save audience, tone, and formatting settings as profiles. Never type it twice.",
+    color: "bg-[#f08a5d]",
   },
   {
-    icon: <FaChartBar className="w-6 h-6" />,
+    icon: <Zap className="w-4 h-4" />,
+    title: "Multi-Platform Campaigns",
+    desc: "Generate tailored captions for 4 platforms from a single product prompt instantly.",
+    color: "bg-[#f08a5d]",
+  },
+  {
+    icon: <FaChartBar className="w-4 h-4" />,
     title: "Engagement Scoring",
     desc: "Every post gets a real-time AI engagement score before you publish.",
-    color: "from-indigo-500 to-purple-600",
+    color: "bg-[#f08a5d]",
   },
   {
-    icon: <FaBullseye className="w-6 h-6" />,
+    icon: <FaBullseye className="w-4 h-4" />,
     title: "Audience Targeting",
     desc: "Captions crafted for your exact demographic — age, interest & behavior.",
-    color: "from-indigo-500 to-purple-600",
+    color: "bg-[#f08a5d]",
   },
   {
-    icon: <Zap className="w-6 h-6" />,
-    title: "Instant Generation",
-    desc: "Generate 6 platform-ready posts simultaneously in under 3 seconds.",
-    color: "from-indigo-500 to-purple-600",
-  },
-  {
-    icon: <FaRecycle className="w-6 h-6" />,
+    icon: <FaRecycle className="w-4 h-4" />,
     title: "Content Repurposing",
-    desc: "Turn one idea into 6 platform-native posts automatically. One click.",
-    color: "from-indigo-500 to-purple-600",
+    desc: "Turn one idea into platform-native posts automatically with one click.",
+    color: "bg-[#f08a5d]",
   },
 ];
 
@@ -157,26 +155,26 @@ const STEPS = [
   {
     num: "01",
     icon: <HiOutlineLightBulb />,
-    title: "Share Your Idea",
-    desc: "Tell the AI what you want to post about. Just a simple topic or idea is enough.",
+    title: "Create a Workspace",
+    desc: "Start by creating a workspace to keep your brands or clients perfectly organized.",
   },
   {
     num: "02",
-    icon: <HiOutlineSparkles />,
-    title: "AI Creates Content",
-    desc: "Our AI instantly generates engaging captions and post ideas optimized for reach.",
+    icon: <HiOutlineDocumentText />,
+    title: "Setup Brand Profiles",
+    desc: "Define the brand's tone, audience, and hashtag preferences. Save it for later.",
   },
   {
     num: "03",
-    icon: <HiOutlineDocumentText />,
-    title: "Customize & Refine",
-    desc: "Adjust tone, add hashtags, or tweak the content to perfectly match your style.",
+    icon: <HiOutlineSparkles />,
+    title: "Launch a Campaign",
+    desc: "Input your product details, pick your platforms, and let our AI do the heavy lifting.",
   },
   {
     num: "04",
     icon: <HiOutlineRocketLaunch />,
     title: "Publish & Grow",
-    desc: "Share your post and watch your engagement grow with AI-optimized content.",
+    desc: "Export platform-optimized captions instantly and watch your engagement soar.",
   },
 ];
 
@@ -185,25 +183,22 @@ const TESTIMONIALS = [
     name: "Priya Sharma",
     role: "Social Media Manager @ PixelAgency",
     avatar: "PS",
-    text: "HashCraft AI cut our caption writing time by 80%. The hashtag suggestions are incredibly accurate and helped double our reach within just two weeks.",
+    text: "The Workspaces feature is a lifesaver. We currently manage 5 distinct brands and switching between their Brand Profiles is perfectly seamless and fast.",
     stars: 5,
-    color: "from-indigo-400 to-purple-500",
   },
   {
     name: "Marcus Cole",
     role: "Founder @ FitLife Brand",
     avatar: "MC",
-    text: "What used to take me two hours per post now takes only minutes. The engagement scoring is surprisingly accurate and makes planning content effortless.",
+    text: "Being able to run a Campaign and get 4 unique platform captions in one click has reduced my workflow from two hours down to seconds.",
     stars: 5,
-    color: "from-blue-400 to-indigo-500",
   },
   {
     name: "Ananya Verma",
     role: "Content Lead @ TrendPulse",
     avatar: "AV",
-    text: "The tone adaptation is brilliant. LinkedIn captions sound professional while Instagram captions stay fun and engaging without any extra effort.",
+    text: "The tone adaptation is brilliant. Our saved Brand Profile ensures LinkedIn captions sound professional while Instagram captions stay fun.",
     stars: 5,
-    color: "from-purple-400 to-pink-500",
   },
 ];
 
@@ -213,42 +208,24 @@ const PLATFORMS = [
     name: "Instagram",
     icon: <FaInstagram />,
     detail: "Carousel · Reels · Stories",
-    color: "from-pink-400 to-rose-500",
   },
   {
     id: "linkedin",
     name: "LinkedIn",
     icon: <FaLinkedin />,
     detail: "Posts · Articles · Thought Leadership",
-    color: "from-blue-500 to-cyan-500",
   },
   {
     id: "twitter",
     name: "Twitter / X",
     icon: <FaXTwitter />,
     detail: "Tweets · Threads · Spaces",
-    color: "from-sky-400 to-cyan-400",
   },
   {
     id: "facebook",
     name: "Facebook",
     icon: <FaFacebook />,
     detail: "Posts · Groups · Stories",
-    color: "from-indigo-500 to-blue-500",
-  },
-  // {
-  //   id: "tiktok",
-  //   name: "TikTok",
-  //   icon: <FaTiktok />,
-  //   detail: "Video Captions · Bio · Comments",
-  //   color: "from-purple-500 to-fuchsia-500",
-  // },
-  {
-    id: "youtube",
-    name: "YouTube",
-    icon: <FaYoutube />,
-    detail: "Titles · Descriptions · Tags",
-    color: "from-red-500 to-rose-500",
   },
 ];
 
@@ -280,10 +257,10 @@ function TypewriterText({ texts }) {
   }, [displayed, deleting, idx, texts, current]);
 
   return (
-    <span className="inline-flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 font-semibold">
+    <span className="inline-flex items-center gap-2 text-[#f08a5d] font-semibold">
       {current.icon}
       {displayed}
-      <span className="animate-pulse text-indigo-400">|</span>
+      <span className="animate-pulse text-[#f08a5d]">|</span>
     </span>
   );
 }
@@ -300,6 +277,7 @@ function FloatingParticle({ style, icon }) {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("instagram");
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -330,6 +308,14 @@ export default function Home() {
     navigator.clipboard.writeText(current.text + "\n\n" + current.hashtags.join(" "));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCTAClick = () => {
+    if (localStorage.getItem("access")) {
+      navigate("/generator");
+    } else {
+      document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const getGuestToken = () => {
@@ -367,7 +353,7 @@ export default function Home() {
       const res = await api.post(
         "generate-caption/",
         {
-          platform,
+          platforms: [platform],
           caption_type: captionType,
           topic,
         },
@@ -376,8 +362,9 @@ export default function Home() {
         }
       );
 
-      const caption = res.data?.caption || "";
-      const hashtags = Array.isArray(res.data?.hashtags) ? res.data.hashtags : [];
+      const platformResult = res.data?.results?.[platform] || {};
+      const caption = platformResult.caption || "";
+      const hashtags = Array.isArray(platformResult.hashtags) ? platformResult.hashtags : [];
       const safeHashtags = hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`));
 
       const base = CAPTIONS[platform] || CAPTIONS.instagram;
@@ -415,56 +402,12 @@ export default function Home() {
   const toggleLike = (key) =>
     setLikedCards((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const particles = [
-    {
-      icon: <GiSparkles />,
-      style: { top: "8%", left: "5%", animationDelay: "0s" },
-    },
-    {
-      icon: <FaStar />,
-      style: { top: "15%", right: "8%", animationDelay: "0.5s" },
-    },
-    {
-      icon: <Sparkles />,
-      style: { top: "35%", left: "2%", animationDelay: "1s" },
-    },
-    {
-      icon: <FaStar />,
-      style: { top: "60%", right: "3%", animationDelay: "1.5s" },
-    },
-    {
-      icon: <FaHeart />,
-      style: { bottom: "20%", left: "6%", animationDelay: "0.8s" },
-    },
-    {
-      icon: <FaHeart />,
-      style: { bottom: "10%", right: "10%", animationDelay: "0.3s" },
-    },
-    {
-      icon: <GiSparkles />,
-      style: { top: "45%", right: "7%", animationDelay: "2s" },
-    },
-    {
-      icon: <Sparkles />,
-      style: { top: "75%", left: "4%", animationDelay: "1.2s" },
-    },
-  ];
-
   const socialTexts = [
-    { icon: <FaInstagram className="text-pink-500" />, text: "Instagram" },
+    { icon: <FaInstagram className="text-[#f08a5d]" />, text: "Instagram" },
     { icon: <FaLinkedin className="text-blue-600" />, text: "LinkedIn" },
     { icon: <FaXTwitter className="text-black" />, text: "Twitter / X" },
-    // { icon: <FaTiktok className="text-black" />, text: "TikTok" },
     { icon: <FaFacebook className="text-blue-500" />, text: "Facebook" },
-    { icon: <FaYoutube className="text-red-500" />, text: "YouTube" },
   ];
-
-  // Map platform id to caption key (only those we have data for)
-  const captionKeys = {
-    instagram: "instagram",
-    linkedin: "linkedin",
-    twitter: "twitter",
-  };
 
   const handleCopyAll = () => {
     const selectedCaptions = Object.entries(CAPTIONS)
@@ -483,18 +426,19 @@ export default function Home() {
     <div
       className="min-h-screen overflow-x-hidden"
       style={{
-        background:
-          "linear-gradient(135deg, #fff0f5 0%, #fce4ec 20%, #fdf2f8 40%, #fff0fb 60%, #fce8f5 80%, #fff5f7 100%)",
+        backgroundColor: "#fff7ed",
       }}
     >
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { font-family: 'Inter', sans-serif; }
+        .poppins-heading { font-family: 'Poppins', sans-serif; font-weight: 500; }
+        .poppins-heading-hero { font-family: 'Poppins', sans-serif; font-weight: 500; }
 
         @keyframes floatY { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-20px)} }
         @keyframes floatX { 0%,100%{transform:translateX(0px)} 50%{transform:translateX(10px)} }
-        @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(79,70,229,0.4)} 70%{box-shadow:0 0 0 20px rgba(79,70,229,0)} 100%{box-shadow:0 0 0 0 rgba(79,70,229,0)} }
-        @keyframes gradient-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(240,138,93,0.4)} 70%{box-shadow:0 0 0 20px rgba(240,138,93,0)} 100%{box-shadow:0 0 0 0 rgba(240,138,93,0)} }
         @keyframes shimmer-move { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
         @keyframes scaleIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
@@ -504,7 +448,6 @@ export default function Home() {
         .animate-float-x { animation: floatX 5s ease-in-out infinite; }
         .animate-fade-up { animation: fadeUp 0.7s ease both; }
         .animate-scale-in { animation: scaleIn 0.5s ease both; }
-        .animate-gradient { background-size: 200% 200%; animation: gradient-shift 4s ease infinite; }
         .animate-pulse-ring { animation: pulse-ring 2s cubic-bezier(0.455,0.03,0.515,0.955) infinite; }
         .animate-spin-slow { animation: spin-slow 20s linear infinite; }
 
@@ -520,19 +463,14 @@ export default function Home() {
         }
       `}</style>
 
-      {/* Floating particles (icons) */}
-      {/* {particles.map((p, i) => (
-        <FloatingParticle key={i} {...p} />
-      ))} */}
-
       <FloatingHashSymbols count={100} opacity={0.1} />
 
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute top-1/3 -right-40 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
-        <div className="absolute bottom-1/4 -left-24 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "4s" }} />
-        <div className="absolute -bottom-20 right-1/3 w-96 h-64 bg-indigo-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-orange-200/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute top-1/3 -right-40 w-80 h-80 bg-amber-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+        <div className="absolute bottom-1/4 -left-24 w-72 h-72 bg-yellow-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "4s" }} />
+        <div className="absolute -bottom-20 right-1/3 w-96 h-64 bg-orange-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
       </div>
 
       <Navbar />
@@ -543,42 +481,29 @@ export default function Home() {
         className="relative min-h-screen flex flex-col items-center justify-center pt-25 pb-8 px-4 z-10"
       >
         {/* Orbiting rings */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-dashed border-indigo-200/30 animate-spin-slow" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-dashed border-[#f08a5d]/30 animate-spin-slow" />
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-dashed border-purple-200/20 animate-spin-slow"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-dashed border-[#d97346]/20 animate-spin-slow"
           style={{ animationDirection: "reverse", animationDuration: "30s" }}
         />
 
-        {/* Badge */}
-        <div className="relative animate-fade-up mb-4">
-          <div className="bg-white/70 backdrop-blur-md rounded-full px-5 py-2.5 flex items-center gap-2.5 shadow-lg shadow-indigo-200/50 border border-indigo-100">
-            <span className="w-2.5 h-2.5 rounded-full animate-pulse-ring bg-indigo-500" />
-            <span className="text-xs font-black tracking-widest uppercase text-indigo-600">
-              AI-Powered Social Media Generator
-            </span>
-            <span className="text-xs text-indigo-400 font-semibold bg-indigo-50 px-2 py-0.5 rounded-full">
-              Now Live
-            </span>
-          </div>
-        </div>
-
         {/* Headline */}
         <h1
-          className="font-black text-center leading-none tracking-tight mb-3 animate-fade-up relative z-10"
-          style={{ fontSize: "clamp(2.8rem,7.5vw,5.8rem)" }}
+          className="poppins-heading-hero text-center leading-none tracking-tight mb-3 animate-fade-up relative z-10 pt-16"
+          style={{ fontSize: "clamp(1.8rem,6.5vw,4.8rem)" }}
         >
           <span className="text-slate-800">Create </span>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
+          <span className="text-[#f08a5d]">
             Viral Captions
           </span>
           <br />
           <span className="text-slate-800">&amp; </span>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
+          <span className="text-[#f08a5d]">
             Hashtags
           </span>
           <span className="text-slate-800"> in </span>
           <span className="relative inline-block">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
+            <span className="text-[#f08a5d]">
               3 Seconds
             </span>
             <svg
@@ -588,7 +513,7 @@ export default function Home() {
             >
               <path
                 d="M2 8 Q75 2, 150 8 Q225 14, 298 8"
-                stroke="#4f46e5"
+                stroke="#f08a5d"
                 strokeWidth="3"
                 strokeLinecap="round"
                 fill="none"
@@ -599,11 +524,11 @@ export default function Home() {
         </h1>
 
         <p
-          className="text-center text-slate-600 font-light text-base sm:text-lg lg:text-xl max-w-2xl mx-auto px-4 mb-5 animate-fade-up relative z-10"
+          className="text-center text-slate-600 font-light text-xs sm:text-sm lg:text-base max-w-2xl mx-auto px-4 mb-5 animate-fade-up relative z-10"
           style={{ animationDelay: "0.2s" }}
         >
           Instantly generate platform-optimized posts for{" "}
-          <span className="font-semibold inline-block align-middle">
+          <span className="font-normal inline-block align-middle">
             <TypewriterText texts={socialTexts} />
           </span>
         </p>
@@ -613,32 +538,33 @@ export default function Home() {
           className="flex flex-wrap justify-center gap-4 mb-6 animate-fade-up relative z-10"
           style={{ animationDelay: "0.3s" }}
         >
-          <button className="relative overflow-hidden flex items-center gap-2 text-white font-black px-8 py-4 rounded-full shadow-2xl s
-          hadow-indigo-500/30 hover:-translate-y-1 hover:shadow-indigo-500/40 transition-all duration-300 shimmer-btn text-base"
-            style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
+          <button 
+            onClick={handleCTAClick}
+            className="relative overflow-hidden flex items-center gap-2 text-white font-normal px-6 py-3 rounded-full shadow-2xl shadow-[#f08a5d]/30 transition-all duration-300 shimmer-btn text-base bg-[#f08a5d] hover:bg-[#d97346] hover:-translate-y-1 hover:shadow-[#f08a5d]/40"
+          >
             Generate Free
           </button>
         </div>
 
         {/* Interactive Demo Card */}
         <div className="relative w-full max-w-3xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-300 to-purple-300 blur-3xl opacity-30 rounded-3xl" />
-          <div className="relative bg-white/80 backdrop-blur-xl border border-indigo-100 rounded-3xl shadow-2xl shadow-indigo-200/30">
+          <div className="absolute inset-0 bg-[#f08a5d] blur-3xl opacity-20 rounded-3xl" />
+          <div className="relative bg-white/80 backdrop-blur-xl border border-orange-100 rounded-3xl shadow-2xl shadow-orange-200/30">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-indigo-100">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-orange-100">
               <div className="flex gap-2">
                 <span className="w-3 h-3 bg-red-400 rounded-full" />
                 <span className="w-3 h-3 bg-yellow-400 rounded-full" />
                 <span className="w-3 h-3 bg-green-400 rounded-full" />
               </div>
-              <span className="text-xs font-semibold text-indigo-600">
+              <span className="text-xs font-normal text-orange-600">
                 Hashtag Studio
               </span>
             </div>
 
             {/* Content */}
             <div className="p-6">
-              <div className="mb-6 p-5 rounded-xl bg-indigo-50 border border-indigo-100 text-sm text-slate-700">
+              <div className="mb-6 p-5 rounded-xl bg-orange-50 border border-orange-100 text-sm text-slate-700">
                 {active.text}
               </div>
 
@@ -646,7 +572,7 @@ export default function Home() {
                 {active.hashtags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-full border border-indigo-200 text-indigo-700 hover:bg-indigo-100 transition cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-normal rounded-full border border-orange-200 text-orange-700 hover:bg-orange-100 transition cursor-pointer"
                   >
                     {tag}
                   </span>
@@ -654,7 +580,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="absolute -top-4 -right-4 px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl shadow-md flex items-center gap-1">
+          <div className="absolute -top-4 -right-4 px-3 py-1.5 text-xs font-normal text-white bg-[#f08a5d] rounded-xl shadow-md flex items-center gap-1">
             <Zap size={14} />
             3s Generation
           </div>
@@ -665,25 +591,31 @@ export default function Home() {
 
       {/* HOW IT WORKS */}
       <section id="how-it-works" className="relative py-14 px-4 z-10">
-        <div className="max-w-6xl mx-auto">
+        <motion.div 
+          className="max-w-6xl mx-auto"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-indigo-50 rounded-full px-5 py-2 mb-5 shadow-sm border border-indigo-100">
-              <span className="text-xs font-black tracking-widest uppercase text-indigo-600">
+            <div className="inline-flex items-center gap-2 bg-orange-50 rounded-full px-5 py-2 mb-5 shadow-sm border border-orange-100">
+              <span className="text-xs font-normal tracking-widest uppercase text-orange-600">
                 How It Works
               </span>
             </div>
             <h2
-              className="font-black leading-tight mb-4"
+              className="poppins-heading leading-tight mb-4"
               style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
             >
               <span className="text-slate-800">From Idea to </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+              <span className="text-[#f08a5d]">
                 Viral Post
               </span>
               <br />
               <span className="text-slate-800">in 4 Simple Steps</span>
             </h2>
-            <p className="text-slate-600 text-lg max-w-lg mx-auto">
+            <p className="text-slate-600 text-base max-w-lg mx-auto">
               No complicated tools. No learning curve. Just simple AI-powered
               content creation.
             </p>
@@ -693,63 +625,69 @@ export default function Home() {
             {STEPS.map((s, i) => (
               <div
                 key={s.num}
-                className="relative bg-white rounded-3xl p-7 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-default group border border-indigo-50"
+                className="relative bg-white rounded-3xl p-7 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-default group border border-orange-50"
                 onMouseEnter={() => setHoveredStep(i)}
                 onMouseLeave={() => setHoveredStep(null)}
               >
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-indigo-50/50 to-purple-50/50" />
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#f08a5d]/10" />
                 <div className="relative">
                   <div className="flex justify-between items-center">
-                    <div className="text-6xl font-black text-indigo-100 mb-4">
+                    <div className="text-6xl font-normal text-slate-100 mb-4 group-hover:text-[#f08a5d]/30 transition-colors">
                       {s.num}
                     </div>
-                    <div className="w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 mb-4">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#f08a5d] text-white text-lg shadow-lg group-hover:scale-110 transition-transform duration-300 mb-4">
                       {s.icon}
                     </div>
                   </div>
-                  <h3 className="font-semibold text-lg text-slate-800 mb-2">
+                  <h3 className="poppins-heading text-base text-slate-800 mb-2">
                     {s.title}
                   </h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">
+                  <p className="text-slate-600 text-sm leading-relaxed font-normal">
                     {s.desc}
                   </p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* INTERACTIVE DEMO */}
-      <section id="features" className="relative py-14 px-4 z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/50 to-white/50" />
-        <div className="max-w-6xl mx-auto relative">
+      <section id="demo" className="relative py-14 px-4 z-10">
+        <div className="absolute inset-0 bg-orange-50/50" />
+        <motion.div 
+          className="max-w-6xl mx-auto relative"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
+        >
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm border border-indigo-200 rounded-full px-5 py-2 mb-5 shadow-md">
-              <span className="text-xs font-black tracking-widest uppercase text-indigo-600">
+            <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm border border-orange-200 rounded-full px-5 py-2 mb-5 shadow-md">
+              <span className="text-xs font-normal tracking-widest uppercase text-orange-600">
                 Try It Live
               </span>
             </div>
             <h2
-              className="font-black leading-tight mb-4"
+              className="poppins-heading leading-tight mb-4"
               style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
             >
               <span className="text-slate-800">See the </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+              <span className="text-[#f08a5d]">
                 AI Magic
               </span>
               <span className="text-slate-800"> Happen</span>
             </h2>
-            <p className="text-slate-600 text-lg font-light max-w-md mx-auto">
+            <p className="text-slate-600 text-base font-light max-w-md mx-auto">
               Fill in your details and watch captions appear live.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8 items-start">
             {/* Input */}
-            <div className="bg-white/80 backdrop-blur-md rounded-3xl p-7 shadow-xl shadow-indigo-200/30 border border-indigo-100">
-              <h3 className="font-black text-slate-800 text-lg mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl flex items-center justify-center text-sm bg-gradient-to-br from-indigo-500 to-purple-500 text-white">
+            <div className="bg-white/80 backdrop-blur-md rounded-3xl p-7 shadow-xl shadow-orange-200/30 border border-orange-100">
+              <h3 className="poppins-heading text-base text-slate-800 mb-6 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl flex items-center justify-center text-sm bg-[#f08a5d] text-white">
                   <PenTool size={16} />
                 </span>
                 Campaign Details
@@ -782,11 +720,11 @@ export default function Home() {
                   },
                 ].map((f) => (
                   <div key={f.key}>
-                    <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                    <label className="block text-xs font-normal text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5">
                       {f.icon} {f.label}
                     </label>
                     <input
-                      className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                      className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-normal placeholder-slate-400 bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 focus:ring-[#f08a5d]/30 transition"
                       value={demoInput[f.key]}
                       onChange={(e) => setDemoInput({ ...demoInput, [f.key]: e.target.value })}
                       placeholder={f.placeholder}
@@ -795,7 +733,7 @@ export default function Home() {
                 ))}
 
                 <div>
-                  <label className="block text-xs font-black text-indigo-700 mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                  <label className="block text-xs font-normal text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5">
                     <Share2 className="w-4 h-4" /> Select Platforms
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -805,9 +743,9 @@ export default function Home() {
                         <button
                           key={p.id}
                           onClick={() => togglePlatform(p.id)}
-                          className={`flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms === p.id
-                            ? "text-white border-transparent shadow-md bg-gradient-to-r from-indigo-500 to-purple-500"
-                            : "border-indigo-200 text-indigo-400 hover:bg-indigo-50"
+                          className={`flex items-center gap-1.5 text-xs font-normal px-3 py-1.5 rounded-full border-2 transition-all duration-200 hover:scale-105 ${selectedPlatforms === p.id
+                            ? "text-white border-transparent shadow-md bg-[#f08a5d]"
+                            : "border-orange-200 text-orange-400 hover:bg-orange-50"
                             }`}
                         >
                           {p.icon}
@@ -821,9 +759,8 @@ export default function Home() {
                 <button
                   onClick={handleGenerate}
                   disabled={generating}
-                  className="relative overflow-hidden w-full text-white font-black py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 
-                  transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shimmer-btn"
-                  style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}
+                  className="relative overflow-hidden w-full text-white font-normal py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 
+                  transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shimmer-btn bg-[#f08a5d] hover:bg-[#d97346]"
                 >
                   {generating ? (
                     <>
@@ -835,7 +772,7 @@ export default function Home() {
                   )}
                 </button>
                 {errorMessage && (
-                  <p className="mt-3 text-sm font-semibold text-rose-600">
+                  <p className="mt-3 text-sm font-normal text-red-600">
                     {errorMessage}
                   </p>
                 )}
@@ -845,16 +782,16 @@ export default function Home() {
             {/* Output */}
             <div
               className={`rounded-3xl overflow-hidden transition-all duration-700 ${generated
-                ? "bg-white/80 backdrop-blur-md shadow-2xl shadow-indigo-300/30 border border-indigo-200"
-                : "border-2 border-dashed border-indigo-200 bg-white/50"
+                ? "bg-white/80 backdrop-blur-md shadow-2xl shadow-[#f08a5d]/20 border border-[#d97346]"
+                : "border-2 border-dashed border-[#d97346] bg-white/50"
                 }`}
             >
               {!generated && !generating ? (
                 <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
                   <div className="text-7xl mb-5 opacity-20 animate-float">
-                    <FaRobot className="w-16 h-16 text-indigo-300" />
+                    <FaRobot className="w-16 h-16 text-[#f08a5d]" />
                   </div>
-                  <p className="text-indigo-400 font-bold text-sm">
+                  <p className="text-[#f08a5d]/60 font-normal text-sm">
                     Fill in your campaign details
                     <br />
                     and click generate to see AI magic! ✨
@@ -863,24 +800,24 @@ export default function Home() {
               ) : generating ? (
                 <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
                   <div className="relative w-20 h-20 mb-6">
-                    <div className="absolute inset-0 rounded-full border-4 border-indigo-200" />
-                    <div className="absolute inset-0 rounded-full border-4 border-t-indigo-500 animate-spin" />
-                    <div className="absolute inset-2 rounded-full border-4 border-t-purple-400 animate-spin" style={{ animationDirection: "reverse", animationDuration: "0.8s" }} />
+                    <div className="absolute inset-0 rounded-full border-4 border-[#d97346]" />
+                    <div className="absolute inset-0 rounded-full border-4 border-t-[#f08a5d] animate-spin" />
+                    <div className="absolute inset-2 rounded-full border-4 border-t-[#d97346] animate-spin" style={{ animationDirection: "reverse", animationDuration: "0.8s" }} />
                     <span className="absolute inset-0 flex items-center justify-center text-2xl">
-                      <Sparkles className="w-8 h-8 text-indigo-500" />
+                      <Sparkles className="w-8 h-8 text-[#f08a5d]" />
                     </span>
                   </div>
-                  <p className="font-black text-indigo-700 mb-1">
+                  <p className="font-normal text-[#f08a5d] mb-1">
                     Crafting your perfect captions...
                   </p>
-                  <p className="text-indigo-400 text-xs font-semibold">
+                  <p className="text-[#d97346]/70 text-xs font-normal">
                     Analyzing audience, tone & trending hashtags
                   </p>
                   <div className="mt-4 flex gap-1.5">
                     {[0, 1, 2].map((i) => (
                       <div
                         key={i}
-                        className="w-2 h-2 rounded-full animate-bounce bg-indigo-500"
+                        className="w-2 h-2 rounded-full animate-bounce bg-[#f08a5d]"
                         style={{ animationDelay: `${i * 0.15}s` }}
                       />
                     ))}
@@ -888,12 +825,12 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="p-6">
-                  <div className="flex items-center gap-2 mb-5 pb-4 border-b border-indigo-100">
-                    <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-indigo-500" />
-                    <span className="text-xs font-black text-indigo-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2 mb-5 pb-4 border-b border-[#d97346]">
+                    <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-[#f08a5d]" />
+                    <span className="text-xs font-normal text-[#f08a5d] uppercase tracking-wider">
                       Generated for: {demoInput.product}
                     </span>
-                    <span className="ml-auto text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                    <span className="ml-auto text-xs font-normal text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
                       ✓ Ready
                     </span>
                   </div>
@@ -908,28 +845,27 @@ export default function Home() {
                           const current = generatedCaptions[key] || val;
                           return (
                             <>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-base">{current.icon}</span>
-                          <span
-                            className={`text-xs font-black capitalize px-2 py-0.5 rounded-full ${current.tag}`}
-                          >
-                            {current.label}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-700 leading-relaxed font-semibold mb-2">
-                          {val.text}
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {val.hashtags.map((h) => (
-                            <span
-                              key={h}
-                              className={`text-xs ${current.tag} px-2 py-0.5 rounded-full font-black`}
-                            >
-                              {h}
-                            </span>
-                          ))}
-                          
-                        </div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-base">{current.icon}</span>
+                                <span
+                                  className={`text-xs font-normal capitalize px-2 py-0.5 rounded-full ${current.tag}`}
+                                >
+                                  {current.label}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-700 leading-relaxed font-normal mb-2">
+                                {val.text}
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {val.hashtags.map((h) => (
+                                  <span
+                                    key={h}
+                                    className={`text-xs ${current.tag} px-2 py-0.5 rounded-full font-normal`}
+                                  >
+                                    {h}
+                                  </span>
+                                ))}
+                              </div>
                             </>
                           );
                         })()}
@@ -937,8 +873,8 @@ export default function Home() {
                     ))}
                   <button
                     onClick={handleCopyAll}
-                    className="w-full text-white font-black py-3 rounded-2xl mt-2 text-sm hover:-translate-y-1 transition-all shadow-lg shimmer-btn 
-                    relative overflow-hidden" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}
+                    className="w-full text-white font-normal py-3 rounded-2xl mt-2 text-sm hover:-translate-y-1 transition-all shadow-lg shimmer-btn 
+                    relative overflow-hidden bg-[#f08a5d] hover:bg-[#d97346]"
                   >
                     {copied ? "✓ Copied to Clipboard!" : "Copy All Selected Captions & Hashtags"}
                   </button>
@@ -946,24 +882,30 @@ export default function Home() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* FEATURES GRID */}
-      <section className="relative py-20 px-4 z-10">
-        <div className="max-w-6xl mx-auto">
+      <section id="features" className="relative py-20 px-4 z-10">
+        <motion.div 
+          className="max-w-6xl mx-auto"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-indigo-50 rounded-full px-5 py-2 mb-5 border border-indigo-100">
-              <span className="text-xs font-black tracking-widest uppercase text-indigo-600">
+            <div className="inline-flex items-center gap-2 bg-orange-50 rounded-full px-5 py-2 mb-5 border border-orange-100">
+              <span className="text-xs font-normal tracking-widest uppercase text-orange-600">
                 Features
               </span>
             </div>
             <h2
-              className="font-black leading-tight"
+              className="poppins-heading leading-tight"
               style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
             >
               <span className="text-slate-800">Everything to </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+              <span className="text-[#f08a5d]">
                 Dominate Social
               </span>
             </h2>
@@ -972,113 +914,118 @@ export default function Home() {
             {FEATURES.map((f, i) => (
               <div
                 key={i}
-                className="bg-white rounded-3xl p-7 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-default group border border-indigo-50"
+                className="bg-white rounded-3xl p-7 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-default group border border-orange-50"
                 onMouseEnter={() => setHoveredFeature(i)}
                 onMouseLeave={() => setHoveredFeature(null)}
               >
                 <div className="relative">
                   <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-4 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 bg-gradient-to-r ${f.color} text-white`}
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center text-base mb-4 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 ${f.color} text-white`}
                   >
                     {f.icon}
                   </div>
-                  <h3 className="font-black text-slate-800 text-base mb-2 group-hover:text-indigo-700 transition-colors">
+                  <h3 className="poppins-heading text-base text-slate-800 mb-2">
                     {f.title}
                   </h3>
-                  <p className="text-slate-600 text-sm leading-relaxed font-medium">
+                  <p className="text-slate-600 text-sm leading-relaxed font-normal">
                     {f.desc}
                   </p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* PLATFORMS */}
-      < section id="platforms" className="relative py-14 px-4 z-10" >
-        <><div
-          className="absolute inset-0 opacity-50"
+      <section id="platforms" className="relative py-14 px-4 z-10" >
+        <div
+          className="absolute inset-0 opacity-90"
           style={{
-            background: "linear-gradient(135deg, rgba(253,242,248,0.9), rgba(250,232,255,0.8))",
-          }} /><div className="max-w-5xl mx-auto text-center relative">
-            <div className="inline-flex items-center gap-2 glass-pink rounded-full px-5 py-2 mb-5">
+            backgroundColor: "rgba(255,247,237,0.9)", // orange-50 slightly transparent
+          }} 
+        />
+        <motion.div 
+          className="max-w-5xl mx-auto text-center relative"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
+            <div className="inline-flex items-center gap-2 glass-orange rounded-full px-5 py-2 mb-5">
               <span
-                className="text-xs font-black tracking-widest uppercase"
-                style={{ color: "#be185d" }}
+                className="text-xs font-normal tracking-widest uppercase text-[#f08a5d]"
               >
                 Platforms
               </span>
             </div>
 
             <h2
-              className="font-display font-black leading-tight mb-4"
+              className="poppins-heading leading-tight mb-4"
               style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}
             >
-              <span className="text-rose-950">One Tool. </span>
-              <span className="gradient-text">Every Platform.</span>
+              <span className="text-slate-800">One Tool. </span>
+              <span className="text-[#f08a5d]">Every Platform.</span>
             </h2>
 
-            <p className="text-rose-800/60 text-lg font-light max-w-lg mx-auto mb-14">
-              HashCraft AI understands the language, format & algorithm of every major
+            <p className="text-slate-800 text-base font-light max-w-lg mx-auto mb-14">
+              Graphura AI understands the language, format & algorithm of every major
               platform.
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+            {/* FIX: Changed grid to 1 col on mobile, 2 cols on tablet, 2 cols on desktop to create a perfect 2x2 square for 4 items */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {PLATFORMS.map((p, i) => (
                 <div
                   key={p.name}
-
                   className={`relative rounded-3xl p-[1px] transition-all duration-500 cursor-pointer group
                    ${activePlatform === p.name
-                      ? "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 scale-105"
-                      : "bg-gradient-to-r from-pink-200/40 to-purple-200/40 hover:from-pink-400 hover:to-purple-400 hover:scale-105"
+                      ? "bg-[#f08a5d] scale-105"
+                      : "bg-orange-200/40 hover:bg-[#f08a5d] hover:scale-105"
                     }`}
                 >
                   {/* Card */}
-                  <div className="relative rounded-3xl bg-white/80 backdrop-blur-xl p-7 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
-
-                    {/* Animated shine */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500">
-                      <div className="absolute -left-40 top-0 h-full w-40 bg-gradient-to-r from-transparent via-white/40 to-transparent rotate-12 translate-x-0 group-hover:translate-x-[500px] transition-transform duration-1000" />
-                    </div>
-
-                    <div className="relative z-10">
+                  <div className="relative rounded-3xl bg-white/80 backdrop-blur-xl p-7 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 h-full">
+                    <div className="relative z-10 flex flex-col items-center justify-center text-center">
 
                       {/* Icon */}
-                      <div className="text-4xl text-rose-600 mb-4 group-hover:scale-1.15 group-hover:-rotate-6 transition-all duration-300">
+                      <div className="text-4xl text-[#f08a5d] mb-4 group-hover:scale-1.15 group-hover:-rotate-6 transition-all duration-300">
                         {p.icon}
                       </div>
 
                       {/* Name */}
-                      <h3 className="font-black text-rose-900 text-base mb-1 tracking-wide">
+                      <h3 className="poppins-heading text-[#f08a5d] text-base mb-1 tracking-wide">
                         {p.name}
                       </h3>
 
                       {/* Detail */}
-                      <p className="text-xs text-rose-400 font-semibold">
+                      <p className="text-xs text-[#d97346] font-semibold">
                         {p.detail}
                       </p>
-
 
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div></>
-      </section >
+          </motion.div>
+      </section>
 
       {/* TESTIMONIALS */}
-      < section className="relative py-14 px-4 z-10" style={{ background: "linear-gradient(135deg, #be185d, #9d174d)" }
-      }>
+      <section className="relative py-14 px-4 z-10" style={{ backgroundColor: "#f08a5d" }}>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
-        <div className="max-w-6xl mx-auto relative">
+        <motion.div 
+          className="max-w-6xl mx-auto relative"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-5 py-2 mb-5">
-              <span className="text-xs font-black tracking-widest uppercase text-white">Testimonials</span>
+              <span className="text-xs font-normal tracking-widest uppercase text-white">Testimonials</span>
             </div>
-            <h2 className="font-display font-black text-white leading-tight" style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}>
+            <h2 className="poppins-heading text-white leading-tight" style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}>
               Loved by <span className="text-yellow-300">10,000+</span> Marketers
             </h2>
           </div>
@@ -1090,56 +1037,62 @@ export default function Home() {
                 </div>
                 <p className="text-white/85 text-sm leading-relaxed mb-6 font-medium">"{t.text}"</p>
                 <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-black text-white shadow-lg`} style={{ background: `linear-gradient(135deg, ${i === 0 ? "#f43f8e,#ec4899" : i === 1 ? "#a855f7,#7c3aed" : "#ec4899,#f43f8e"})` }}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-normal text-white shadow-lg`} style={{ backgroundColor: "#d97346" }}>
                     {t.avatar}
                   </div>
                   <div>
-                    <div className="text-white font-black text-sm">{t.name}</div>
-                    <div className="text-pink-200 text-xs font-semibold">{t.role}</div>
+                    <div className="text-white font-normal text-sm">{t.name}</div>
+                    <div className="text-orange-200 text-xs font-semibold">{t.role}</div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section >
+        </motion.div>
+      </section>
 
       {/* CTA BANNER*/}
       <section className="relative py-14 px-4 z-10 overflow-hidden">
         {/* Subtle background pattern with floating hashtags */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
-          <div className="absolute top-10 left-1/4 text-8xl font-black text-indigo-600 rotate-12">#</div>
-          <div className="absolute bottom-20 right-1/3 text-9xl font-black text-pink-500 -rotate-12">#</div>
-          <div className="absolute top-40 right-1/4 text-7xl font-black text-purple-400 rotate-45">#</div>
-          <div className="absolute bottom-10 left-1/3 text-8xl font-black text-indigo-300 -rotate-6">#</div>
-          <div className="absolute top-1/2 left-10 text-8xl font-black text-pink-300 rotate-90">#</div>
+          <div className="absolute top-10 left-1/4 text-8xl font-black text-orange-600 rotate-12">#</div>
+          <div className="absolute bottom-20 right-1/3 text-9xl font-black text-amber-500 -rotate-12">#</div>
+          <div className="absolute top-40 right-1/4 text-7xl font-black text-yellow-400 rotate-45">#</div>
+          <div className="absolute bottom-10 left-1/3 text-8xl font-black text-orange-300 -rotate-6">#</div>
+          <div className="absolute top-1/2 left-10 text-8xl font-black text-amber-300 rotate-90">#</div>
         </div>
 
-        {/* Soft gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/10 via-white/70 to-pink-50/10" />
+        {/* Soft solid overlay instead of gradient */}
+        <div className="absolute inset-0 bg-white/70" />
 
-        <div className="relative max-w-4xl mx-auto text-center">
+        <motion.div 
+          className="relative max-w-4xl mx-auto text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.5 }}
+        >
 
-          {/* Headline with gradient accent */}
-          <h2 className="font-black text-slate-800 leading-tight mb-4 text-4xl md:text-5xl lg:text-6xl">
+          {/* Headline */}
+          <h2 className="poppins-heading text-slate-800 leading-tight mb-4 text-4xl md:text-5xl lg:text-6xl">
             Start Creating Viral Content
             <br />
-            Today – <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-600">It's Free</span>
+            Today – <span className="text-[#f08a5d]">It's Free</span>
           </h2>
 
           {/* Description */}
-          <p className="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-light">
-            Join <span className="font-bold text-indigo-600">10,000+ marketers</span> saving 80% of their content creation time with HashCraft AI.
+          <p className="text-slate-600 text-sm md:text-base max-w-2xl mx-auto mb-10 font-light">
+            Join <span className="font-normal text-[#f08a5d]">10,000+ marketers</span> saving 80% of their content creation time with Graphura AI.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-            <button className="relative overflow-hidden flex items-center justify-center gap-2 text-white font-black px-8 py-4 rounded-full shadow-2xl shadow-indigo-500/30 hover:-translate-y-1 hover:shadow-indigo-500/40 transition-all duration-300 shimmer-btn text-base" style={{ background: "linear-gradient(135deg, #f43f8e, #ec4899, #a855f7)", backgroundSize: "200% auto" }}>
+            <button className="relative overflow-hidden flex items-center gap-2 text-white font-normal px-6 py-3 rounded-full shadow-2xl shadow-[#f08a5d]/30 transition-all duration-300 shimmer-btn text-base bg-[#f08a5d] hover:bg-[#d97346] hover:-translate-y-1 hover:shadow-[#f08a5d]/40">
               Generate Free
             </button>
 
           </div>
-        </div>
+        </motion.div>
       </section>
 
       <Footer />

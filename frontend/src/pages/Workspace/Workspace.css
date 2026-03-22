@@ -1,175 +1,26 @@
-.workspace-card {
-  position: relative;
-  width: 320px;
-  max-width: 100%;
-  min-height: 254px;
-  background: rgba(255, 255, 255, 0.9);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 24px;
-  gap: 16px;
-  border-radius: 2.5em;
-  cursor: pointer;
-  color: #0f172a;
-  isolation: isolate;
-  margin: 0 auto;
-  transition: transform 0.4s ease, background 0.4s ease, color 0.4s ease;
-  border: 1px solid rgba(224, 231, 255, 0.9);
-  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.12);
-  overflow: hidden;
-}
-
-.workspace-card-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 5em;
-  height: 100%;
-  transition: transform 0.4s ease, background 0.4s ease, color 0.4s ease;
-}
-
-.workspace-card-top,
-.workspace-card-bottom {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.workspace-card-title {
-  font-weight: 700;
-  font-size: 1.05rem;
-}
-
-.workspace-card-name {
-  margin: 0;
-  font-weight: 600;
-  text-align: right;
-}
-
-.workspace-card-date {
-  margin: 0;
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-
-.workspace-card-bottom {
-  align-items: flex-end;
-}
-
-.workspace-card-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.workspace-card-action {
-  background: transparent;
-  border: none;
-  padding: 0;
-  font-weight: 700;
-  font-size: 0.8rem;
-  color: #1f2937;
-  cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.workspace-card-action:hover {
-  color: #111827;
-  transform: translateY(-1px);
-}
-
-.workspace-card-action-danger {
-  color: #e11d48;
-}
-
-.workspace-card-action-danger:hover {
-  color: #be123c;
-}
-
-.workspace-card-image {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-}
-
-.workspace-card-image svg {
-  width: 4em;
-  height: 4em;
-  transition: transform 0.4s ease;
-  opacity: 0.18;
-  color: #a855f7;
-}
-
-.workspace-card:hover {
-  transform: scale(0.97);
-  background: linear-gradient(135deg, #f43f8e, #ec4899, #a855f7);
-  color: #ffffff;
-}
-
-.workspace-card:hover .workspace-card-content {
-  transform: scale(0.96);
-}
-
-.workspace-card:hover .workspace-card-date,
-.workspace-card:hover .workspace-card-action,
-.workspace-card:hover .workspace-card-action-danger {
-  color: #ffffff;
-}
-
-.workspace-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transform: translateX(-120%);
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-}
-
-.workspace-card:hover::after {
-  opacity: 1;
-  animation: workspace-shine 1s ease;
-}
-
-@keyframes workspace-shine {
-  0% {
-    transform: translateX(-120%);
-  }
-  100% {
-    transform: translateX(120%);
-  }
-}
-.workspace-card:hover .workspace-card-image svg {
-  transform: scale(1.05);
-}
-
-.workspace-card:active {
-  transform: scale(0.9);
-}
+/* Most of the styling has been migrated to Tailwind CSS in Workspace.jsx 
+  to match the Home page theme. 
+  
+  This file now only handles the complex shimmer animation for the buttons! 
+*/
 
 .shimmer-btn {
   position: relative;
+  overflow: hidden;
 }
 
 .shimmer-btn::after {
   content: "";
   position: absolute;
   top: 0;
-  left: 0;
-  width: 100%;
+  left: -100%;
+  width: 50%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-  animation: shimmer-move 2s infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer-move 2.5s infinite ease-in-out;
 }
 
 @keyframes shimmer-move {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
 }

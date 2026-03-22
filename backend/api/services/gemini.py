@@ -4,6 +4,9 @@ from typing import List, Tuple, Optional
 
 from django.conf import settings
 from google import genai
+from django.db.models import F
+from api.models import SystemConfig
+from api.services.email_service import send_admin_alert_email
 
 
 MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
@@ -49,13 +52,25 @@ def generate_caption_and_hashtags(
     language: Optional[str] = None,
     hashtag_count: Optional[int] = None,
 ) -> Tuple[str, List[str]]:
-    api_key = (
-        getattr(settings, "GEMINI_API_KEY", None)
-        or os.environ.get("GEMINI_API_KEY")
-        or os.environ.get("GOOGLE_API_KEY")
-    )
-    if not api_key:
-        raise ValueError("GEMINI_API_KEY (or GOOGLE_API_KEY) is not set")
+    config = SystemConfig.get_solo()
+    
+    if not config.gemini_api_key:
+        raise Exception("API Key is missing. Admin must configure it.")
+
+    # Check limits BEFORE generating
+    if config.is_exhausted or (config.token_limit > 0 and config.tokens_used >= config.token_limit):
+        if not config.is_exhausted:
+            # Send emergency email to admin
+            send_admin_alert_email(
+                'URGENT: Gemini API Limit Reached',
+                f'Your application has reached its token limit ({config.token_limit} tokens). Please update the API key in the Admin Dashboard immediately to restore service.'
+            )
+            config.is_exhausted = True
+            config.save()
+            
+        raise Exception("System is currently at capacity. Please try again later.")
+
+    api_key = config.gemini_api_key
 
     language_hint = f" Write the caption in {language}." if language else ""
     hashtag_hint = (
@@ -72,10 +87,29 @@ def generate_caption_and_hashtags(
     )
 
     client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(
-        model=MODEL_NAME,
-        contents=prompt,
-    )
+    try:
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt,
+        )
+        
+        # After successful generation, fetch live exact usage metrics
+        try:
+            actual_tokens = response.usage_metadata.total_token_count
+        except (AttributeError, ValueError):
+            actual_tokens = len(prompt) // 4 + len(response.text or "") // 4 # Basic estimate fallback
+            
+        SystemConfig.objects.filter(pk=config.pk).update(tokens_used=F('tokens_used') + actual_tokens)
+            
+    except Exception as e:
+        if "429" in str(e) or "quota" in str(e).lower():
+            config.is_exhausted = True
+            config.save()
+            send_admin_alert_email(
+                'URGENT: Gemini API Quota Exceeded',
+                'Google has rejected the API request due to quota limits. Change the key immediately.'
+            )
+        raise Exception(f"Generation failed: {str(e)}")
 
     text = (response.text or "").strip()
     data = _extract_json(text)

@@ -1,6 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
+import base64
+from datetime import timedelta
+from django.utils.timezone import now
+from django.conf import settings
+from cryptography.fernet import Fernet
+
+def get_fernet():
+    secret = (getattr(settings, 'SECRET_KEY', 'default-dev-secret')).encode('utf-8')
+    key = base64.urlsafe_b64encode(secret[:32].ljust(32, b'0'))
+    return Fernet(key)
 
 
 class GuestUsage(models.Model):
@@ -55,18 +65,14 @@ class Campaign(models.Model):
 
 class CaptionHistory(models.Model):
     user = models.ForeignKey(
-        "auth.User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="caption_history",
+        "auth.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="caption_history"
     )
     guest_identifier_hash = models.CharField(max_length=64, null=True, blank=True)
-    platform = models.CharField(max_length=50)
+    
+    platforms = models.JSONField(default=list)
+    results = models.JSONField(default=dict)
     caption_type = models.CharField(max_length=100)
     topic = models.TextField()
-    caption = models.TextField()
-    hashtags = models.JSONField(default=list)
     is_pinned = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -74,5 +80,68 @@ class CaptionHistory(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"CaptionHistory({self.platform}, {self.created_at.isoformat()})"
+        platform_names = ", ".join(self.platforms) if isinstance(self.platforms, list) else "Unknown"
+        return f"CaptionHistory({platform_names}, {self.created_at.strftime('%Y-%m-%d')})"
 
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_otps')
+    otp = models.CharField(max_length=6)
+    failed_attempts = models.IntegerField(default=0)
+    is_locked = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_valid(self):
+        if self.is_locked:
+            return False
+        return now() < self.created_at + timedelta(minutes=10)
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.otp}"
+
+class EmailVerificationOTP(models.Model):
+    email = models.EmailField()
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    def is_valid(self):
+        return now() < self.created_at + timedelta(minutes=10)
+    
+    def __str__(self):
+        return f"{self.email} - {self.otp}"
+
+class SystemConfig(models.Model):
+    gemini_api_key_encrypted = models.TextField(blank=True, null=True)
+    token_limit = models.IntegerField(default=1000000) # e.g., 1M tokens
+    tokens_used = models.IntegerField(default=0)
+    is_exhausted = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "System Configuration"
+        verbose_name_plural = "System Configuration"
+
+    def save(self, *args, **kwargs):
+        # Force the ID to be 1 so we only ever have one configuration row
+        self.pk = 1 
+        super(SystemConfig, self).save(*args, **kwargs)
+
+    @classmethod
+    def get_solo(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @property
+    def gemini_api_key(self):
+        if not self.gemini_api_key_encrypted:
+            return None
+        try:
+            return get_fernet().decrypt(self.gemini_api_key_encrypted.encode('utf-8')).decode('utf-8')
+        except Exception:
+            return None
+
+    @gemini_api_key.setter
+    def gemini_api_key(self, value):
+        if value:
+            self.gemini_api_key_encrypted = get_fernet().encrypt(value.encode('utf-8')).decode('utf-8')
+        else:
+            self.gemini_api_key_encrypted = None
