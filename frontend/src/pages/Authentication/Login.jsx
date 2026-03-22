@@ -63,19 +63,19 @@ const Login = () => {
         setIsLoading(true);
         try {
             const response = await api.post('login/', {
-                username: formData.email, 
+                username: formData.email,
                 password: formData.password
             });
 
             localStorage.setItem('access', response.data.access);
             localStorage.setItem('refresh', response.data.refresh);
-            
+
             if (response.data.full_name) {
                 localStorage.setItem('full_name', response.data.full_name);
             }
 
             toast.success("Successfully logged in!");
-            navigate('/'); 
+            navigate('/');
         } catch (error) {
             console.error("Login Error: ", error.response?.data);
             toast.error(error.response?.data?.detail || error.response?.data?.error || "Invalid email or password. Please try again.");
@@ -85,12 +85,12 @@ const Login = () => {
     };
 
     // --- FORGOT PASSWORD HANDLERS ---
-    
+
     // STEP 1: Send OTP via Brevo
     const handleSendOtp = async (e) => {
         e.preventDefault();
         if (!forgotData.email) return toast.error("Please enter your email.");
-        
+
         setIsForgotLoading(true);
         try {
             await api.post('password-reset/request-otp/', { email: forgotData.email });
@@ -110,9 +110,9 @@ const Login = () => {
 
         setIsForgotLoading(true);
         try {
-            await api.post('password-reset/verify-otp/', { 
-                email: forgotData.email, 
-                otp: forgotData.otp 
+            await api.post('password-reset/verify-otp/', {
+                email: forgotData.email,
+                otp: forgotData.otp
             });
             toast.success("Code verified successfully!");
             setForgotStep(3);
@@ -131,10 +131,10 @@ const Login = () => {
 
         setIsForgotLoading(true);
         try {
-            await api.post('password-reset/confirm/', { 
-                email: forgotData.email, 
+            await api.post('password-reset/confirm/', {
+                email: forgotData.email,
                 otp: forgotData.otp,
-                new_password: forgotData.newPassword 
+                new_password: forgotData.newPassword
             });
             toast.success("Password reset successfully! You can now log in.");
             resetForgotModal();
@@ -146,8 +146,8 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center py-2 relative overflow-hidden bg-[#fff7ed] overflow-y-auto">
-            
+        <div className="min-h-screen flex flex-col items-center justify-start lg:justify-center md:justify-start
+        py-4 sm:py-6 md:py-8 md:px-2 relative overflow-y-auto bg-[#fff7ed]">
             {/* Floating hashtag symbols */}
             <div className="absolute inset-0 z-10 pointer-events-none hidden sm:block">
                 <FloatingHashSymbols count={100} opacity={0.15} />
@@ -163,10 +163,10 @@ const Login = () => {
             {/* Main container */}
             <div className="relative z-10 max-w-5xl w-full bg-white/80 backdrop-blur-xl rounded-3xl sm:rounded-[2rem] shadow-2xl shadow-orange-200/50 border border-orange-100 overflow-hidden animate-fade-up">
                 <div className="grid md:grid-cols-2 h-full">
-                    
+
                     {/* Left side - Branding & Welcome Back */}
-                    <div className="relative bg-gradient-to-br from-[#f08a5d] to-[#d97346] p-6 sm:p-8 md:p-10 text-white flex flex-col justify-between overflow-hidden">
-                        
+                    <div className="relative bg-gradient-to-br from-[#f08a5d] to-[#d97346] p-5 sm:p-8 md:p-10 text-white flex flex-col justify-between overflow-hidden">
+
                         {/* Decorative Background Elements */}
                         <div className="absolute inset-0 opacity-10 pointer-events-none hidden md:block">
                             <div className="absolute top-10 left-10 text-8xl font-black rotate-12">#</div>
@@ -222,19 +222,19 @@ const Login = () => {
 
                     {/* Right side - Login Form */}
                     <div className="p-6 sm:p-10 md:p-14 bg-white/50 backdrop-blur-sm flex flex-col justify-center">
-                        
-                        <div className="flex items-center mb-6 sm:mb-8">
+
+                        <div className="flex items-center mb-5 sm:mb-8">
                             <Link to="/" className="flex items-center gap-2 text-slate-500 hover:text-[#f08a5d] transition-colors group w-fit">
                                 <FaArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />
                                 <span className="text-xs sm:text-sm font-bold">Back to Home</span>
                             </Link>
                         </div>
 
-                        <h2 className="poppins-heading text-2xl sm:text-3xl md:text-4xl text-slate-800 mb-2">Log In</h2>
-                        <p className="text-sm sm:text-base text-slate-500 mb-8 sm:mb-10 font-medium">Access your HashCraft AI dashboard.</p>
+                        <h2 className="poppins-heading text-2xl sm:text-3xl md:text-4xl text-slate-800 mb-1.5">Log In</h2>
+                        <p className="text-sm sm:text-base text-slate-500 mb-6 sm:mb-10 font-medium">Access your HashCraft AI dashboard.</p>
 
                         <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-                            
+
                             {/* Email */}
                             <div>
                                 <label className="block text-[10px] sm:text-[11px] font-black text-[#f08a5d] mb-1.5 sm:mb-2 uppercase tracking-widest flex items-center gap-1.5">
@@ -292,12 +292,12 @@ const Login = () => {
                                             className="peer appearance-none w-4 h-4 sm:w-5 sm:h-5 border-2 border-orange-200 rounded bg-white checked:bg-[#f08a5d] checked:border-[#f08a5d] transition-all cursor-pointer"
                                         />
                                         <div className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity">
-                                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                                         </div>
                                     </div>
                                     <span className="text-xs sm:text-sm font-semibold text-slate-600 group-hover:text-slate-800 transition-colors">Remember me</span>
                                 </label>
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => setIsForgotModalOpen(true)}
                                     className="text-xs sm:text-sm font-bold text-[#f08a5d] hover:text-[#d97346] hover:underline transition-colors"
@@ -324,10 +324,10 @@ const Login = () => {
             {/* ========================================= */}
             {isForgotModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl border border-orange-100 overflow-hidden animate-fade-up">
-                        
+                    <div className="bg-white w-full max-w-md rounded-2xl sm:rounded-[2rem] shadow-2xl border border-orange-100 overflow-hidden animate-fade-up">
+
                         {/* Header */}
-                        <div className="px-6 py-5 border-b border-orange-100 flex justify-between items-center bg-orange-50/50">
+                        <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-orange-100 flex justify-between items-center bg-orange-50/50">
                             <h3 className="font-black text-slate-800 flex items-center gap-2">
                                 <FaLock className="text-[#f08a5d]" size={16} /> Reset Password
                             </h3>
@@ -336,11 +336,11 @@ const Login = () => {
                             </button>
                         </div>
 
-                        <div className="p-6 sm:p-8">
-                            
+                        <div className="p-5 sm:p-8">
+
                             {/* STEP 1: ENTER EMAIL */}
                             {forgotStep === 1 && (
-                                <form onSubmit={handleSendOtp} className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
+                                <form onSubmit={handleSendOtp} className="space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
                                     <p className="text-sm font-medium text-slate-600">Enter your registered email address and we will send you a verification code.</p>
                                     <div>
                                         <label className="block text-[10px] font-black text-[#f08a5d] mb-1.5 uppercase tracking-widest flex items-center gap-1.5">
@@ -365,7 +365,7 @@ const Login = () => {
 
                             {/* STEP 2: ENTER OTP */}
                             {forgotStep === 2 && (
-                                <form onSubmit={handleVerifyOtp} className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                                <form onSubmit={handleVerifyOtp} className="space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                                     <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl">
                                         <p className="text-xs font-bold text-orange-600 mb-1">Code sent to:</p>
                                         <p className="text-sm font-black text-slate-800 truncate">{forgotData.email}</p>
@@ -399,9 +399,9 @@ const Login = () => {
 
                             {/* STEP 3: NEW PASSWORD */}
                             {forgotStep === 3 && (
-                                <form onSubmit={handleResetPassword} className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                                <form onSubmit={handleResetPassword} className="space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                                     <p className="text-sm font-medium text-green-600 bg-green-50 border border-green-100 p-3 rounded-xl">✓ Code verified. Please create your new password.</p>
-                                    
+
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-[10px] font-black text-[#f08a5d] mb-1.5 uppercase tracking-widest flex items-center gap-1.5">
@@ -458,23 +458,23 @@ const Login = () => {
             )}
 
             <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-                * { font-family: 'Inter', sans-serif; }
-                .poppins-heading { font-family: 'Poppins', sans-serif; font-weight: 500; }
-                .poppins-heading-hero { font-family: 'Poppins', sans-serif; font-weight: 500; }
-                
-                @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-                .animate-fade-up { animation: fadeUp 0.6s ease-out forwards; }
-                .shimmer-btn::after {
-                    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-                    animation: shimmer-move 2.5s infinite;
-                }
-                @keyframes shimmer-move { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-                @keyframes floatY { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-20px)} }
-                .animate-float { animation: floatY 6s ease-in-out infinite; }
-            `}</style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+      * { font-family: 'Inter', sans-serif; }
+      .poppins-heading { font-family: 'Poppins', sans-serif; font-weight: 500; }
+      .poppins-heading-hero { font-family: 'Poppins', sans-serif; font-weight: 500; }
+      
+      @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fade-up { animation: fadeUp 0.6s ease-out forwards; }
+      .shimmer-btn::after {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+        animation: shimmer-move 2.5s infinite;
+      }
+      @keyframes shimmer-move { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+      @keyframes floatY { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-20px)} }
+      .animate-float { animation: floatY 6s ease-in-out infinite; }
+    `}</style>
         </div>
     );
 };

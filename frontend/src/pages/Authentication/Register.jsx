@@ -109,7 +109,8 @@ const Register = () => {
     };
     
     return (
-        <div className="min-h-screen flex items-center justify-center py-2 relative overflow-hidden bg-[#fff7ed] overflow-y-auto">
+        <div className="min-h-screen flex flex-col items-center justify-start lg:justify-center md:justify-start
+        py-4 sm:py-6 md:py-8 md:px-2 relative overflow-y-auto bg-[#fff7ed]">
             
             {/* Floating hashtag symbols */}
             <div className="absolute inset-0 z-10 pointer-events-none hidden sm:block">
