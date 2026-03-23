@@ -837,11 +837,11 @@ export default function Home() {
                                   {current.label}
                                 </span>
                               </div>
-                              <p className="text-xs text-slate-700 leading-relaxed font-normal mb-2">
-                                {val.text}
+                              <p className="text-xs text-slate-700 leading-relaxed font-normal mb-2 whitespace-pre-wrap">
+                                {current.text}
                               </p>
                               <div className="flex flex-wrap gap-1">
-                                {val.hashtags.map((h) => (
+                                {current.hashtags.map((h) => (
                                   <span
                                     key={h}
                                     className={`text-xs ${current.tag} px-2 py-0.5 rounded-full font-normal`}
