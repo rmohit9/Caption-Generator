@@ -41,7 +41,7 @@ export default function Footer() {
   return (
     <footer className="relative z-10 border-t border-orange-200/40">
       <BackgroundPaths title="Graphura AI">
-        <div className="max-w-6xl mx-auto text-left">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-left">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10 mb-12">
             
             {/* Left Column with Logo */}
