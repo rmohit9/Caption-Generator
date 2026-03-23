@@ -271,7 +271,7 @@ const Generator = () => {
                                     
                                     <div className="space-y-5">
                                         <div>
-                                            <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaShoppingBag className="w-4 h-4" /> Product / Brand Name</label>
+                                            <label className="block text-xs font-black text-[#f08a5d] mb-2 uppercase tracking-widest flex items-center gap-1.5"><FaShoppingBag className="w-4 h-4" /> Title</label>
                                             <input className="w-full rounded-2xl px-4 py-3 text-sm text-slate-800 font-semibold placeholder-slate-400 bg-white border-2 border-orange-200 focus:border-[#f08a5d] focus:ring-2 focus:ring-orange-200 transition" value={demoInput.product} onChange={(e) => setDemoInput({ ...demoInput, product: e.target.value })} placeholder="e.g. Organic Green Tea" />
                                         </div>
                                         <div>
