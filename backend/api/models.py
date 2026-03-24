@@ -8,7 +8,9 @@ from django.conf import settings
 from cryptography.fernet import Fernet
 
 def get_fernet():
-    secret = (getattr(settings, 'SECRET_KEY', 'default-dev-secret')).encode('utf-8')
+    # Use a dedicated FERNET_SECRET_KEY, fallback to SECRET_KEY if not set
+    secret_str = os.environ.get('FERNET_SECRET_KEY', getattr(settings, 'SECRET_KEY', 'default-dev-secret'))
+    secret = secret_str.encode('utf-8')
     key = base64.urlsafe_b64encode(secret[:32].ljust(32, b'0'))
     return Fernet(key)
 

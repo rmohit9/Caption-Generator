@@ -21,6 +21,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 
+# ==========================================
+# PRODUCTION HTTPS & SECURITY SETTINGS
+# ==========================================
+if not DEBUG:
+    # 1. Enforce HTTPS routing
+    SECURE_SSL_REDIRECT = True
+    
+    # 2. Secure Cookies (Prevents them from being sent over unencrypted HTTP)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    
+    # 3. HTTP Strict Transport Security (HSTS)
+    # Tells browsers to ONLY connect to your API via HTTPS for the next year
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    
+    # 4. Additional Security Headers
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    
+    # Trust the header that Render uses to indicate a secure connection
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -31,13 +55,22 @@ BREVO_SENDER_EMAIL = os.environ.get('BREVO_SENDER_EMAIL', 'hr@graphura.in')
 BREVO_SENDER_NAME = os.environ.get('BREVO_SENDER_NAME', 'Graphura AI')
 
 ADMIN_ACCESS_KEY = os.environ.get('ADMIN_ACCESS_KEY', '')
+FERNET_SECRET_KEY = os.environ.get('FERNET_SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",             # Local Vite frontend
+    "https://your-frontend.vercel.app",  # You will update this with your actual Vercel URL later
+]
 
 CORS_ALLOW_HEADERS = [
     "accept",
@@ -71,6 +104,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
     'django.contrib.sessions.middleware.SessionMiddleware',
     'api.middleware.GuestIdentityMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -147,6 +181,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 REST_FRAMEWORK = {
