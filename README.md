@@ -353,6 +353,3 @@ B.Tech in Artificial Intelligence
 
 Backend Development • Python • Django • React • Generative AI
 
-GitHub: https://github.com/your-username
-
-LinkedIn: https://linkedin.com/in/your-profile
