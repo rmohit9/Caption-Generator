@@ -1,7 +1,7 @@
 ````md
-# 🚀 Graphura AI - Caption & Hashtag Generator
+#  Caption & Hashtag Generator
 
-Graphura AI is a full-stack AI-powered web application that generates context-aware social media captions and hashtags optimized for multiple platforms including **Instagram, LinkedIn, Twitter/X, Facebook, YouTube, and TikTok** using **Google Gemini AI**.
+It is a full-stack AI-powered web application that generates context-aware social media captions and hashtags optimized for multiple platforms including **Instagram, LinkedIn, Twitter/X, Facebook, YouTube, and TikTok** using **Google Gemini AI**.
 
 The platform is designed for creators, marketers, and businesses to streamline content creation while providing secure authentication, workspace management, campaign organization, and enterprise-ready administration features.
 
