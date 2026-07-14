@@ -1,227 +1,236 @@
-````md
-#  Caption & Hashtag Generator
+# Caption & Hashtag Generator
 
-It is a full-stack AI-powered web application that generates context-aware social media captions and hashtags optimized for multiple platforms including **Instagram, LinkedIn, Twitter/X, Facebook, YouTube, and TikTok** using **Google Gemini AI**.
+## Overview
 
-The platform is designed for creators, marketers, and businesses to streamline content creation while providing secure authentication, workspace management, campaign organization, and enterprise-ready administration features.
+This is a full-stack web application that generates context-aware social media captions and hashtags optimized for multiple platforms using Google Gemini AI.
 
----
-
-## ✨ Features
-
-### 🤖 AI-Powered Multi-Platform Generation
-- Generate platform-specific captions and hashtags from a single prompt.
-- Supports Instagram, LinkedIn, Twitter/X, Facebook, YouTube, and TikTok.
-- Customizable tone, audience, and content style.
-- AI-powered hashtag optimization.
-
-### 👤 Guest Mode
-- One free generation for unauthenticated users.
-- Browser cookie + IP-based usage tracking.
-- Encourages registration after guest usage limit.
-
-### 🏢 Workspace & Campaign Management
-- Create multiple workspaces.
-- Organize campaigns inside each workspace.
-- Store brand information.
-- Save audience preferences.
-- Configure custom writing tones.
-
-### 🔐 Authentication & Security
-- JWT Authentication
-- Email OTP Verification
-- Password Reset via OTP
-- Token Blacklisting
-- Protected API Routes
-
-### 📜 History Management
-- Save generated captions.
-- View previous generations.
-- Reuse generated content.
-
-### ⚙️ Admin Dashboard
-- Configure Gemini API keys.
-- Change AI token limits.
-- Manage application settings.
-- Production-ready API key swapping.
+The application enables users to generate platform-specific content for Instagram, LinkedIn, Twitter/X, Facebook, YouTube, and TikTok from a single prompt. It also provides secure authentication, workspace management, campaign organization, persistent history, and an administrative dashboard for managing AI configuration.
 
 ---
 
-# 🛠 Tech Stack
+## Features
 
-## Backend
+### AI Content Generation
 
-| Technology | Purpose |
-|------------|----------|
-| Django 5.2.12 | Backend Framework |
-| Django REST Framework | REST APIs |
-| PostgreSQL | Database |
-| Simple JWT | Authentication |
-| Google Gemini AI | AI Content Generation |
-| Brevo | Email Service |
-| dj-database-url | Database Configuration |
+* Generate captions and hashtags for multiple social media platforms simultaneously.
+* Customize generated content using topic, audience, tone, and brand information.
+* Produce platform-specific outputs optimized for engagement.
+
+### Workspace Management
+
+* Create and manage multiple workspaces.
+* Organize campaigns within each workspace.
+* Store brand-specific information and writing preferences.
+
+### Authentication
+
+* JWT-based authentication.
+* Email OTP verification.
+* Password reset using OTP.
+* Secure protected API endpoints.
+* Token blacklisting.
+
+### Guest Access
+
+* One free AI generation for unauthenticated users.
+* Cookie and IP-based usage tracking.
+* Registration required after guest usage limit is reached.
+
+### History
+
+* Save generated captions.
+* Retrieve previous generations.
+* Reuse generated content.
+
+### Administration
+
+* Configure Gemini API keys.
+* Manage AI token limits.
+* Update production settings without code changes.
 
 ---
 
-## Frontend
+## Technology Stack
 
-| Technology | Purpose |
-|------------|----------|
-| React 19 | Frontend |
-| Vite | Build Tool |
-| Tailwind CSS v4 | Styling |
-| Framer Motion | Animations |
-| React Router DOM | Routing |
-| Axios | API Communication |
-| React Hot Toast | Notifications |
-| Context API | State Management |
+### Backend
+
+| Component                 | Technology                     |
+| ------------------------- | ------------------------------ |
+| Framework                 | Django 5.2.12                  |
+| REST API                  | Django REST Framework 3.16.1   |
+| Authentication            | Simple JWT                     |
+| Database                  | PostgreSQL                     |
+| AI Integration            | Google Gemini (`google-genai`) |
+| Email Service             | Brevo                          |
+| Environment Configuration | python-dotenv                  |
+
+### Frontend
+
+| Component        | Technology       |
+| ---------------- | ---------------- |
+| Framework        | React 19         |
+| Build Tool       | Vite             |
+| Styling          | Tailwind CSS v4  |
+| Routing          | React Router DOM |
+| State Management | Context API      |
+| HTTP Client      | Axios            |
+| Notifications    | React Hot Toast  |
+| Animations       | Framer Motion    |
 
 ---
 
-# 📂 Project Structure
+## Project Structure
 
 ```text
 Graphura-AI/
 │
 ├── backend/
 │   ├── api/
+│   │   ├── migrations/
+│   │   ├── services/
+│   │   ├── middleware.py
 │   │   ├── models.py
 │   │   ├── serializers.py
-│   │   ├── views.py
 │   │   ├── urls.py
-│   │   ├── middleware.py
-│   │   ├── permissions.py
-│   │   ├── services/
-│   │   │   ├── ai_router.py
-│   │   │   ├── brevo.py
-│   │   │   └── utils.py
-│   │   └── migrations/
+│   │   └── views.py
 │   │
 │   ├── core/
 │   ├── manage.py
 │   └── requirements.txt
 │
-└── frontend/
-    ├── src/
-    │   ├── assets/
-    │   ├── Context/
-    │   ├── components/
-    │   ├── pages/
-    │   ├── services/
-    │   ├── hooks/
-    │   ├── App.jsx
-    │   └── main.jsx
-    │
-    ├── package.json
-    └── vite.config.js
+├── frontend/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── Context/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   │
+│   ├── package.json
+│   └── vite.config.js
+│
+└── README.md
 ```
 
 ---
 
-# ⚙️ Environment Variables
+## System Architecture
 
-## Backend (`backend/.env`)
-
-```env
-SECRET_KEY=your_django_secure_secret_key
-DEBUG=True
-
-DATABASE_URL=postgres://username:password@localhost:5432/caption_db
-
-# Gemini AI
-GEMINI_API_KEY=your_google_gemini_api_key
-
-# Brevo Email
-BREVO_API_KEY=your_brevo_api_key
-BREVO_SENDER_EMAIL=hr@graphura.in
-BREVO_SENDER_NAME=Graphura AI
-
-# JWT
-ACCESS_TOKEN_LIFETIME=30
-REFRESH_TOKEN_LIFETIME=7
-
-# Admin
-ADMIN_ACCESS_KEY=your_super_secret_admin_key
+```text
+                +----------------------+
+                |      React (Vite)    |
+                +----------+-----------+
+                           |
+                           |
+                    REST API (Axios)
+                           |
+                           |
+                +----------v-----------+
+                | Django REST Backend  |
+                +----------+-----------+
+                           |
+         +-----------------+------------------+
+         |                 |                  |
+         |                 |                  |
+   Google Gemini      PostgreSQL         Brevo Email
+      AI API            Database         OTP Service
 ```
 
 ---
-
-## Frontend (`frontend/.env`)
-
-```env
-VITE_API_BASE_URL=http://127.0.0.1:8000/api
-```
-
----
-
-# 🔧 Installation
 
 ## Prerequisites
 
-- Python 3.10+
-- Node.js 18+
-- PostgreSQL
-- Git
+Before running the project, ensure the following software is installed:
+
+* Python 3.10 or later
+* Node.js 18 or later
+* PostgreSQL
+* Git
 
 ---
 
-## Clone Repository
+## Installation
+
+### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/graphura-ai.git
+git clone https://github.com/<username>/graphura-ai.git
 
 cd graphura-ai
 ```
 
 ---
 
-# Backend Setup
+## Backend Setup
 
-Navigate to backend
+Navigate to the backend directory.
 
 ```bash
 cd backend
 ```
 
-Create virtual environment
+Create a virtual environment.
 
 ```bash
 python -m venv venv
 ```
 
-Activate environment
+Activate the virtual environment.
 
-### Windows
+Windows
 
 ```bash
 venv\Scripts\activate
 ```
 
-### Linux/macOS
+Linux/macOS
 
 ```bash
 source venv/bin/activate
 ```
 
-Install dependencies
+Install dependencies.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Run migrations
+Create a `.env` file.
+
+```env
+SECRET_KEY=your_secret_key
+
+DEBUG=True
+
+DATABASE_URL=postgres://username:password@localhost:5432/caption_db
+
+GEMINI_API_KEY=your_gemini_api_key
+
+BREVO_API_KEY=your_brevo_api_key
+
+BREVO_SENDER_EMAIL=your_email
+
+BREVO_SENDER_NAME=Graphura AI
+
+ADMIN_ACCESS_KEY=your_admin_key
+```
+
+Apply database migrations.
 
 ```bash
 python manage.py migrate
 ```
 
-Start backend
+Run the backend server.
 
 ```bash
 python manage.py runserver
 ```
 
-Backend will run at
+Backend will be available at
 
 ```
 http://127.0.0.1:8000
@@ -229,27 +238,33 @@ http://127.0.0.1:8000
 
 ---
 
-# Frontend Setup
+## Frontend Setup
 
-Open another terminal
+Navigate to the frontend directory.
 
 ```bash
 cd frontend
 ```
 
-Install dependencies
+Install dependencies.
 
 ```bash
 npm install
 ```
 
-Run development server
+Create a `.env` file.
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
+```
+
+Start the development server.
 
 ```bash
 npm run dev
 ```
 
-Frontend will run at
+Frontend will be available at
 
 ```
 http://localhost:5173
@@ -257,63 +272,87 @@ http://localhost:5173
 
 ---
 
-# 📡 API Endpoints
+## API Endpoints
 
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| POST | `/api/register/` | Register User |
-| POST | `/api/verify-otp/` | Verify OTP |
-| POST | `/api/login/` | Login |
-| POST | `/api/logout/` | Logout |
-| POST | `/api/generate/` | Generate Captions |
-| GET | `/api/history/` | User History |
-| POST | `/api/workspace/` | Create Workspace |
-| GET | `/api/workspace/` | List Workspaces |
-| POST | `/api/campaign/` | Create Campaign |
-
----
-
-# 🚀 Deployment
-
-| Service | Platform |
-|----------|----------|
-| Frontend | Vercel |
-| Backend | Render |
-| Database | PostgreSQL |
-| Email | Brevo |
-| AI | Google Gemini AI |
+| Method | Endpoint           | Description                    |
+| ------ | ------------------ | ------------------------------ |
+| POST   | `/api/register/`   | Register a new user            |
+| POST   | `/api/verify-otp/` | Verify email OTP               |
+| POST   | `/api/login/`      | User login                     |
+| POST   | `/api/logout/`     | User logout                    |
+| POST   | `/api/generate/`   | Generate captions and hashtags |
+| GET    | `/api/history/`    | Retrieve generation history    |
+| GET    | `/api/workspaces/` | List workspaces                |
+| POST   | `/api/workspaces/` | Create workspace               |
+| GET    | `/api/campaigns/`  | List campaigns                 |
+| POST   | `/api/campaigns/`  | Create campaign                |
 
 ---
 
-# 🔮 Future Improvements
+## Configuration
 
-- Team collaboration
-- Analytics dashboard
-- AI content calendar
-- Scheduled posting
-- Multiple AI model support
-- Image caption generation
-- Brand voice learning
-- Export to PDF/CSV
-- Social media integrations
+### Backend Environment Variables
+
+| Variable           | Description                  |
+| ------------------ | ---------------------------- |
+| SECRET_KEY         | Django secret key            |
+| DEBUG              | Debug mode                   |
+| DATABASE_URL       | PostgreSQL connection string |
+| GEMINI_API_KEY     | Google Gemini API key        |
+| BREVO_API_KEY      | Brevo API key                |
+| BREVO_SENDER_EMAIL | Sender email                 |
+| BREVO_SENDER_NAME  | Sender name                  |
+| ADMIN_ACCESS_KEY   | Admin authentication key     |
+
+### Frontend Environment Variables
+
+| Variable          | Description     |
+| ----------------- | --------------- |
+| VITE_API_BASE_URL | Backend API URL |
 
 ---
 
-# 👨‍💻 Author
+## Deployment
+
+The application can be deployed using the following services.
+
+| Component     | Recommended Platform |
+| ------------- | -------------------- |
+| Frontend      | Vercel               |
+| Backend       | Render               |
+| Database      | PostgreSQL           |
+| Email Service | Brevo                |
+| AI Service    | Google Gemini        |
+
+---
+
+## Future Enhancements
+
+* Team collaboration
+* Scheduled content publishing
+* Analytics dashboard
+* Brand voice learning
+* Multiple AI model support
+* Content calendar
+* Export to PDF and CSV
+* Social media API integrations
+
+---
+
+## License
+
+This project is intended for educational and portfolio purposes.
+
+---
+
+## Author
 
 **Mohit Raut**
 
-B.Tech Artificial Intelligence
+B.Tech in Artificial Intelligence
 
-Backend Developer | Generative AI | Python | Django | React
+Backend Development • Python • Django • React • Generative AI
 
-GitHub: https://github.com/yourusername
+GitHub: https://github.com/your-username
 
-LinkedIn: https://linkedin.com/in/yourprofile
-
----
-
-## ⭐ Support
-
-If you found this project useful, consider giving it a **⭐ Star** on GitHub.
-````
+LinkedIn: https://linkedin.com/in/your-profile
